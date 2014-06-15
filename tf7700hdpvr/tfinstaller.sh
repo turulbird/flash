@@ -13,7 +13,7 @@ CDKDIR=$BASEDIR/cdk
 TFINSTALLERDIR=$CDKDIR/tfinstaller
 
 cd $CDKDIR
-make u-boot-utils.do_compile
+make uboot_tf7700
 make tfinstaller/u-boot.ftfd
 make tfpacker
 make -C tfinstaller
