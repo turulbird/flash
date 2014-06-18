@@ -34,7 +34,7 @@ $BASEDIR/flash/common/common.sh $BASEDIR/flash/common/
 
 echo "-----------------------------------------------------------------------"
 echo "Checking target..."
-$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPEXTDIR $TMPKERNELDIR $TMPFWDIR
+$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPSTORAGEDIR $TMPKERNELDIR
 echo "Root prepared"
 echo ""
 echo "You can customize your image now (i.e. move files you like from ROOT to STORAGE)."
