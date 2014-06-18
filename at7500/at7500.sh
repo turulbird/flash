@@ -40,16 +40,8 @@ echo "-----------------------------------------------------------------------"
 $BASEDIR/flash/common/common.sh $BASEDIR/flash/common/
 
 echo "-----------------------------------------------------------------------"
-echo "Checking targets..."
-echo "Found targets:"
-if [  -e $TUFSBOXDIR/release ]; then
-	echo "Preparing Enigma2..."
-	$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPEXTDIR $TMPKERNELDIR $TMPFWDIR
-fi
-if [  -e $TUFSBOXDIR/release_neutrino ]; then
-	echo "Preparing Neutrino..."
-	$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release_neutrino $TMPROOTDIR $TMPEXTDIR $TMPKERNELDIR $TMPFWDIR
-fi
+echo "Checking target..."
+$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPEXTDIR $TMPKERNELDIR $TMPFWDIR
 echo "Root prepared"
 echo "Checking if flashtool fup exists..."
 if [ ! -e $CURDIR/fup ]; then

@@ -18,6 +18,9 @@ mkdir $TMPROOTDIR/storage
 cp ../common/init_mini_fo $TMPROOTDIR/sbin/
 chmod 777 $TMPROOTDIR/sbin/init_mini_fo
 
+sed -i 's|/dev/sda.*||g' $TMPROOTDIR/etc/fstab
+#echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+
 # --- BOOT ---
 mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
 

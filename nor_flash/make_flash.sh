@@ -42,16 +42,8 @@ echo "-----------------------------------------------------------------------"
 $BASEDIR/flash/common/common.sh $BASEDIR/flash/common/
 
 echo "-----------------------------------------------------------------------"
-echo "Checking targets..."
-echo "Found targets:"
-if [  -e $TUFSBOXDIR/release ]; then
-	echo "Preparing Enigma2..."
-	$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPSTORAGEDIR $TMPKERNELDIR
-fi
-if [  -e $TUFSBOXDIR/release_neutrino ]; then
-	echo "Preparing Neutrino..."
-	$SCRIPTDIR/prepare_root_neutrino.sh $CURDIR $TUFSBOXDIR/release_neutrino $TMPROOTDIR $TMPSTORAGEDIR $TMPKERNELDIR
-fi
+echo "Checking target..."
+$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPSTORAGEDIR $TMPKERNELDIR
 echo "Root prepared"
 echo ""
 echo "You can customize your image now (i.e. move files you like from ROOT to STORAGE)."

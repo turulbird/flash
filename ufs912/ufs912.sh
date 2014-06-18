@@ -34,16 +34,8 @@ echo "Date: 05-05-2013"
 echo "-----------------------------------------------------------------------"
 echo "It's expected that an image was already build prior to this execution!"
 echo "-----------------------------------------------------------------------"
-echo "Checking targets..."
-echo "Found targets:"
-if [  -e $TUFSBOXDIR/release ]; then
-	echo "Preparing Enigma2..."
-	$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPKERNELDIR $TMPFWDIR
-fi
-if [  -e $TUFSBOXDIR/release_neutrino ]; then
-	echo "Preparing Neutrino..."
-	$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release_neutrino $TMPROOTDIR $TMPKERNELDIR $TMPFWDIR
-fi
+echo "Checking target..."
+$SCRIPTDIR/prepare_root.sh $CURDIR $TUFSBOXDIR/release $TMPROOTDIR $TMPKERNELDIR $TMPFWDIR
 echo "Root prepared"
 echo "Checking if flashtool mup exists..."
 if [ ! -e $CURDIR/mup ]; then

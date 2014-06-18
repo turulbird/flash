@@ -18,7 +18,7 @@ cp $TFINSTALLERDIR/Enigma_Installer.ini $CURDIR/out/
 cp $TFINSTALLERDIR/Enigma_Installer.tfd $CURDIR/out/
 cp $TFINSTALLERDIR/uImage $CURDIR/out/
 
-cd $TUFSBOXDIR/release_neutrino/
+cd $TUFSBOXDIR/release/
 tar -cvzf $CURDIR/out/rootfs.tar.gz *
 cd -
 
