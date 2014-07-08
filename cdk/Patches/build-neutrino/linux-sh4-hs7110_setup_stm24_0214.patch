@@ -311,7 +311,6 @@
  			STM_PLAT_RESOURCE_DMA_NAMED("rx_half_full", 14),
  			STM_PLAT_RESOURCE_DMA_NAMED("tx_half_empty", 18),
  		},
- 
 --- linux-sh4/drivers/stm/gpio.c	2012-03-31 15:26:55.000000000 +0200
 +++ linux-sh4/drivers/stm/gpio.c.patched	2012-07-08 17:17:27.000000000 +0200
 @@ -27,6 +27,10 @@

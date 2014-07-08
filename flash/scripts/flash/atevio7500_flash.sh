@@ -12,7 +12,7 @@
 # "-----------------------------------------------------------------------"
 #
 # If only the kernel is to be reflashed, the partitions 8, 7 and 1 are
-# also reflashed (requirement of loader 6.2X).
+# also reflashed (requirement of loader 6.XX).
 # Partition 1 is flashed as the squashfs dummy only, leaving
 # the enigma2 part of it untouched.
 #
@@ -39,8 +39,8 @@ PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
 
-OUTFILE=$OUTDIR/HS8200_L600_"$IMAGE"_flash_R$RESELLERID.ird
-OUTZIPFILE=$OUTDIR/"$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE=HS8200_L600_"$IMAGE"_flash_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $TMPDUMDIR ]; then
   rm -rf $TMPDUMDIR/*
@@ -112,7 +112,7 @@ fi
 #	 .size   = 0x03C00000,	//60M
 #	 .offset = 0x003E0000,  //4M - 128k force flash hole
 
-echo "-- Prepare kernel file --"
+echo -n " - Prepare kernel file..."
 # Note: padding the kernel to set start offset of type 8 (root) does not work;
 # boot loader always uses the actual kernel size (at offset 0x0c?) to find/check
 # the root.
@@ -120,6 +120,7 @@ echo "-- Prepare kernel file --"
 # 0x20000 bytes cannot be flashed, due to a bug in the loader.
 # This condition is tested for in this script later on.
 cp $TMPKERNELDIR/uImage $TMPDIR/uImage
+echo " done."
 
 echo -n " - Checking kernel size..."
 SIZEK=`stat $TMPDIR/uImage -t --format %s`
@@ -304,19 +305,19 @@ fi
 
 echo -n "- Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
 else
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
+  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
-$FUP -r $OUTDIR/$OUTFILE.ird $RESELLERID
+$FUP -r $OUTDIR/$OUTFILE $RESELLERID
 # Create MD5 file
-md5sum -b $OUTDIR/$OUTFILE.ird  | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+md5sum -b $OUTDIR/$OUTFILE  | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
 echo -n " - Creating .ZIP output file..."
 cd $OUTDIR
-zip -j $OUTZIPFILE.zip $OUTFILE.ird $OUTFILE.md5 > /dev/null
+zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
 echo " done."
 

@@ -32,8 +32,8 @@ echo "-----------------------------------------------------------------------"
 echo
 
 # Set up the variables
-OUTFILE=$OUTDIR/"$BOXTYPE"_L6X0_"$IMAGE"_flash_R$RESELLERID.ird
-OUTZIPFILE=$OUTDIR/"$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_L6X0_"$IMAGE"_flash_R$RESELLERID
+OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
 TMPDUMDIR=$TMPDIR/DUMMY
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
@@ -218,7 +218,7 @@ if [[ "$FAKESIZE" == "999" ]]; then
   echo -e "\033[01;31m"
   echo " This kernel cannot be flashed, due to its size being" > /dev/stderr
   echo " an exact multiple of 0x20000. This is a limitation of" > /dev/stderr
-  echo " bootloader 6.XX." > /dev/stderr
+  echo " bootloader 6.00." > /dev/stderr
   echo " Rebuild the kernel by changing the configuration." > /dev/stderr
   echo
   echo " Exiting..."
@@ -317,21 +317,19 @@ fi
 
 echo -n " - Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
-  #echo "FUP -c $OUTFILE -6 ./uImage -8 ./tmp/mtd_fakeroot.bin.signed -7 ./tmp/mtd_fakedev.bin.signed -1 ./tmp/mtd_root.1.signed -2"
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
 else
-  #echo "FUP -c $OUTFILE -6 ./uImage -8 ./tmp/mtd_fakeroot.bin.signed -7 ./tmp/mtd_fakedev.bin.signed -1 ./tmp/mtd_root.1.signed -2 ./tmp/mtd_config.bin -9 ./tmp/mtd_user.bin"
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
+  $FUP -c $$OUTDIR/OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
-$FUP -r $OUTFILE $RESELLERID
+$FUP -r $OUTDIR/$OUTFILE $RESELLERID
 # Create MD5 file
-md5sum -b $OUTFILE | awk -F' ' '{print $1}' > $OUTFILE.md5
+md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
 echo -n " - Creating .ZIP output file..."
-zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
-# md5sum -b $OUTZIPFILE | awk -F' ' '{print $1}' > $OUTZIPFILE.md5
+zip -j $OUTDIR/$OUTZIPFILE $OUTDIR/$OUTFILE $OUTDIR/$OUTFILE.md5 > /dev/null
+# md5sum -b $OUTDIR/$OUTZIPFILE | awk -F' ' '{print $1}' > $OUTZIPFILE.md5
 echo " done."
 
 if [ -e $OUTFILE ]; then
@@ -340,6 +338,7 @@ if [ -e $OUTFILE ]; then
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
   echo "  - HS7110 : 6.40, 6.46 or 6.47"
+#  echo "  - HS7420 : 6.30, 6.36 or 6.37"
   echo "  - HS7810A: 6.20, 6.26 or 6.27"
   echo " with unmodified bootargs."
   echo

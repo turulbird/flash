@@ -2,14 +2,14 @@
 clear
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+"
-echo "+  $0"
+echo "+  flash.sh"
 echo "+"
 echo "+ This script creates the file(s) you need to run the image built last"
 echo "+ in the receiver's flash memory or from a USB stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 07-06-2014"
+echo "+ Date   : 07-07-2014"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -39,8 +39,8 @@ export TMPROOTDIR=$TMPDIR/ROOT
 export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$CURDIR/out
 
-# Check if lastChoice exists
-if [ ! -e $CDKDIR/lastChoice ]; then
+# Check if lastChoice exists (TODO: not a watertight guarantee that the build was completed)
+if [ ! -e $CDKDIR/lastChoice ] || [ ! -d $TUFSBOXDIR/release ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
@@ -74,7 +74,7 @@ elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
 
-# Determine which image has been built
+# Determine which image has been built last
 cp $CDKDIR/lastChoice ./lastChoice
 sed -i 's/ --/\n&/g' ./lastChoice
 sed -i 's/ --//g' ./lastChoice
@@ -119,7 +119,7 @@ export OUTTYPE="flash"
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
-    hs7110|hs7810a)
+    fortis_hdbox|octagon1008|hs7110|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
@@ -189,7 +189,8 @@ echo
     echo " !!! ERROR: File size of video.elf is zero !!!"
   fi
   echo
-  echo " Make sure that you use correct .elf files in $CDKDIR/root/boot."
+  echo " Make sure that you use correct .elf files in the"
+  echo " directory $CDKDIR/root/boot."
   echo
   echo " Exiting..."
   echo "-----------------------------------------------------------------------"
@@ -243,24 +244,24 @@ echo "-- Create output file(s) ----------------------------------------------"
 echo
 echo " Build $IMAGE output file(s) for $BOXTYPE running in/on $OUTTYPE."
 echo
-# Set command file name
+# Set generic command file name
 CREATE_OUTPUT=$SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh
 
 # Handle common Fortis stuff
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7810a)
+  atevio7500|hs7110|hs7810a)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
         atevio7500)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
-        fortis_hdbox)
-          RESELLERID=20020000
-          FORTISBOX="Octagon SF1018P HD Alliance";;
-        octagon_1008)
-          RESELLERID=20020300
-          FORTISBOX="Octagon SF1008P HD Intelligence";;
+#        fortis_hdbox)
+#          RESELLERID=20020000
+#          FORTISBOX="Octagon SF1018P HD Alliance";;
+#        octagon_1008)
+#          RESELLERID=20020300
+#          FORTISBOX="Octagon SF1008P HD Intelligence";;
         hs7110)
           RESELLERID=250202A0
           FORTISBOX="Octagon SF918SE+ HD Difference";;
@@ -268,9 +269,11 @@ case $BOXTYPE in
           RESELLERID=250200A0
           FORTISBOX="Octagon SF1008SE+ HD Intelligence";;
       esac
-      echo " No reseller ID specified, using default $RESELLERID ($FORTISBOX)."
+      echo " No resellerID specified, using default $RESELLERID"
+      echo " (equals $FORTISBOX)."
       echo
-      echo " Note: other reseller ID may be specified as arg1 on the command line:"
+      echo " Note: other resellerID may be specified as arg1"
+      echo " on the command line:"
       echo " $0 [resellerID]"
       echo
       echo " Optional resellerID must either be 4 or 8 hex characters".
@@ -291,12 +294,10 @@ case $BOXTYPE in
         # because the flash space is rather limited on this receiver.
         # A third language can be specified here in ISO code (suggestion is your own language,
         # two lower case letters):
-        OWNLANG=nl
-        export OWNLANG
+        export OWNLANG=nl
         # and the country to go with it (ISO code, two uppercase letters, often the same letters
         # as the language):
-        OWNCOUNTRY=NL
-        export OWNLANG
+        export OWNCOUNTRY=NL
       fi
     else
       echo "No USB support for $BOXTYPE yet..."
@@ -320,8 +321,6 @@ case $BOXTYPE in
     ;;
   ufc960)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/ufc960_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR $TMPVARDIR;;
-#  ufs910)
-#    $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs910_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR $TMPVARDIR;;
   ufs912|ufs913)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs912_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR;;
   *)

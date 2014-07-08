@@ -1,0 +1,25 @@
+ACHTUNG:
+
+Atevio7500 (Fortis HS8200)
+Beim Atevio7500 ist darauf zu achten, dass die patch files (sowohl fuer enigma2 als neutrino)
+in den Unterverzeichnisse fuer unterschiedliche Loader-versionen sind!
+
+Kernel patchlevels 209 und 211 sind fuer loader 5.0X, patchlevels 214 und 215 fuerloader 6.00.
+
+HS7110 und HS7810A
+Die neutrino patches sind geaendert worden: sie benutzen das mtd-concat-Verfahren und sind
+fuer loader 6.XX.
+Die enigma2 patches sind unveraendert, benutzen kein mtd-concat und sind fuer loader 5.XX.
+
+Loader-versionen
+Loader-versionen 5.XX werden vom Hersteller nicht mehr unterstuetzt und daher als veraltet
+zu betrachten. Ausserdem bringt loader 6.XX mit seimen dynamischen Partition-Zuweisung viele
+Vorteile; die wichtigste ist die Moeglichkeit die MTD's so zu verwalten das ein riesen-MTD
+gemacht werden kann wo alles problemlos ohne Aufteilen drin passt. Die mtd5 ist beim Atvio7500
+60Mbyte gross, beim HS7110/7810A immer noch 28 Mbyte.
+Die 4 nicht benutzbaren Megabytes halten die bootloader, bootargs, kernel (3M), und die drei
+vom Fortis-loader benoetigte squashfs-dummies.
+
+In die patch-dateien sind nur die mtd-Tabellen unterschiedlich, da Fortis die Nuetzung des
+Flash-speichers geaendert hat. Deswegen tritt noch ein zweites Unterschied auf: die kernel
+Commandline aendert sich auch.
