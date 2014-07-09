@@ -15,7 +15,7 @@ common() {
 
   echo -n " Creating devices..."
   cd $TMPROOTDIR/dev/
-  $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null
+  $TMPROOTDIR/var/etc/init.d/makedev start 2> /dev/null
   cd - > /dev/null
   echo " done."
 
@@ -28,6 +28,14 @@ common() {
 case $BOXTYPE in
   atevio7500|hs7110|hs7810a)
     common;;
+  fortis_hdbox|octagon1008)
+    common;;
+    # To be able to flash with the original loader, the image has to be split:
+    # mtd3 (app_high, 5 Mbyte - 128kbyte): 
+    # mtd4 (root, 8 Mbyte - 128kbyte)    :
+    # mtd5 (dev, 3 Mbyte - 128kbyte)     : var
+    # mtd6 (config, 1 Mbyte)             : boot (bootscreen)
+    # mtd7 (user, 4 Mbyte)               : boot (without bootscreen))
   spark|spark7162)
     common;;
   ufc960)

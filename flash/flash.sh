@@ -18,8 +18,8 @@ if [ `id -u` != 0 ]; then
   echo
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
-  echo " You are not running this script as root."
-  echo " Try it again as root or with su/sudo command."
+  echo " You are not running this script with fakeroot."
+  echo " Try it again \"fakeroot ./flash.sh\"."
   echo
   echo " Exiting..."
   echo
@@ -168,7 +168,7 @@ if [ "$IMAGE" == "neutrino" ]; then
     NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp && git log | grep "^commit" | wc -l`
   fi
 fi
-export GITVERSION=BASE-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
+export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
 # Check .elf file sizes
 if [ $IMAGE == "enigma2" ]; then
@@ -315,7 +315,6 @@ case $BOXTYPE in
     $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
     unset RESELLERID;;
   spark|spark7162)
-    OUTDIR=$OUTDIR/enigma2
     $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
   tf7700)
     ;;

@@ -321,7 +321,7 @@ zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
 echo " done."
 
-if [ -e $OUTDIR/$OUTFILE.ird ]; then
+if [ -e $OUTDIR/$OUTFILE ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo

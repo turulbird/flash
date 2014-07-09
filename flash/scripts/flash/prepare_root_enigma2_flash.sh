@@ -15,7 +15,7 @@ common() {
 
   echo -n " Creating devices..."
   cd $TMPROOTDIR/dev/
-  $TMPROOTDIR/etc/init.d/makedev start > /dev/null
+  $TMPROOTDIR/etc/init.d/makedev start 2> /dev/null
   cd - > /dev/null
   echo " done."
 
