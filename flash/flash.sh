@@ -9,7 +9,7 @@ echo "+ in the receiver's flash memory or from a USB stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 07-07-2014"
+echo "+ Date   : 07-12-2014"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -36,10 +36,11 @@ export SCRIPTDIR=$CURDIR/scripts
 export TOOLSDIR=$CURDIR/flash_tools
 export TMPDIR=$CURDIR/tmp
 export TMPROOTDIR=$TMPDIR/ROOT
+export TMPVARDIR=$TMPDIR/VAR
 export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$CURDIR/out
 
-# Check if lastChoice exists (TODO: not a watertight guarantee that the build was completed)
+# Check if lastChoice exists (TODO/note: not a watertight guarantee that the build was completed)
 if [ ! -e $CDKDIR/lastChoice ] || [ ! -d $TUFSBOXDIR/release ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
@@ -60,6 +61,12 @@ if [ -e $TMPROOTDIR ]; then
   rm -rf $TMPROOTDIR/*
 elif [ ! -d $TMPROOTDIR ]; then
   mkdir -p $TMPROOTDIR
+fi
+
+if [ -e $TMPVARDIR ]; then
+  rm -rf $TMPVARDIR/*
+elif [ ! -d $TMPVARDIR ]; then
+  mkdir -p $TMPVARDIR
 fi
 
 if [ -e $TMPKERNELDIR ]; then
@@ -113,13 +120,13 @@ rm ./lastChoice
 ##    exit 2;;
 #esac
 
-# For the moment flash only
+# For the moment: flash only
 export OUTTYPE="flash"
 
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    fortis_hdbox|octagon1008|hs7110|hs7810a|ufc960|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
@@ -170,34 +177,6 @@ if [ "$IMAGE" == "neutrino" ]; then
 fi
 export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
-# Check .elf file sizes
-if [ $IMAGE == "enigma2" ]; then
-  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
-  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
-elif [ $IMAGE == "neutrino" ]; then
-  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
-  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
-fi
-if [ "$AUDIOELFSIZE" == "0" ] || [ "$VIDEOELFSIZE" == "0" ]; then
-echo -e "\033[01;31m"
-echo "-- ERROR! -------------------------------------------------------------"
-echo
-  if [ "$AUDIOELFSIZE" == "0" ]; then
-    echo " !!! ERROR: File size of audio.elf is zero !!!"
-  fi
-  if [ "$VIDEOELFSIZE" == "0" ]; then
-    echo " !!! ERROR: File size of video.elf is zero !!!"
-  fi
-  echo
-  echo " Make sure that you use correct .elf files in the"
-  echo " directory $CDKDIR/root/boot."
-  echo
-  echo " Exiting..."
-  echo "-----------------------------------------------------------------------"
-  echo -e "\033[00m"
-  exit 2
-fi
-
 # All is OK so far, display summary
 clear
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -225,6 +204,41 @@ echo
 echo " Root preparation completed."
 echo
 
+# Check .elf file sizes
+#VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
+if [ $IMAGE == "enigma2" ]; then
+  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
+VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
+elif [ $IMAGE == "neutrino" ]; then
+  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
+  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
+fi
+if [ "$AUDIOELFSIZE" == "" ] || [ "$VIDEOELFSIZE" == "" ] || [ "$AUDIOELFSIZE" == "0" ] || [ "$VIDEOELFSIZE" == "0" ]; then
+echo -e "\033[01;31m"
+echo "-- ERROR! -------------------------------------------------------------"
+echo
+  if [ "$AUDIOELFSIZE" == "" ]; then
+    echo " !!! ERROR: File audio.elf is missing !!!"
+  fi
+  if [ "$AUDIOELFSIZE" == "0" ]; then
+    echo " !!! ERROR: File size of audio.elf is zero !!!"
+  fi
+  if [ "$VIDEOELFSIZE" == "" ]; then
+    echo " !!! ERROR: File video.elf is missing !!!"
+  fi
+  if [ "$VIDEOELFSIZE" == "0" ]; then
+    echo " !!! ERROR: File size of video.elf is zero !!!"
+  fi
+  echo
+  echo " Make sure that you use correct .elf files in the"
+  echo " directory $CDKDIR/root/boot."
+  echo
+  echo " Exiting..."
+  echo "-----------------------------------------------------------------------"
+  echo -e "\033[00m"
+  exit 2
+fi
+
 # Check if the devs have been made
 if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
   echo -e "\033[01;31m"
@@ -249,6 +263,7 @@ CREATE_OUTPUT=$SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh
 
 # Handle common Fortis stuff
 case $BOXTYPE in
+#  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a)
   atevio7500|hs7110|hs7810a)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
@@ -268,6 +283,12 @@ case $BOXTYPE in
         hs7810a)
           RESELLERID=250200A0
           FORTISBOX="Octagon SF1008SE+ HD Intelligence";;
+        hs7119)
+          RESELLERID=270200A0
+          FORTISBOX="Octagon SF918GSE+ HD Difference";;
+        hs7819)
+          RESELLERID=270220A0
+          FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
       esac
       echo " No resellerID specified, using default $RESELLERID"
       echo " (equals $FORTISBOX)."
@@ -277,7 +298,10 @@ case $BOXTYPE in
       echo " $0 [resellerID]"
       echo
       echo " Optional resellerID must either be 4 or 8 hex characters".
+    else
+      echo " Using resellerID $RESELLERID."
     fi
+    echo
     export RESELLERID
     if [ ! -e $TOOLSDIR/dummy.squash.signed.padded ]; then
       cd $TOOLSDIR
@@ -307,7 +331,10 @@ case $BOXTYPE in
     unset OWNLANG
     unset OWNCOUNTRY;;
   fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor_flash"_"$IMAGE"_"$OUTTYPE".sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR $TMPVARDIR;;
+    $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+#  fortis_hdbox|octagon1008)
+#    $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh;;
+#    unset RESELLERID;;
   hs7110|hs7810a)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
     unset RESELLERID;;
@@ -319,7 +346,7 @@ case $BOXTYPE in
   tf7700)
     ;;
   ufc960)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/ufc960_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR $TMPVARDIR;;
+    $SCRIPTDIR/$OUTTYPE/$IMAGE/ufc960_$IMAGE_$OUTTYPE.sh;;
   ufs912|ufs913)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs912_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR;;
   *)
@@ -353,6 +380,7 @@ unset TOOLSDIR
 unset TMPDIR
 unset TMPROOTDIR
 unset TMPKERNELDIR
+unset TMPVARDIR
 unset OUTDIR
 unset PATCH
 unset IMAGE
