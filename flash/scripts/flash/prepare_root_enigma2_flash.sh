@@ -10,22 +10,27 @@ RELEASEDIR=$1
 
 common() {
   echo -n " Copying release image..."
-  cp -a $RELEASEDIR/* $TMPROOTDIR
+  find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
   echo " done."
 
-  echo -n " Creating devices..."
-  cd $TMPROOTDIR/dev/
-  $TMPROOTDIR/etc/init.d/makedev start 2> /dev/null
-  cd - > /dev/null
-  echo " done."
+  if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
+    echo -n " Creating devices..."
+    cd $TMPROOTDIR/dev/
+    if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
+      $TMPROOTDIR/var/etc/init.d/makedev start 2>/dev/null
+    else
+      $TMPROOTDIR/etc/init.d/makedev start 2>/dev/null
+    fi
+    cd - > /dev/null
+    echo " done."
+  fi
 
   echo -n " Move kernel..."
   mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
   echo " done."
 }
 
-#echo "-----------------------------------------------------------------------"
-#echo
+# Prepare enigma2 root according to box type
 case $BOXTYPE in
   atevio7500)
     common
@@ -72,35 +77,54 @@ case $BOXTYPE in
     find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
     echo " done."
     ;;
-  hs7110|hs7119|hs7819)
+  hs7110|hs7119|hs7810a|hs7819)
 # for loader 6.X0/7.X0
     common;;
   spark|spark7162)
     common;;
-  ufc960|ufs910)
-    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
+  fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    common
 
-    echo -n " Creating devices..."
-    cd $TMPROOTDIR/dev/
-    $TMPROOTDIR/etc/init.d/makedev start
-    cd - > /dev/null
+    echo -n " Move var directory..."
+    mv $TMPROOTDIR/var/* $TMPVARDIR/
     echo " done."
 
+    echo -n " Create mini-rcS and inittab..."
+    rm -f $TMPROOTDIR/etc
+    mkdir -p $TMPROOTDIR/etc/init.d
+    echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rcS
+    echo "mount -n -t proc proc /proc" >> $TMPROOTDIR/etc/init.d/rcS
+    if [ "$HOST" == "cuberevo-mini2" -o "$HOST" == "cuberevo" -o "$HOST" == "cuberevo-2000hd" ]; then
+      echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock4 /var" >> $TMPROOTDIR/etc/init.d/rcS
+    else
+      echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock3 /var" >> $TMPROOTDIR/etc/init.d/rcS
+    fi
+    echo "mount --bind /var/etc /etc" >> $TMPROOTDIR/etc/init.d/rcS
+    echo "/etc/init.d/rcS &" >> $TMPROOTDIR/etc/init.d/rcS
+    chmod 755 $TMPROOTDIR/etc/init.d/rcS
+    cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
+    echo " done."
+    ;;
+  ufc960)
+    common
+
+    echo -n " Set up init_mini_fo..."
     mkdir $TMPROOTDIR/root_rw
     mkdir $TMPROOTDIR/storage
-    cp ../common/init_mini_fo $TMPROOTDIR/sbin/
+    cp $TOOLSDIR/init_mini_fo $TMPROOTDIR/sbin/
     chmod 777 $TMPROOTDIR/sbin/init_mini_fo
-
-    echo -n "Moving kernel..."
-    mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
-    echo " done."
-
     # --- STORAGE FOR MINI_FO ---
-    mkdir $TMPSTORAGEDIR/root_ro
+    mkdir $TMPVARDIR/root_ro
     echo " done."
 
-#TODO: We need to strip the ROOT further as there is no chance
-#      that this will fit into the flash memory at the moment !!!
+#    echo -n " Move var directory..."
+#    mv $TMPROOTDIR/var $TMPVARDIR/
+#    echo " done."
+
+    echo -n " Adapt var/etc/fstab..."
+    sed -i 's|/dev/sda.*||g' $TMPROOTDIR/var/etc/fstab
+    #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
+    echo " done."
     ;;
   ufs912|ufs913)
     common
@@ -132,6 +156,22 @@ case $BOXTYPE in
     fi
     echo " done."
     ;;
+  tf7700)
+    echo -n " Copying release image..."
+    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
+    echo " done."
+
+    if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
+      echo -n " Creating devices..."
+      cd $TMPROOTDIR/dev/
+      if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
+        $TMPROOTDIR/var/etc/init.d/makedev start 2>/dev/null
+      else
+        $TMPROOTDIR/etc/init.d/makedev start 2>/dev/null
+      fi
+      cd - > /dev/null
+      echo " done."
+    fi;;
   *)
     common;;
 esac

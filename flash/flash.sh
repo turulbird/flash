@@ -14,24 +14,12 @@ echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
 
-if [ `id -u` != 0 ]; then
-  echo
-  echo "-- PROBLEM! -----------------------------------------------------------"
-  echo
-  echo " You are not running this script with fakeroot."
-  echo " Try it again \"fakeroot ./flash.sh\"."
-  echo
-  echo " Exiting..."
-  echo
-  echo "-----------------------------------------------------------------------"
-  exit
-fi
-
 #Set up some variables
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
 export CDKDIR=$BASEDIR/cdk
+export TFINSTALLERDIR=$CDKDIR/tfinstaller
 export SCRIPTDIR=$CURDIR/scripts
 export TOOLSDIR=$CURDIR/flash_tools
 export TMPDIR=$CURDIR/tmp
@@ -45,6 +33,19 @@ if [ ! -e $CDKDIR/lastChoice ] || [ ! -d $TUFSBOXDIR/release ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
+  echo
+  echo "-----------------------------------------------------------------------"
+  exit
+fi
+
+if [ `id -u` != 0 ]; then
+  echo
+  echo "-- PROBLEM! -----------------------------------------------------------"
+  echo
+  echo " You are not running this script with fakeroot."
+  echo " Try it again with \"fakeroot ./flash.sh\"."
+  echo
+  echo " Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
   exit
@@ -126,7 +127,7 @@ export OUTTYPE="flash"
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7810a|ufc960|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    fortis_hdbox|octagon1008|hs7110|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
@@ -177,6 +178,18 @@ if [ "$IMAGE" == "neutrino" ]; then
 fi
 export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
+# Build tfinstaller if not done yet
+if [ $BOXTYPE == "tf7700" ]; then
+  if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ]; then
+    echo "-- Create Topfield installer-------------------------------------------"
+    echo
+    $SCRIPTDIR/tfinstaller.sh
+    echo
+    echo " Topfield installer built."
+    echo
+  fi
+fi
+
 # All is OK so far, display summary
 clear
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -199,13 +212,11 @@ echo
 echo " Prepare $IMAGE root for $BOXTYPE."
 echo
 $SCRIPTDIR/$OUTTYPE/prepare_root_"$IMAGE"_"$OUTTYPE".sh $TUFSBOXDIR/release
-
 echo
 echo " Root preparation completed."
 echo
 
 # Check .elf file sizes
-#VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
 if [ $IMAGE == "enigma2" ]; then
   AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
 VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
@@ -258,13 +269,11 @@ echo "-- Create output file(s) ----------------------------------------------"
 echo
 echo " Build $IMAGE output file(s) for $BOXTYPE running in/on $OUTTYPE."
 echo
-# Set generic command file name
-CREATE_OUTPUT=$SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh
 
 # Handle common Fortis stuff
 case $BOXTYPE in
-#  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a)
-  atevio7500|hs7110|hs7810a)
+#  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a|hs7119|hs7819)
+  atevio7500|hs7110|hs7810a|hs7119|hs7819)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -323,8 +332,8 @@ case $BOXTYPE in
         # as the language):
         export OWNCOUNTRY=NL
       fi
-    else
-      echo "No USB support for $BOXTYPE yet..."
+#    else
+#      echo "No USB support for $BOXTYPE yet..."
     fi
     $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
     unset RESELLERID
@@ -344,11 +353,11 @@ case $BOXTYPE in
   spark|spark7162)
     $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
   tf7700)
-    ;;
+    $SCRIPTDIR/$OUTTYPE/"tf7700"_"$OUTTYPE".sh;;
   ufc960)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/ufc960_$IMAGE_$OUTTYPE.sh;;
+    $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
   ufs912|ufs913)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs912_$OUTTYPE_$IMAGE.sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR;;
+    $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufs912"_"$OUTTYPE"_"$IMAGE".sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR;;
   *)
     echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
     echo
@@ -374,6 +383,7 @@ echo "-- Finished -----------------------------------------------------------"
 unset CURDIR
 unset BASEDIR
 unset TUFSBOXDIR
+unset TFINSTALLERDIR
 unset CDKDIR
 unset SCRIPTDIR
 unset TOOLSDIR
@@ -389,6 +399,6 @@ unset HOST
 unset GITVERSION
 
 if [ -e $CURDIR/dummy.squash.signed.padded ]; then
-  rm $CURDIR/dummy.squash.signed.padded
+  rm -f $CURDIR/dummy.squash.signed.padded
 fi
 
