@@ -97,5 +97,34 @@ case $BOXTYPE in
       cd - > /dev/null
       echo " done."
     fi;;
+  ufs912|ufs913)
+    common
+    cp $RELEASEDIR/.version $TMPROOTDIR
+    rm -fr $TMPROOTDIR/boot
+
+    echo -n " Move firmwares..."
+    mv $TMPROOTDIR/lib/firmware/* $TMPVARDIR
+    echo " done."
+
+    if [ -e $TMPROOTDIR/var/etc/fstab ]; then
+      echo -n " Adapt var/etc/fstab..."
+      if [ "$BOXTYPE" == "ufs912" ]; then
+         echo "/dev/mtdblock3	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
+         #echo "/dev/mtdblock5	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
+      else
+        echo "/dev/mtdblock8	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
+        #echo "/dev/mtdblock10	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
+      fi
+    else
+      if [ "$BOXTYPE" == "ufs912" ]; then
+        echo -n " Adapt etc/fstab..."
+        echo "/dev/mtdblock3	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+        #echo "/dev/mtdblock5	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+      else
+        echo "/dev/mtdblock8	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+        #echo "/dev/mtdblock10	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+      fi
+    fi
+    echo " done.";;
 esac
 

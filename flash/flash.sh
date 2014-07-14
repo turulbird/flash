@@ -347,9 +347,9 @@ case $BOXTYPE in
   hs7110|hs7810a)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
     unset RESELLERID;;
-  hs7119|hs7819)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
-    unset RESELLERID;;
+#  hs7119|hs7819)
+#    $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
+#    unset RESELLERID;;
   spark|spark7162)
     $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
   tf7700)
@@ -357,7 +357,7 @@ case $BOXTYPE in
   ufc960)
     $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
   ufs912|ufs913)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufs912"_"$OUTTYPE"_"$IMAGE".sh $CURDIR $TUFSBOXDIR $OUTDIR $TMPKERNELDIR $TMPROOTDIR;;
+    $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
   *)
     echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
     echo
@@ -398,7 +398,7 @@ unset OUTTYPE
 unset HOST
 unset GITVERSION
 
-if [ -e $CURDIR/dummy.squash.signed.padded ]; then
-  rm -f $CURDIR/dummy.squash.signed.padded
+if [ -e dummy.squash.signed.padded ]; then
+  rm -f dummy.squash.signed.padded
 fi
 

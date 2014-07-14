@@ -1,9 +1,12 @@
 #!/bin/bash
-# "This script creates flashable images for UFS910 MINI/MAXI UBOOT"
-# "Author: Schischu, Oxygen-1"
-# "Date: 04-02-2012"
 # "-----------------------------------------------------------------------"
-# "It is expected that an image was already built prior to this execution!"
+# "This script creates flashable images for Kathrein UFS910 receivers"
+# " equipped with MINI/MAXI UBOOT boot loader."
+# "Author: Audioniek, based on previous work by Schischu, Oxygen-1"
+# "Date: 04-02-2012", Last Change: 07-14-2014"
+#
+# "-----------------------------------------------------------------------"
+# "An image is assumed to have been built prior to calling this script!
 # "-----------------------------------------------------------------------"
 
 CURDIR=$1
@@ -20,97 +23,134 @@ TMPVARDIR=$6
 #echo "TMPROOTDIR   = $TMPROOTDIR"
 #echo "TMPVARDIR    = $TMPVARDIR"
 
+# Set up the variables
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
-MKSQUASHFS=$CURDIR/../common/mksquashfs4.0
+MKSQUASHFS4=$TOOLSDIR/mksquashfs4.0
 SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
-PAD=$CURDIR/../common/pad
+PAD=$TOOLSDIR/pad
+
+SIZE_KERNEL=0x00160000
+SIZE_ROOT=0x009e0000
+SIZE_VAR=0x00480000
 
 OUTFILE=$OUTDIR/miniFLASH.img
+OUTZIPFILE="$HOST"_"$IMAGE"_"P$PATCH"_"$GITVERSION"
 
-if [ ! -e $OUTDIR ]; then
-  mkdir $OUTDIR
+echo
+echo -n " - Prepare kernel file..."
+cp $TMPKERNELDIR/uImage $TMPDIR/uImage
+$PAD $SIZE_KERNEL $TMPDIR/uImage $TMPDIR/mtd_kernel.pad
+echo " done."
+
+echo -n " - Checking kernel size..."
+SIZE=`stat $TMPDIR/uImage -t --format %s`
+SIZED=`printf "%d" $SIZE`
+SIZEH=`printf "0x%08X" $SIZE`
+if [[ $SIZEH > "$SIZE_KERNEL" ]]; then
+  echo -e "\033[01;31m"
+  echo "-- ERROR! -------------------------------------------------------------"
+  echo
+  echo " KERNEL TOO BIG. $SIZED ($SIZEH, max. $SIZE_KERNEL) bytes." > /dev/stderr
+  echo
+  echo " Press ENTER to exit..."
+  echo "-----------------------------------------------------------------------"
+  echo -e "\033[00m"
+  read
+  exit
+else
+echo " OK: $SIZED ($SIZEH, max. $SIZE_KERNEL) bytes."
 fi
-
-if [ -e $OUTDIR/$OUTFILE ]; then
-  rm -f $OUTDIR/$OUTFILE
-fi
-
-# Determine name of ZIP output file
-if [ -f $TMPROOTDIR/etc/hostname ]; then
-	HOST=`cat $TMPROOTDIR/etc/hostname`
-elif [ -f $TMPROOTDIR/var/etc/hostname ]; then
-	HOST=`cat $TMPROOTDIR/var/etc/hostname`
-fi
-
-[ -d $CURDIR/../../cvs/apps/libstb-hal-exp ] && HAL_REV=_HAL-rev`cd $CURDIR/../../cvs/apps/libstb-hal-exp && git log | grep "^commit" | wc -l`-exp || HAL_REV=_HAL-rev`cd $CURDIR/../../cvs/apps/libstb-hal && git log | grep "^commit" | wc -l`
-[ -d $CURDIR/../../cvs/apps/neutrino-mp-exp ] && NMP_REV=_NMP-rev`cd $CURDIR/../../cvs/apps/neutrino-mp-exp && git log | grep "^commit" | wc -l`-exp || NMP_REV=_NMP-rev`cd $CURDIR/../../cvs/apps/neutrino-mp && git log | grep "^commit" | wc -l`
-gitversion="_BASE-rev`(cd $CURDIR/../../ && git log | grep "^commit" | wc -l)`$HAL_REV$NMP_REV"
-OUTZIPFILE=$HOST_$gitversion
-
-# --- KERNEL ---
-# Size 1,375MB !
-cp $TMPKERNELDIR/uImage $CURDIR/uImage
-$PAD 0x160000 $CURDIR/uImage $CURDIR/mtd_kernel.pad.bin
 
 # --- ROOT ---
-# Create a squashfs partition for root
-# Size 9,875MB ! 0x9e0000
-echo "MKSQUASHFS $TMPROOTDIR $CURDIR/mtd_root.bin -comp lzma -all-root"
-$MKSQUASHFS $TMPROOTDIR $CURDIR/mtd_root.bin -comp lzma -all-root > /dev/null
-echo "PAD 0x9e0000 $CURDIR/mtd_root.bin $CURDIR/mtd_root.pad.bin"
-$PAD 0x9e0000 $CURDIR/mtd_root.bin $CURDIR/mtd_root.pad.bin
+echo -n " - Create a squashfs 4.0 partition for root..."
+$MKSQUASHFS4 $TMPROOTDIR $TMPDIR/mtd_root.bin -comp lzma -all-root > /dev/null
+$PAD $SIZE_ROOT $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad
+echo " done."
+
+echo -n " - Checking root size..."
+SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
+SIZED=`printf "%d" $SIZE`
+SIZEH=`printf "0x%08X" $SIZE`
+if [[ $SIZEH > "$SIZE_ROOT" ]]; then
+  echo -e "\033[01;31m"
+  echo "-- ERROR! -------------------------------------------------------------"
+  echo
+  echo " ROOT TOO BIG: $SIZED ($SIZEH, max. $SIZE_ROOT) bytes." > /dev/stderr
+  echo
+  echo " Press ENTER to exit..."
+  echo "-----------------------------------------------------------------------"
+  echo -e "\033[00m"
+  read
+  exit
+else
+echo " OK: $SIZED ($SIZEH, max. $SIZE_ROOT) bytes."
+fi
 
 # --- VAR ---
-# Size 4,5
-echo "MKFSJFFS2 -qUfv -p0x480000 -e0x20000 -r $TMPVARDIR -o $CURDIR/mtd_var.bin"
-$MKFSJFFS2 -qUfv -p0x480000 -e0x20000 -r $TMPVARDIR -o $CURDIR/mtd_var.bin
-echo "SUMTOOL -v -p -e 0x20000 -i $CURDIR/mtd_var.bin -o $CURDIR/mtd_var.sum.bin"
-$SUMTOOL -v -p -e 0x20000 -i $CURDIR/mtd_var.bin -o $CURDIR/mtd_var.sum.bin
-echo "$PAD 0x480000 $CURDIR/mtd_var.sum.bin $CURDIR/mtd_var.sum.pad.bin"
-$PAD 0x480000 $CURDIR/mtd_var.sum.bin $CURDIR/mtd_var.sum.pad.bin
+echo -n " - Create a jffs2 partition for var..."
+$MKFSJFFS2 -qUf -p$SIZE_VAR -e0x20000 -r $TMPVARDIR -o $TMPDIR/mtd_var.bin 2> /dev/null
+$SUMTOOL -p -e 0x20000 -i $TMPDIR/mtd_var.bin -o $TMPDIR/mtd_var.sum
+$PAD $SIZE_VAR $TMPDIR/mtd_var.sum $CURDIR/mtd_var.pad
+echo " done."
+
+echo -n " - Checking var size..."
+SIZE=`stat $TMPDIR/mtd_var.sum -t --format %s`
+SIZED=`printf "%d" $SIZE`
+SIZEH=`printf "0x%08X" $SIZE`
+if [[ $SIZEH > "$SIZE_VAR" ]]; then
+  echo -e "\033[01;31m"
+  echo "-- ERROR! -------------------------------------------------------------"
+  echo
+  echo " VAR TOO BIG: $SIZED ($SIZEH, max. $SIZE_VAR) bytes." > /dev/stderr
+  echo
+  echo " Press ENTER to exit..."
+  echo "-----------------------------------------------------------------------"
+  echo -e "\033[00m"
+  read
+  exit
+else
+echo " OK: $SIZED ($SIZEH, max. $SIZE_VAR) bytes."
+fi
 
 # --- update.img ---
-#Merge all 3 together
-cat $CURDIR/mtd_kernel.pad.bin >> $OUTFILE
-cat $CURDIR/mtd_root.pad.bin >> $OUTFILE
-cat $CURDIR/mtd_var.sum.pad.bin >> $OUTFILE
+# Merge all parts together
+echo -n " - Create output file(s) and MD5..."
+cd $OUTDIR
+cat $TMPDIR/mtd_kernel.pad > $OUTFILE
+cat $TMPDIR/mtd_root.pad >> $OUTFILE
+cat $TMPDIR/mtd_var.sum >> $OUTFILE
+# Create MD5 file
+md5sum -b $OUTFILE | awk -F' ' '{print $1}' > $OUTFILE.md5
+cd - > /dev/null
+echo " done."
 
-rm -f $CURDIR/uImage
-rm -f $CURDIR/mtd_root.bin
-rm -f $CURDIR/mtd_var.bin
-rm -f $CURDIR/mtd_var.sum.bin
+echo -n " - Creating .ZIP output file..."
+cd $OUTDIR
+zip -j $OUTDIR/$OUTZIPFILE *
+cd - > /dev/null
+echo " done."
 
-SIZE=`stat mtd_kernel.pad.bin -t --format %s`
-SIZE=`printf "0x%x" $SIZE`
-if [[ $SIZE > "0x160000" ]]; then
-  echo "KERNEL TOO BIG. $SIZE instead of 0x160000" > /dev/stderr
+if [ -e $OUTDIR/$OUTFILE ]; then
+  echo -e "\033[01;32m"
+  echo "-- Instructions -------------------------------------------------------"
+  echo
+  echo " The receiver must be equipped with a TDTmaxiboot boot loader,"
+  echo " or a boot loader with compatible capabilities."
+  echo
+  echo " To flash the created image copy the file miniFLASH.img"
+  echo " to the root (/) of your FAT32 formatted USB stick."
+  echo " Insert the USB stick in the/a USB port on the receiver."
+  echo
+  echo " To start the flashing process press RECORD for 10 sec on your"
+  echo " control while the receiver is starting."
+  echo -e "\033[00m"
 fi
 
-SIZE=`stat mtd_root.pad.bin -t --format %s`
-SIZE=`printf "0x%x" $SIZE`
-if [[ $SIZE > "0x9e0000" ]]; then
-  echo "ROOT TOO BIG. $SIZE instead of 0x9e0000" > /dev/stderr
-fi
-
-SIZE=`stat mtd_var.sum.pad.bin -t --format %s`
-SIZE=`printf "0x%x" $SIZE`
-if [[ $SIZE > "0x480000" ]]; then
-  echo "VAR TOO BIG. $SIZE instead of 0x480000" > /dev/stderr
-fi
-
-rm -f $CURDIR/mtd_kernel.pad.bin
-rm -f $CURDIR/mtd_root.pad.bin
-rm -f $CURDIR/mtd_var.sum.pad.bin
-
-zip $OUTZIPFILE.zip $OUTFILE
-
-echo "-----------------------------------------------------------------------"
-echo " To flash the created image copy the file miniFLASH.img to the root (/)"
-echo " of your USB stick, then insert the USB stick in the receiver."
-echo
-echo " To start the flashing process press RECORD for 10 sec on your remote"
-echo " control while the receiver is starting"
-echo
-
-
-
+# Clean up
+rm -f $TMPDIR/uImage
+rm -f $TMPDIR/mtd_root.bin
+rm -f $TMPDIR/mtd_var.bin
+rm -f $TMPDIR/mtd_var.sum
+rm -f $TMPDIR/mtd_kernel.pad
+rm -f $TMPDIR/mtd_root.pad
+rm -f $TMPDIR/mtd_var.sum

@@ -76,7 +76,7 @@ echo -n " - Checking root size..."
 SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
 SIZED=`printf "%d" $SIZE`
 SIZEH=`printf "0x%08X" $SIZE`
-if [[ $SIZEH < "$SIZE_ROOT" ]]; then
+if [[ $SIZEH > "$SIZE_ROOT" ]]; then
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
