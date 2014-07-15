@@ -316,24 +316,23 @@ else
 fi
 
 echo -n " - Creating .IRD flash file and MD5..."
-cd $OUTDIR/
 if [ "$IMAGE" == "kernel" ]; then
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
 else
-  $FUP -c $OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
+  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
-$FUP -r $OUTFILE $RESELLERID
+$FUP -r $OUTDIR/$OUTFILE $RESELLERID
 # Create MD5 file
-md5sum -b $OUTFILE | awk -F' ' '{print $1}' > $OUTFILE.md5
+md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
 echo -n " - Creating .ZIP output file..."
-zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
+zip -j $OUTDIR/$OUTZIPFILE $OUTDIR/$OUTFILE $OUTDIR/$OUTFILE.md5 > /dev/null
 # md5sum -b $OUTZIPFILE | awk -F' ' '{print $1}' > $OUTZIPFILE.md5
 echo " done."
 
-if [ -e $OUTFILE ]; then
+if [ -e $OUTDIR/$OUTFILE ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo
@@ -353,7 +352,6 @@ if [ -e $OUTFILE ]; then
   echo " Flashing the image will then begin."
   echo -e "\033[00m"
 fi
-cd - > /dev/null
 
 # Clean up
 rm -f $TMPDIR/uImage
