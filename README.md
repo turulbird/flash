@@ -1,4 +1,4 @@
 flash
 =====
 
-Flash for the Audioniek's Development Toolchain
+Flash for Audioniek's Development Toolchain

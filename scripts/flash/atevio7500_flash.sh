@@ -227,12 +227,12 @@ else
   echo " done."
 fi
 
-echo -n " - Create dummy root squashfs 3.3 partition (Fake_ROOT)..."
 if [ ! -e $TOOLSDIR/seedfile ]; then
-  echo -n " Generating seedfile..."
+  echo -n " - Generating seedfile..."
   dd if=/dev/urandom count=3538943 bs=1 of=$TOOLSDIR/seedfile bs=1 skip=0 2> /dev/null
   echo " done."
 fi
+echo -n " - Create dummy root squashfs 3.3 partition (Fake_ROOT)..."
 dd if=$TOOLSDIR/seedfile of=$TMPDUMDIR/dummy bs=1 skip=0 count=$FAKESIZE 2> /dev/null
 $MKSQUASHFS $TMPDUMDIR $TMPDIR/mtd_fakeroot.bin -nopad -le > /dev/null
 # Sign partition
@@ -277,7 +277,7 @@ else
     echo -e "\033[00m"
     exit
   else
-    echo "   + ROOT size is OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes"
+    echo " OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes"
   fi
 
   echo " - Split root into flash parts"
@@ -303,7 +303,7 @@ else
   echo " done."
 fi
 
-echo -n "- Creating .IRD flash file and MD5..."
+echo -n " - Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
   $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
 else

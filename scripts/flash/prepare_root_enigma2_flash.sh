@@ -34,7 +34,7 @@ common() {
 case $BOXTYPE in
   atevio7500)
     common
-    echo -n " Strip Root..."
+    echo -n " Strip root..."
     # Language support: remove everything but English, German and own language
     mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
     mkdir $TMPROOTDIR/usr/local/share/enigma2/po
@@ -44,7 +44,7 @@ case $BOXTYPE in
     if [[ ! "$OWNLANG" == "" ]]; then
     cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$OWNLANG $TMPROOTDIR/usr/local/share/enigma2/po
     fi
-    sudo rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
+    rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
 
     mv $TMPROOTDIR/usr/local/share/enigma2/countries $TMPROOTDIR/usr/local/share/enigma2/countries.old
     mkdir $TMPROOTDIR/usr/local/share/enigma2/countries
@@ -54,7 +54,7 @@ case $BOXTYPE in
     if [[ ! "$OWNLANG" == "" ]]; then
       cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$OWNLANG.* $TMPROOTDIR/usr/local/share/enigma2/countries
     fi
-    sudo rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
+    rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
     # Update /usr/lib/enigma2/python/Components/Language.py
     # First remove all language lines from it
     sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
