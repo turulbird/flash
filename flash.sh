@@ -13,6 +13,12 @@ echo "+ Date   : 07-12-2014"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
+# ---------------------------------------------------------------------------
+# Changes:
+# 20140726 Audioniek   Setting own language on atevio7500 did not work; moved
+#                      upward.
+# 20140726 Audioniek   French added as third fixed language on atevio7500.
+# ---------------------------------------------------------------------------
 
 #Set up some variables
 export CURDIR=`pwd`
@@ -211,6 +217,16 @@ echo "-- Prepare root -------------------------------------------------------"
 echo
 echo " Prepare $IMAGE root for $BOXTYPE."
 echo
+if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == "enigma2" ]; then
+  # The root will be stripped of all language support except de (German), fr (French) and
+  # en (English) because the flash space is rather limited on this receiver.
+  # A fourth language can be specified here in ISO code (suggestion is your own language,
+  # two lower case letters):
+  export OWNLANG=nl
+  # and the country to go with it (ISO code, two uppercase letters, often the same letters
+  # as the language):
+ export OWNCOUNTRY=NL
+fi
 $SCRIPTDIR/$OUTTYPE/prepare_root_"$IMAGE"_"$OUTTYPE".sh $TUFSBOXDIR/release
 echo
 echo " Root preparation completed."

@@ -5,6 +5,12 @@
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
 # Date: 07-06-2014"
+# ----------------------------------------------------------------------
+# Changes:
+# 20140726: Audioniek   Removed: if gstreamer found, /usr/lib/libav* was
+#                       deleted.
+# 20140726: Audioniek   French added as third fixed language.
+# ----------------------------------------------------------------------
 
 RELEASEDIR=$1
 
@@ -35,42 +41,37 @@ case $BOXTYPE in
   atevio7500)
     common
     echo -n " Strip root..."
-    # Language support: remove everything but English, German and own language
+    # Language support: remove everything but English, French, German and own language
     mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
     mkdir $TMPROOTDIR/usr/local/share/enigma2/po
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/en $TMPROOTDIR/usr/local/share/enigma2/po
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/de $TMPROOTDIR/usr/local/share/enigma2/po
-    # Add own language if given
-    if [[ ! "$OWNLANG" == "" ]]; then
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$OWNLANG $TMPROOTDIR/usr/local/share/enigma2/po
-    fi
+    for i in en de fr $OWNLANG
+    do
+      cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$i $TMPROOTDIR/usr/local/share/enigma2/po
+    done
     rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
 
     mv $TMPROOTDIR/usr/local/share/enigma2/countries $TMPROOTDIR/usr/local/share/enigma2/countries.old
     mkdir $TMPROOTDIR/usr/local/share/enigma2/countries
     cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/missing.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/en.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/de.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    if [[ ! "$OWNLANG" == "" ]]; then
-      cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$OWNLANG.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    fi
+    for i in en de fr $OWNLANG
+    do
+      cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$i.* $TMPROOTDIR/usr/local/share/enigma2/countries
+    done
     rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
     # Update /usr/lib/enigma2/python/Components/Language.py
     # First remove all language lines from it
     sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
-    # Add en and ge
-    sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+    # Add en, fr and ge
+    sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
     # Add own language if given
     if [[ ! "$OWNLANG" == "" ]]; then
       sed -i 's/("English",     "en", "EN")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
     fi
+
     rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
     # Compile Language.py
     python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
 
-    if [ -d $TMPROOTDIR/usr/lib/gstreamer-0.10 ]; then
-      rm -f $TMPROOTDIR/usr/lib/libav*
-    fi
     #remove all .py-files
     find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
     find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;

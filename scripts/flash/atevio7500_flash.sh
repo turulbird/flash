@@ -1,4 +1,3 @@
-#!/bin/bash
 # "-----------------------------------------------------------------------"
 # "This script creates flashable images for Fortis HS8200 receivers"
 # "Author: Schischu/Audioniek"
