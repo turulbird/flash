@@ -7,6 +7,10 @@
 /*          GNU General Public License version 2.                         */
 /**************************************************************************/
 /*
+ * Changes in Version 1.8.2:
+ * + -tv added;
+ * + Cosmetic changes to output of -t and -tv.
+ *
  * Changes in Version 1.8.1:
  * + Fixed two compiler warnings.
  * + Squashfs dummy file now padded with 0xFF in stead of 0x00.
@@ -37,8 +41,8 @@
 #include "crc16.h"
 #include "dummy.h"
 
-#define VERSION "1.8.1"
-#define DATE "18.04.2014"
+#define VERSION "1.8.2"
+#define DATE "28.07.2014"
 
 //#define USE_ZLIB
 
@@ -152,7 +156,7 @@ uint32_t Flags;
 (0x09,    ".user.mtd6",    "User", 0x002200000, 0x01E00000, (PART_FLASH)),
 #                                  0x080000000, 0x40000000   RAM? 
 
-# 256MB flash (third generation, HS7119, HS7819..., loader 7.X6 or 7.X7) # to be checked
+# 256MB flash (third generation, HS7119, HS7819..., loader 7.X0, 7.X6 or 7.X7) # to be checked
 (0x00, ".loader.mtd0",   "Loader", 0x00000000, 0x00400000, (PART_FLASH)),
 (0x01, ".app.mtd2",         "App", 0x00800000, 0x06000000, (PART_FLASH | PART_SIGN)),
 (0x02, ".config0.mtd5", "Config0", 0x02100000, 0x00040000, (PART_FLASH)), # not writeable by IRD?
@@ -520,7 +524,7 @@ int32_t main(int32_t argc, char* argv[])
    }
 
    if ((argc == 3 && strlen(argv[1]) == 2 && strncmp(argv[1], "-s", 2) == 0)
-      || (argc == 3 && strlen(argv[1]) == 3 && strncmp(argv[1], "-sv", 3) == 0)) // sign squashfs part
+    || (argc == 3 && strlen(argv[1]) == 3 && strncmp(argv[1], "-sv", 3) == 0)) // sign squashfs part
    {
 
       if (strncmp(argv[1], "-sv", 3) == 0)
@@ -560,7 +564,7 @@ int32_t main(int32_t argc, char* argv[])
    
       if (verbose == 1)
       {
-         printf("Signature in footer: 0x%8x\n", crc);
+         printf("Signature in footer: 0x%08x\n", crc);
          printf("Output file name is: %s\n", signedFileName);
       }
       fwrite(&crc, 1, 4, signedFile);
@@ -568,8 +572,19 @@ int32_t main(int32_t argc, char* argv[])
       fclose(file);
       fclose(signedFile);
    }
-   else if (argc == 3 && strlen(argv[1]) == 2 && strncmp(argv[1], "-t", 2) == 0) // test signed squashfs part
+   else if ((argc == 3 && strlen(argv[1]) == 2 && strncmp(argv[1], "-t", 2) == 0)
+         || (argc == 3 && strlen(argv[1]) == 3 && strncmp(argv[1], "-tv", 3) == 0)) // test signed squashfs part
    {
+
+      if (strncmp(argv[1], "-tv", 3) == 0)
+      {
+          verbose = 1;
+      }
+      else
+      {
+         verbose = 0;
+      }
+
       uint32_t crc = 0;
       uint32_t orgcrc = 0;
       file = fopen(argv[2], "r");
@@ -592,14 +607,15 @@ int32_t main(int32_t argc, char* argv[])
    
       if (verbose == 1)
       {
-         printf("Signed footer: 0x%8x\n", crc);
-         printf("Original Signed footer: 0x%8x\n", orgcrc);
+         printf("Correct signature: 0x%08x\n", crc);
+         printf("Signature in file: 0x%08x\n", orgcrc);
       }
       else
       {
          if ( crc != orgcrc )
          {
-            printf("Signature is wrong, correct signature: 0x%8x, signature found: 0x%8x.\n", crc, orgcrc);
+            printf("Signature is wrong, correct: 0x%08x, found in file: 0x%08x.\n", crc, orgcrc);
+            return -1;
          }
       }
       fclose(file);
@@ -1197,6 +1213,7 @@ int32_t main(int32_t argc, char* argv[])
       printf("       -s [unsigned.squashfs]     Sign squashfs part\n");
       printf("       -sv [unsigned.squashfs]    Sign squashfs part, verbose\n");
       printf("       -t [signed.squashfs]       Test signed squashfs part\n");
+      printf("       -tv [signed.squashfs]      Test signed squashfs part, verbose\n");
       printf("       -r [update.ird] id         Change reseller id (e.g. 230300A0 for Atevio AV7500 L6.00)\n");
       printf("       -rv [update.ird] id        As -r, verbose\n");
       printf("       -n [update.ird] versionnr  Change SW version number\n");
