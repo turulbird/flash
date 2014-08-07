@@ -9,7 +9,7 @@ echo "+ in the receiver's flash memory or from a USB stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 07-12-2014"
+echo "+ Date   : 08-07-2014"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -111,24 +111,24 @@ cd $CURDIR
 export SUBVERS=`grep -e "linux-sh4-2.6.32." ./lastChoice | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
 rm ./lastChoice
 
-## Ask for output type (USB or flash)
-#echo "-- Output destination -------------------------------------------------"
-#echo
-#echo " Where would you like your $IMAGE image to run?"
-#echo "   1) on a USB stick"
-#echo "   2) in the receivers flash memory"
-#read -p " Select target (1-2)? "
-#case "$REPLY" in
-#  1) export OUTTYPE="USB";;
-#  *) export OUTTYPE="flash";;
-##  *) echo " Invalid Input! Exiting..."
-##    echo
-##    echo "-----------------------------------------------------------------------"
-##    exit 2;;
-#esac
+# Ask for output type (USB or flash)
+echo "-- Output destination -------------------------------------------------"
+echo
+echo " Where would you like your $IMAGE image to run?"
+echo "   1) on a USB stick"
+echo "   2) in the receivers flash memory (*)"
+read -p " Select target (1-2)? "
+case "$REPLY" in
+  1) export OUTTYPE="USB";;
+  *) export OUTTYPE="flash";;
+#  *) echo " Invalid Input! Exiting..."
+#    echo
+#    echo "-----------------------------------------------------------------------"
+#    exit 2;;
+esac
 
-# For the moment: flash only
-export OUTTYPE="flash"
+## For the moment: flash only
+#export OUTTYPE="flash"
 
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
@@ -335,9 +335,9 @@ case $BOXTYPE in
     fi
 esac
 
-case $BOXTYPE in
-  atevio7500)
-    if [ "$OUTTYPE" == "flash" ]; then
+if [ "$OUTTYPE" == "flash" ]; then
+  case $BOXTYPE in
+    atevio7500)
       if [ "$IMAGE" == "enigma2" ]; then
         # The root will be stripped of all language support except de (German) and en (English)
         # because the flash space is rather limited on this receiver.
@@ -348,39 +348,48 @@ case $BOXTYPE in
         # as the language):
         export OWNCOUNTRY=NL
       fi
-#    else
-#      echo "No USB support for $BOXTYPE yet..."
-    fi
-    $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
-    unset RESELLERID
-    unset OWNLANG
-    unset OWNCOUNTRY;;
-  fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
-#  fortis_hdbox|octagon1008)
-#    $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh;;
-#    unset RESELLERID;;
-  hs7110|hs7810a)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
-    unset RESELLERID;;
-#  hs7119|hs7819)
-#    $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
-#    unset RESELLERID;;
-  spark|spark7162)
-    $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
-  tf7700)
-    $SCRIPTDIR/$OUTTYPE/"tf7700"_"$OUTTYPE".sh;;
-  ufc960)
-    $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
-  ufs912|ufs913)
-    $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
-  *)
-    echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
-    echo
-    echo " Exiting..."
-    echo "-----------------------------------------------------------------------"
-    exit 2;;
-esac
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
+      unset RESELLERID
+      unset OWNLANG
+      unset OWNCOUNTRY;;
+    fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+#    fortis_hdbox|octagon1008)
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh;;
+#      unset RESELLERID;;
+    hs7110|hs7810a)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
+      unset RESELLERID;;
+#    hs7119|hs7819)
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
+#      unset RESELLERID;;
+    spark|spark7162)
+      $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
+    tf7700)
+      $SCRIPTDIR/$OUTTYPE/"tf7700"_"$OUTTYPE".sh;;
+    ufc960)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
+    ufs912|ufs913)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+    *)
+      echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
+      echo
+      echo " Exiting..."
+      echo "-----------------------------------------------------------------------"
+      exit 2;;
+  esac
+else #USB
+  case $BOXTYPE in
+    fortis_hdbox|octagon1008)
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
+    *)
+      echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
+      echo
+      echo " Exiting..."
+      echo "-----------------------------------------------------------------------"
+      exit 2;;
+  esac
+fi
 echo
 
 # Wrap up
