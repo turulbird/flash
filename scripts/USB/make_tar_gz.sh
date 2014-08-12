@@ -4,7 +4,7 @@
 # use with Eisha's TGZ-USB-INSTALLER plugin.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 08-07-2014"
+# Date: 08-12-2014"
 
 # -----------------------------------------------------------------------
 # It is assumed that an image was already built prior to executing this"
@@ -25,11 +25,10 @@ case $BOXTYPE in
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
-#    echo -n " Rename kernel file uImage to uImage1..."
-#    mv $TMPROOTDIR/boot/uImage $TMPROOTDIR/boot/uImage1
-#    echo " done."
     echo -n " Compressing release image..."
-    tar -pczf $OUTFILE.tar.gz $TMPROOTDIR > /dev/null 2> /dev/null
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz * > /dev/null 2> /dev/null
+    cd $CURDIR
     echo " done."
     echo -n " Move kernel..."
     mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
@@ -62,8 +61,8 @@ if [ -e $OUTDIR/$OUTFILE.tar.gz ]; then
   echo " and switch on the receiver using the mains switch."
   echo " With TDT maxiboot bootloader, select the partition and USB port to"
   echo " start from using the up and down buttons (RC or front panel)."
-  echo " To set the currently display boot option as default, press RED on"
-  echo " the remote control while it is displayed."
+  echo " To set the currently displayed boot option as default, press RED"
+  echo " on the remote control while it is displayed."
   echo -e "\033[00m"
 fi
 
