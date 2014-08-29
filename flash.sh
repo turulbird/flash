@@ -127,9 +127,6 @@ case "$REPLY" in
 #    exit 2;;
 esac
 
-## For the moment: flash only
-#export OUTTYPE="flash"
-
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
@@ -288,20 +285,20 @@ echo
 
 # Handle common Fortis stuff
 case $BOXTYPE in
-#  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a|hs7119|hs7819)
-  atevio7500|hs7110|hs7810a|hs7119|hs7819)
+  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a|hs7119|hs7819)
+#  atevio7500|hs7110|hs7810a|hs7119|hs7819)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
         atevio7500)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
-#        fortis_hdbox)
-#          RESELLERID=20020000
-#          FORTISBOX="Octagon SF1018P HD Alliance";;
-#        octagon_1008)
-#          RESELLERID=20020300
-#          FORTISBOX="Octagon SF1008P HD Intelligence";;
+        fortis_hdbox)
+          RESELLERID=20020000
+          FORTISBOX="Octagon SF1018P HD Alliance";;
+        octagon_1008)
+          RESELLERID=20020300
+          FORTISBOX="Octagon SF1008P HD Intelligence";;
         hs7110)
           RESELLERID=250202A0
           FORTISBOX="Octagon SF918SE+ HD Difference";;
@@ -352,11 +349,12 @@ if [ "$OUTTYPE" == "flash" ]; then
       unset RESELLERID
       unset OWNLANG
       unset OWNCOUNTRY;;
-    fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+#    fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
-#    fortis_hdbox|octagon1008)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh;;
-#      unset RESELLERID;;
+    fortis_hdbox|octagon1008)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh
+      unset RESELLERID;;
     hs7110|hs7810a)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;

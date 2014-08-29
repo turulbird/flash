@@ -7,6 +7,11 @@
 /*          GNU General Public License version 2.                         */
 /**************************************************************************/
 /*
+ * Changes in Version 1.8.3:
+ * + -ce can now add block types 2, 3, 4 and 5 (config0 - configA);
+ * + Squashfs dummy file uses squashfs 3.0 in stead of 3.1 as required by
+ *   first generation Fortis receivers.
+ *
  * Changes in Version 1.8.2:
  * + -tv added;
  * + Cosmetic changes to output of -t and -tv.
@@ -26,6 +31,7 @@
  * + Silent operation now possible on -x, -s, -n, -c, -r and -ce;
  * + Errors in mtd numbering corrected.
  */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -33,7 +39,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-//#include <gcrypt.h> /* sha1 / crc32 */
 #include <fcntl.h>
 
 #include <zlib.h>
@@ -41,8 +46,8 @@
 #include "crc16.h"
 #include "dummy.h"
 
-#define VERSION "1.8.2"
-#define DATE "28.07.2014"
+#define VERSION "1.8.3"
+#define DATE "29.08.2014"
 
 //#define USE_ZLIB
 
@@ -176,7 +181,7 @@ char ext[MAX_PART_NUMBER][EXTENSION_LEN] =
 ".loader.mtd0",
 ".app.mtd2",
 ".config0.mtd5", //F mtd5 offset 0x00000000
-".config4/mdt5", //E mtd5 offset 0x00040000
+".config4.mdt5", //E mtd5 offset 0x00040000
 ".config8.mtd5", //E mtd5 offset 0x00080000
 ".configA.mtd5", //C mtd5 offset 0x000A0000
 ".kernel.mtd1",
@@ -438,7 +443,7 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
                if (type==0x00)
                   printf ("-> Loader (mtd0)");
                if (type==0x01)
-                  printf ("-> Application (mtd2, squashfs)");
+                  printf ("-> Application (mtd2, squashfs or ubi)");
                if (type==0x02)
                   printf ("-> Config0 (mtd5, offset 0x00000)");
                if (type==0x03)
@@ -493,7 +498,7 @@ int32_t main(int32_t argc, char* argv[])
       if (verbose == 1)
       {
          printf("\nSigned dummy squashfs headerfile does not exist.\n");
-        printf("Creating it...");
+         printf("Creating it...");
       }
       file = fopen("dummy.squash.signed.padded", "w");
       if (verbose == 1)
@@ -512,7 +517,7 @@ int32_t main(int32_t argc, char* argv[])
       printf(".");
       file = fopen("dummy.squash.signed.padded", "rb");
       printf(".");
-      if (file != NULL)
+      if (file != NULL && verbose == 1)
       {
          printf("\n\nCreating signed dummy squashfs header file successfully completed.\n");
       }
@@ -529,7 +534,7 @@ int32_t main(int32_t argc, char* argv[])
 
       if (strncmp(argv[1], "-sv", 3) == 0)
       {
-          verbose = 1;
+         verbose = 1;
       }
       else
       {
@@ -578,7 +583,7 @@ int32_t main(int32_t argc, char* argv[])
 
       if (strncmp(argv[1], "-tv", 3) == 0)
       {
-          verbose = 1;
+         verbose = 1;
       }
       else
       {
@@ -596,7 +601,7 @@ int32_t main(int32_t argc, char* argv[])
 
       uint8_t buffer[10000];
       while (!feof(file))
-      { // Actually we would need to remove the sign at the end
+      { // Actually we would need to remove the signature at the end
          int32_t count = fread(buffer, 1, 10000, file);
          if (count != 10000)
          {
@@ -625,7 +630,7 @@ int32_t main(int32_t argc, char* argv[])
    {
       if (strncmp(argv[1], "-xv", 3) == 0)
       {
-          verbose = 1;
+         verbose = 1;
       }
       else
       {
@@ -657,19 +662,17 @@ int32_t main(int32_t argc, char* argv[])
          }
          else
          {
-//            printf("\n");
             break;
-            //getchar();
          }
       }
       fclose(file);
       
       for(i = 0; i < MAX_PART_NUMBER; i++)
       {
-          if (fd[i] != NULL)
-          {
-             fclose(fd[i]);
-          }
+         if (fd[i] != NULL)
+         {
+            fclose(fd[i]);
+         }
       }
       if (verbose == 1)
       {
@@ -874,7 +877,7 @@ int32_t main(int32_t argc, char* argv[])
       //search for -v
       for (i=0; i < appendPartCount; i+=2)
       {
-        if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
+         if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
          {
             verbose = 1;
          }
@@ -903,7 +906,23 @@ int32_t main(int32_t argc, char* argv[])
          { //Original USER now ROOT
             type = 0x09;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
+         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-2", 2) == 0)
+         {
+            type = 0x02;
+         }
+         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-3", 2) == 0)
+         {
+            type = 0x03;
+         }
+         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-4", 2) == 0)
+         {
+            type = 0x04;
+         }
+         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-5", 2) == 0)
+         {
+            type = 0x05;
+         }
+         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-v", 2) == 0)
          {
             type = 0x88; //flag verbose found
             i-=1;
@@ -981,7 +1000,7 @@ int32_t main(int32_t argc, char* argv[])
 
                   if (verbose == 1)
                   {
-                    printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
+                     printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
                   }
                   fclose(file);
                }
@@ -1037,7 +1056,7 @@ int32_t main(int32_t argc, char* argv[])
    {
       if (strncmp(argv[1], "-rv", 3) == 0)
       {
-          verbose = 1;
+         verbose = 1;
       }
       else
       {
@@ -1106,7 +1125,7 @@ int32_t main(int32_t argc, char* argv[])
    {
       if (strncmp(argv[1], "-nv", 3) == 0)
       {
-          verbose = 1;
+         verbose = 1;
       }
       else
       {
@@ -1209,6 +1228,10 @@ int32_t main(int32_t argc, char* argv[])
       printf("          -r|-9 [file.part]        Append Root     (9) 0x02200000 - 0x03FFFFFF (30 MB)\n");
       printf("          -e|-8 [file.part]        Append Ext      (8)\n");
       printf("          -g|-7 [file.part]        Append G        (7)\n");
+      printf("          -2    [file.part]        Append Config0  (2) -> mtd5, offset 0\n");
+      printf("          -3    [file.part]        Append Config4  (3) -> mtd5, offset 0x40000\n");
+      printf("          -4    [file.part]        Append Config8  (4) -> mtd5, offset 0x80000\n");
+      printf("          -5    [file.part]        Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
       printf("          -v                       Verbose operation\n");
       printf("       -s [unsigned.squashfs]     Sign squashfs part\n");
       printf("       -sv [unsigned.squashfs]    Sign squashfs part, verbose\n");
@@ -1220,8 +1243,8 @@ int32_t main(int32_t argc, char* argv[])
       printf("       -nv [update.ird] versionnr As -n, verbose\n");
       printf("       -v                         Display program version\n");
       printf("\n");
-      printf("Note: To create squashfs part, use mksquashfs v3.3:\n");
-      printf("      ./mksquashfs3.3 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
+      printf("Note: To create squashfs part, use mksquashfs v3.0:\n");
+      printf("      ./mksquashfs3.0 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
       printf("\n");
       printf("Examples:\n");
       printf("  Creating a new Fortis IRD file with rootfs and kernel:\n");

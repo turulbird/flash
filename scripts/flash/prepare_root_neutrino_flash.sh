@@ -18,9 +18,9 @@ common() {
     echo -n " Creating devices..."
     cd $TMPROOTDIR/dev/
     if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
-      $TMPROOTDIR/var/etc/init.d/makedev start 2>/dev/null
+      $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
     else
-      $TMPROOTDIR/etc/init.d/makedev start 2>/dev/null
+      $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
     fi
     cd - > /dev/null
     echo " done."
@@ -33,11 +33,11 @@ common() {
 
 # Prepare neutrino root according to box type
 case $BOXTYPE in
-  atevio7500|hs7110|hs7810a)
+  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a)
     common;;
   spark|spark7162)
     common;;
-  fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+  ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
     common
 
     echo -n " Move var directory..."

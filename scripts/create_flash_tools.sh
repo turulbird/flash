@@ -6,6 +6,9 @@
 #echo "Author: Audioniek, based on previous work by schishu and bpanther"
 #echo "Date: 07-02-2014"
 #echo
+#
+# 20140829 Audioniek - Added mksquashfs3.0 as this version is needed by first
+#                      generation Fortis receivers.
 
 TOOLSDIR=$1
 cd $TOOLSDIR
@@ -33,6 +36,33 @@ if [ ! -e $TOOLSDIR/pad ]; then
   fi
 fi
 
+# Tool program mksquashfs3.0..."
+if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
+  echo "-----------------------------------------------------------------------"
+  echo " Tool program mksquashfs3.0 is missing, trying to compile it..."
+  echo "-----------------------------------------------------------------------"
+  echo
+  cd $TOOLSDIR/mksquash.src
+  if [ ! -d ./squashfs3.0 ]; then
+    rm -rf ./squashfs3.0
+  fi
+  tar -xzf $TOOLSDIR/mksquash.src/squashfs3.0.tar.gz
+  cd $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools
+  make
+  mv $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.0
+  mv $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools/unsquashfs $TOOLSDIR/unsquashfs3.0
+  cd $TOOLSDIR
+  rm -rf $TOOLSDIR/mksquash.src/squashfs3.0
+  if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
+    echo " Compiling mksquashfs3.0 failed! Exiting..."
+    exit 3
+  else
+    clear
+    echo "-----------------------------------------------------------------------"
+    echo " Compiling mksquashfs3.0 successfully completed."
+  fi
+fi
+
 # Tool program mksquashfs3.3..."
 if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   echo "-----------------------------------------------------------------------"
@@ -40,7 +70,9 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/mksquash.src
-  rm -rf $TOOLSDIR/squashfs-tools
+  if [ ! -d ./squashfs-tools ]; then
+    rm -rf ./squashfs-tools
+  fi
   tar -xzf $TOOLSDIR/mksquash.src/squashfs3.3.tar.gz
   cd $TOOLSDIR/mksquash.src/squashfs-tools
   make all
@@ -83,8 +115,10 @@ if [ ! -e $TOOLSDIR/mksquashfs4.0 ]; then
   tar -xzf $TOOLSDIR/mksquash.src/squashfs4.0.tar.gz
   tar -xjf $TOOLSDIR/mksquash.src/lzma465.tar.bz2
   cd ./squashfs4.0/squashfs-tools
-  echo "patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch"
-  patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch > /dev/null
+  if [ -e $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch ]; then
+    echo "patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch"
+    patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch > /dev/null
+  fi
   make all
   mv ./mksquashfs $TOOLSDIR/mksquashfs4.0
   mv ./unsquashfs $TOOLSDIR/unsquashfs4.0
