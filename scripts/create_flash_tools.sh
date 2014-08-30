@@ -46,6 +46,9 @@ if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
   if [ ! -d ./squashfs3.0 ]; then
     rm -rf ./squashfs3.0
   fi
+  if [ ! -e ./squashfs3.0.tar.gz ]; then
+    wget "http://pkgs.fedoraproject.org/repo/pkgs/squashfs-tools/squashfs3.0.tar.gz/9fd05d0bfbb712f5fb95edafea5bc733/squashfs3.0.tar.gz"
+  fi
   tar -xzf $TOOLSDIR/mksquash.src/squashfs3.0.tar.gz
   cd $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools
   make
