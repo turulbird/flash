@@ -7,10 +7,10 @@
 /*          GNU General Public License version 2.                         */
 /**************************************************************************/
 /*
- * Changes in Version 1.8.3:
+ * Changes in Version 1.8.3a:
  * + -ce can now add block types 2, 3, 4 and 5 (config0 - configA);
- * + Squashfs dummy file uses squashfs 3.0 in stead of 3.1 as required by
- *   first generation Fortis receivers.
+ * + Option -1G added to -ce to use squashfs dummy file with squashfs 3.0 in
+ *   stead of 3.1 as required by first generation Fortis receivers.
  *
  * Changes in Version 1.8.2:
  * + -tv added;
@@ -44,10 +44,11 @@
 #include <zlib.h>
 
 #include "crc16.h"
-#include "dummy.h"
+#include "dummy30.h"
+#include "dummy31.h"
 
-#define VERSION "1.8.3"
-#define DATE "29.08.2014"
+#define VERSION "1.8.3a"
+#define DATE "31.08.2014"
 
 //#define USE_ZLIB
 
@@ -56,6 +57,7 @@ uint16_t blockCounterTotal = 0;
 uint16_t have;
 char zlibt[10];
 uint8_t verbose = 1;
+uint8_t oldsquash = 1;
 uint16_t partBlocksize;
 uint16_t totalBlockCount;
 uint16_t headerDataBlockLen;
@@ -145,7 +147,7 @@ uint32_t Flags;
 (0x07,     ".dev.mtd4",     "Dev", 0x001e00000, 0x00300000, (PART_FLASH | PART_SIGN)),
 (0x08,  ".rootfs.mtd3",    "Root", 0x001200000, 0x00C00000, (PART_FLASH | PART_SIGN)),
 (0x09,    ".user.mtd6",    "User", 0x002200000, 0x01E00000, (PART_FLASH)),
-#                                  0x010000000, 0x40000000   RAM? 
+#                                  0x010000000, 0x40000000   RAM?
 
 # 64MB flash (HS8200, loader 6.00)
 (0x00,  ".loader.mtd0",  "Loader", 0x000000000, 0x00030000, (PART_FLASH)),
@@ -159,7 +161,7 @@ uint32_t Flags;
 (0x07,     ".dev.mtd4",     "Dev", var        , var       , (PART_FLASH | PART_SIGN)),
 (0x08,  ".rootfs.mtd3",    "Root", var        , var       , (PART_FLASH | PART_SIGN)),
 (0x09,    ".user.mtd6",    "User", 0x002200000, 0x01E00000, (PART_FLASH)),
-#                                  0x080000000, 0x40000000   RAM? 
+#                                  0x080000000, 0x40000000   RAM?
 
 # 256MB flash (third generation, HS7119, HS7819..., loader 7.X0, 7.X6 or 7.X7) # to be checked
 (0x00, ".loader.mtd0",   "Loader", 0x00000000, 0x00400000, (PART_FLASH)),
@@ -251,7 +253,7 @@ int32_t extractAndWrite(FILE* file, uint8_t * buffer, uint16_t len, uint16_t dec
       }
       return decLen;
    }
-   else 
+   else
 #endif
    {
       fwrite(buffer, 1, len, file);
@@ -271,16 +273,16 @@ uint16_t readAndCompress(FILE * file, uint8_t ** dataBuf, uint16_t pos, uint16_t
    z_stream strm;
    uint8_t in[*uncompressedDataLen];
    uint8_t out[*uncompressedDataLen];
-   
+
    strm.zalloc = Z_NULL;
    strm.zfree = Z_NULL;
    strm.opaque = Z_NULL;
    deflateInit(&strm, Z_DEFAULT_COMPRESSION);
-   
+
    strm.avail_in = *uncompressedDataLen;
    memcpy(in, (*dataBuf) + pos, *uncompressedDataLen);
    strm.next_in = in;
-   
+
    have = 0;
 
    strm.avail_out = *uncompressedDataLen;
@@ -288,13 +290,13 @@ uint16_t readAndCompress(FILE * file, uint8_t ** dataBuf, uint16_t pos, uint16_t
 
    deflate(&strm, Z_FINISH);
    have = *uncompressedDataLen - strm.avail_out;
-   
+
    deflateEnd(&strm);
-   
+
    if (have < *uncompressedDataLen)
    {
       memcpy((*dataBuf) + pos, out, have);
-   } else 
+   } else
 #endif
    {
       have = *uncompressedDataLen;
@@ -337,11 +339,11 @@ int32_t writeBlock(FILE* irdFile, FILE* file, uint8_t firstBlock, uint16_t type)
 
    uint8_t * blockHeader = (uint8_t *)malloc(4);
    uint8_t * dataBuf = (uint8_t *)malloc(DATA_BLOCKSIZE + 4);
-   
+
    if (firstBlock && type == 0x10)
    { // header
       resellerId = 0x230200A0; //Octagon SF1028P Noblence L6.00
-      
+
       insertint16_t(&dataBuf, 0, type);
       insertint32_t(&dataBuf, 2, resellerId);
       insertint16_t(&dataBuf, 6, 0);
@@ -358,17 +360,17 @@ int32_t writeBlock(FILE* irdFile, FILE* file, uint8_t firstBlock, uint16_t type)
       insertint16_t(&dataBuf, 0, type);
       insertint16_t(&dataBuf, 2, uncompressedDataLen);
    }
-   
+
    dataCrc = crc16(dataCrc, dataBuf, compressedDataLen + 4);
-   
+
    insertint16_t(&blockHeader, 0, compressedDataLen + 6);
    insertint16_t(&blockHeader, 2, dataCrc);
    fwrite(blockHeader, 1, 4, irdFile);
    fwrite(dataBuf, 1, compressedDataLen + 4, irdFile);
-   
+
    free(blockHeader);
    free(dataBuf);
-   
+
    return uncompressedDataLen;
 }
 
@@ -377,7 +379,7 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
    len = 0;
    crc = 0;
    type = 0;
-   
+
    len = readShort(file);
    if (len == 0) return 0;
    crc = readShort(file);
@@ -386,7 +388,7 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
    if (fread(dataBuf, 1, len - 2, file) != len - 2)
    {
       return 0;
-   }   
+   }
    dataCrc = 0;
    dataCrc = crc16(dataCrc, dataBuf, len - 2);
 
@@ -397,11 +399,11 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
       printf("\nCRC data error occurred in block #%d (type %d)!\n", blockCounter, type);
       getchar();
    }
-   
+
    type = extractShort(dataBuf, 0);
-   
+
    blockCounterTotal++;
-   
+
    if (firstBlock && type == 0x10)
    {
       if (verbose == 1)
@@ -419,7 +421,7 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
       softwareversion1 = extractShort(dataBuf, 10);
       softwareversion2 = extractShort(dataBuf, 12);
       softwareversion3 = extractShort(dataBuf, 14);
-         
+
       if (verbose == 1)
       {
          printf("\n Header data:\n");
@@ -487,10 +489,10 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
 }
 
 int32_t main(int32_t argc, char* argv[])
-{ 
+{
    pos = 0;
    firstBlock = 1;
-      
+
 // Check if the file dummy.squash.signed.padded exists. If not, create it
    file = fopen("dummy.squash.signed.padded", "rb");
    if (file == NULL)
@@ -510,13 +512,13 @@ int32_t main(int32_t argc, char* argv[])
       {
          printf(".");
       }
-      if (verbose == 1)
-      {
-         fclose(file);
-      }
+      fclose(file);
       printf(".");
       file = fopen("dummy.squash.signed.padded", "rb");
-      printf(".");
+      if (verbose == 1)
+      {
+         printf(".");
+      }
       if (file != NULL && verbose == 1)
       {
          printf("\n\nCreating signed dummy squashfs header file successfully completed.\n");
@@ -545,7 +547,7 @@ int32_t main(int32_t argc, char* argv[])
       char signedFileName[128];
       strcpy(signedFileName, argv[2]);
       strcat(signedFileName, ".signed");
-      
+
       signedFile = fopen(signedFileName, "wb");
       file = fopen(argv[2], "r");
       if (file==NULL)
@@ -553,7 +555,7 @@ int32_t main(int32_t argc, char* argv[])
          printf("Error while opening input file %s\n", argv[2]);
          return -1;
       }
-      
+
       if (signedFile==NULL)
       {
          printf("Error while opening output file %s\n", argv[3]);
@@ -566,14 +568,14 @@ int32_t main(int32_t argc, char* argv[])
          fwrite(buffer, 1, count, signedFile);
          crc = crc32(crc, buffer, 1);
       }
-   
+
       if (verbose == 1)
       {
          printf("Signature in footer: 0x%08x\n", crc);
          printf("Output file name is: %s\n", signedFileName);
       }
       fwrite(&crc, 1, 4, signedFile);
-      
+
       fclose(file);
       fclose(signedFile);
    }
@@ -609,7 +611,7 @@ int32_t main(int32_t argc, char* argv[])
          }
          crc = crc32(crc, buffer, 1);
       }
-   
+
       if (verbose == 1)
       {
          printf("Correct signature: 0x%08x\n", crc);
@@ -642,14 +644,14 @@ int32_t main(int32_t argc, char* argv[])
          has[i] = 0;
          fd[i] = NULL;
       }
-      
+
       file = fopen(argv[2], "r");
       if (file==NULL)
       {
          printf("Error while opening input file %s\n", argv[2]);
          return -1;
       }
-      
+
       while (!feof(file))
       {
          pos = ftell(file);
@@ -666,7 +668,7 @@ int32_t main(int32_t argc, char* argv[])
          }
       }
       fclose(file);
-      
+
       for(i = 0; i < MAX_PART_NUMBER; i++)
       {
          if (fd[i] != NULL)
@@ -693,17 +695,17 @@ int32_t main(int32_t argc, char* argv[])
          printf("Error while opening output file %s\n", argv[2]);
          return -1;
       }
-      
+
       totalBlockCount = 0;
       headerDataBlockLen = 0;
-      
+
       // Header
       headerDataBlockLen = writeBlock(irdFile, NULL, 1, 0x10);
-      headerDataBlockLen+=4;
-      
+      headerDataBlockLen += 4;
+
       appendPartCount = argc - 3;
       //search for -v
-      for (i=0; i < appendPartCount; i+=2)
+      for (i = 0; i < appendPartCount; i += 2)
       {
          if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
          {
@@ -711,10 +713,10 @@ int32_t main(int32_t argc, char* argv[])
          }
       }
       //evaluate other options
-      for (i=0; i < appendPartCount; i+=2)
+      for (i = 0; i < appendPartCount; i += 2)
       {
          type = 0x99;
-         
+
          if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-ll", 3) && strncmp(argv[3 + i], "-00", 3)) == 0)
          {
             type = 0x00;
@@ -777,7 +779,6 @@ int32_t main(int32_t argc, char* argv[])
          }
          else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
          {
-            type = 0x88; //flag verbose found
             i-=1;
          }
 
@@ -793,60 +794,57 @@ int32_t main(int32_t argc, char* argv[])
             }
             return -1;
          }
-         if (type != 0x88)
+         file = fopen(argv[3 + i + 1], "rb");
+         if (file==NULL)
          {
-            file = fopen(argv[3 + i + 1], "rb");
-            if (file==NULL)
-            {
-               printf("Error opening input file %s\n", argv[3+i+1]);
-               return -1;
-            }
-
-            if (verbose == 1)
-            {
-               printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
-            }
-            partBlocksize = totalBlockCount;
-            while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-            {
-               totalBlockCount++;
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-            }
-            totalBlockCount++;
-            partBlocksize = totalBlockCount - partBlocksize;
-            if (verbose == 1)
-            {
-               printf("Added %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
-            }
-            fclose(file);
+            printf("Error opening input file %s\n", argv[3+i+1]);
+            return -1;
          }
+
+         if (verbose == 1)
+         {
+            printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
+         }
+         partBlocksize = totalBlockCount;
+         while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
+         {
+            totalBlockCount++;
+            if (verbose == 1)
+            {
+               printf(".");
+            }
+         }
+         totalBlockCount++;
+         partBlocksize = totalBlockCount - partBlocksize;
+         if (verbose == 1)
+         {
+            printf("Added %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
+         }
+         fclose(file);
       }
-      
+
       // Refresh Header
       uint8_t * dataBuf = (uint8_t *)malloc(headerDataBlockLen);
-      
+
       // Read Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fread(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update Blockcount
       insertint16_t(&dataBuf, 8, totalBlockCount);
-      
+
       // Rewrite Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fwrite(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update CRC
       dataCrc = crc16(0, dataBuf, headerDataBlockLen);
       insertint16_t(&dataBuf, 0, dataCrc);
-      
+
       // Rewrite CRC
       fseek(irdFile, 0x02, SEEK_SET);
       fwrite(dataBuf, 1, 2, irdFile);
-      
+
       free(dataBuf);
       fclose(irdFile);
 
@@ -868,24 +866,68 @@ int32_t main(int32_t argc, char* argv[])
 
       totalBlockCount = 0;
       headerDataBlockLen = 0;
-      
+
       // Header
       headerDataBlockLen = writeBlock(irdFile, NULL, 1, 0x10);
       headerDataBlockLen+=4;
-      
+
       appendPartCount = argc - 3;
-      //search for -v
+      //search for -v and -1G
       for (i=0; i < appendPartCount; i+=2)
       {
          if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
          {
             verbose = 1;
          }
+         if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-1G", 2)) == 0)
+         {
+            // Check if the file dummy.squash30.signed.padded exists. If not, create it
+            file = fopen("dummy.squash30.signed.padded", "rb");
+            if (file == NULL)
+            {
+               if (verbose == 1)
+               {
+                  printf("\nSigned dummy squashfs 3.0 headerfile does not exist.\n");
+                  printf("Creating it...");
+               }
+               file = fopen("dummy.squash30.signed.padded", "w");
+               if (verbose == 1)
+               {
+                  printf(".");
+               }
+               fwrite(dummy30, 1, dummy_size, file);
+               if (verbose == 1)
+               {
+                  printf(".");
+               }
+               fclose(file);
+               if (verbose == 1)
+               {
+                  printf(".");
+               }
+               file = fopen("dummy.squash30.signed.padded", "rb");
+               if (verbose == 1)
+               {
+                  printf(".");
+               }
+               if (file != NULL && verbose == 1)
+               {
+                  printf("\n\nCreating signed dummy squashfs3.0 header file successfully completed.\n");
+               }
+               else
+               {
+                  printf("\nCould not write signed dummy squashfs3.0 header file.\n");
+                  remove("dummy.squash30.signed.padded");
+                  return -1;
+               }
+            }
+            oldsquash = 1;
+         }
       }
-      for (i=0; i < appendPartCount; i+=2)
+      for (i = 0; i < appendPartCount; i += 2)
       {
          type = 0x99;
-         
+
          if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-f", 2) && strncmp(argv[3 + i], "-1", 2) == 0))
          { // Original APP now FW
             type = 0x01;
@@ -922,12 +964,16 @@ int32_t main(int32_t argc, char* argv[])
          {
             type = 0x05;
          }
+         else if (strlen(argv[3 + i]) == 3 && strncmp(argv[3 + i], "-1G", 2) == 0)
+         {
+            i-=1;
+         }
          else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-v", 2) == 0)
          {
             type = 0x88; //flag verbose found
             i-=1;
          }
-         
+
          if (type==0x99)
          {
             printf("Unknown suboption %s.\n", argv[3+i]);
@@ -940,115 +986,139 @@ int32_t main(int32_t argc, char* argv[])
             }
             return -1;
          }
-         if (type != 0x88)
+         if (verbose == 1)
+         {
+            printf("\nNew partition, type %02X\n", type);
+         }
+         if (type == 0x01 || type == 0x08 || type== 0x07) // these must be signed squashfs
          {
             if (verbose == 1)
             {
-               printf("\nNew partition, type %02X\n", type);
+               printf("Adding signed dummy squashfs header");
             }
-            if (type == 0x01 || type == 0x08 || type== 0x07) // these must be signed squashfs
+            if (oldsquash == 1)
             {
-               if (verbose == 1)
-               {
-                  printf("Adding signed dummy squashfs header");
-               }
-               file = fopen("dummy.squash.signed.padded", "rb");
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-               if (file != NULL)
-               {
-                  while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-                  {
-                     if (verbose == 1)
-                     {
-                        printf(".");
-                     }
-                     totalBlockCount++;
-                  }
-                  totalBlockCount++;
-                  fclose(file);
-               }
-               else
-               {
-                  printf("\nCould not read signed dummy squashfs header file.\n");
-                  remove("dummy.squash.signed.padded");
-               }
-            }
-         
-            if (strncmp(argv[3 + i + 1], "foo", 3) != 0)
-            {
-               file = fopen(argv[3 + i + 1], "rb");
-               if (file != NULL)
-               {
-                  if (verbose == 1)
-                  {
-                     printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
-                  }
-                  partBlocksize = totalBlockCount;
-                  while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-                  {
-                     totalBlockCount++;
-                     if (verbose == 1)
-                     {
-                        printf(".");
-                     }
-                  }
-                  totalBlockCount++;
-                  partBlocksize = totalBlockCount - partBlocksize;
-
-                  if (verbose == 1)
-                  {
-                     printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
-                  }
-                  fclose(file);
-               }
-               else
-               {
-                  printf("\nCould not append input file %s\n", argv[3 + i + 1]);
-                  printf("\n");
-               }
+               file = fopen("dummy.squash30.signed.padded", "rb");
             }
             else
             {
-               if (verbose == 1)
+               file = fopen("dummy.squash.signed.padded", "rb");
+            }
+            if (verbose == 1)
+            {
+               printf(".");
+            }
+            if (file != NULL)
+            {
+               while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
                {
-                  printf("This is a foo partition\n");
+                  if (verbose == 1)
+                  {
+                     printf(".");
+                  }
+                  totalBlockCount++;
+               }
+               totalBlockCount++;
+               fclose(file);
+            }
+            else
+            {
+               printf("\nCould not read signed dummy squashfs header file.\n");
+               if (oldsquash == 1)
+               {
+                  remove("dummy.squash30.signed.padded");
+               }
+               else
+               {
+                  remove("dummy.squash.signed.padded");
                }
             }
          }
+
+         if (strncmp(argv[3 + i + 1], "foo", 3) != 0)
+         {
+            file = fopen(argv[3 + i + 1], "rb");
+            if (file != NULL)
+            {
+               if (verbose == 1)
+               {
+                  printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
+               }
+               partBlocksize = totalBlockCount;
+               while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
+               {
+                  totalBlockCount++;
+                  if (verbose == 1)
+                  {
+                     printf(".");
+                  }
+               }
+               totalBlockCount++;
+               partBlocksize = totalBlockCount - partBlocksize;
+               if (verbose == 1)
+               {
+                  printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
+               }
+               fclose(file);
+            }
+            else
+            {
+               printf("\nCould not append input file %s\n", argv[3 + i + 1]);
+               printf("\n");
+            }
+         }
+         else
+         {
+            if (verbose == 1)
+            {
+               printf("This is a foo partition\n");
+            }
+         }
       }
-      
+
       // Refresh Header
       uint8_t * dataBuf = (uint8_t *)malloc(headerDataBlockLen);
-      
+
       // Read Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fread(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update Blockcount
       insertint16_t(&dataBuf, 8, totalBlockCount);
-      
+
       // Rewrite Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fwrite(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update CRC
       dataCrc = crc16(0, dataBuf, headerDataBlockLen);
       insertint16_t(&dataBuf, 0, dataCrc);
-      
+
       // Rewrite CRC
       fseek(irdFile, 0x02, SEEK_SET);
       fwrite(dataBuf, 1, 2, irdFile);
-      
+
       free(dataBuf);
-      
+
       fclose(irdFile);
       if (verbose == 1)
       {
          printf("Output file name is: %s\n", argv[2]);
       }
+      if (oldsquash == 1)
+      {
+         file = fopen("dummy.squash30.signed.padded", "rb");
+      }
+      if (file != NULL)
+      {
+            fclose(file);
+            remove("dummy.squash30.signed.padded");
+      }
+      else
+      {
+         printf("Error removing file dummy.squash30.signed.padded.\n");
+      }
+      oldsquash = 0;
       verbose = 1;
    }
    else if ((argc == 4 && strlen(argv[1]) == 2 && strncmp(argv[1], "-r", 2) == 0)
@@ -1065,7 +1135,7 @@ int32_t main(int32_t argc, char* argv[])
 
       headerDataBlockLen = 0;
       resellerId = 0;
-      
+
       if (strlen(argv[3]) != 4 && strlen(argv[3]) != 8)
       {
          printf("Reseller ID must be 4 or 8 characters long.\n");
@@ -1078,7 +1148,7 @@ int32_t main(int32_t argc, char* argv[])
       {
          resellerId = resellerId * 0x10000;
       }
-      
+
       irdFile = fopen(argv[2], "r+");
       if (irdFile == NULL)
       {
@@ -1088,36 +1158,36 @@ int32_t main(int32_t argc, char* argv[])
 
       headerDataBlockLen = readShort(irdFile);
       headerDataBlockLen -= 2;
-      
+
       if (verbose == 1)
       {
          printf("Changing reseller ID in file %s to %04X.\n", argv[2], resellerId);
       }
-      
+
       /// Refresh Header
       uint8_t * dataBuf = (uint8_t *)malloc(headerDataBlockLen);
-      
+
       // Read Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fread(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update Reseller ID
       insertint32_t(&dataBuf, 2, resellerId);
-      
+
       // Rewrite Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fwrite(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       // Update CRC
       dataCrc = crc16(0, dataBuf, headerDataBlockLen);
       insertint16_t(&dataBuf, 0, dataCrc);
-      
+
       // Rewrite CRC
       fseek(irdFile, 0x02, SEEK_SET);
       fwrite(dataBuf, 1, 2, irdFile);
-      
+
       free(dataBuf);
-      
+
       fclose(irdFile);
    }
    else if ((argc == 4 && strlen(argv[1]) == 2 && strncmp(argv[1], "-n", 2) == 0)
@@ -1134,7 +1204,7 @@ int32_t main(int32_t argc, char* argv[])
 
       headerDataBlockLen = 0;
       resellerId = 0;
-      
+
       sscanf(argv[3], "%x", &softwareversion0);
       softwareversion2 = softwareversion0 & 0x0000FFFF;  //Split the entire long version number into two words
       softwareversion1 = softwareversion0 >> 16;
@@ -1148,19 +1218,19 @@ int32_t main(int32_t argc, char* argv[])
 
       headerDataBlockLen = readShort(irdFile);
       headerDataBlockLen -= 2;
-      
+
       if (verbose == 1)
       {
          printf("Changing SW version number in file %s to %04x.\n", argv[2], resellerId);
       }
-      
+
       /// Refresh Header
       uint8_t * dataBuf = (uint8_t *)malloc(headerDataBlockLen);
-      
+
       // Read Header Data Block
       fseek(irdFile, 0x04, SEEK_SET);
       fread(dataBuf, 1, headerDataBlockLen, irdFile);
-      
+
       resellerId = extractShort(dataBuf, 12);	   //Get SW version hi from file
       temp = extractShort(dataBuf, 14);    //Get SW version lo from file
       if (verbose == 1)
@@ -1206,7 +1276,6 @@ int32_t main(int32_t argc, char* argv[])
       printf("         Options for -c:\n");
       printf("          -ll [file.part]          Append Loader   (0) -> mtd0\n");
       printf("          -k  [file.part]          Append Kernel   (6) -> mtd1\n");
-      //printf(" *        -ao [file.part]          Append App low  (*) -> mtd7\n");
       printf(" s        -a  [file.part]          Append App      (1) -> mtd2\n");
       printf(" s        -r  [file.part]          Append Root     (8) -> mtd3\n");
       printf(" s        -d  [file.part]          Append Dev      (7) -> mdt4\n");
@@ -1214,7 +1283,6 @@ int32_t main(int32_t argc, char* argv[])
       printf("          -c4 [file.part]          Append Config4  (3) -> mtd5, offset 0x40000\n");
       printf("          -c8 [file.part]          Append Config8  (4) -> mtd5, offset 0x80000\n");
       printf("          -ca [file.part]          Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
-      //printf(" *        -cc [file.part]         Append ConfigC  (*)\n");
       printf("          -u  [file.part]          Append User     (9) -> mtd6\n");
       printf("          -00 [file.part]          Append Type 0   (0) (alias for -ll)\n");
       printf("          -1  [file.part]          Append Type 1   (1) (alias for -a)\n");
@@ -1223,15 +1291,16 @@ int32_t main(int32_t argc, char* argv[])
       printf("          -v                       Verbose operation\n");
       printf("       -ce [update.ird] Options   Create Enigma2 IRD\n");
       printf("         Options for -ce:                              HS8200 L6.00 memory layout\n");
-      printf("          -k|-6 [file.part]        Append Kernel   (6) 0x00600000 + length\n");
+      printf("          -k|-6 [file.part]        Append Kernel   (6) -> mtd1\n");
       printf("          -f|-1 [file.part]        Append FW       (1)\n");
-      printf("          -r|-9 [file.part]        Append Root     (9) 0x02200000 - 0x03FFFFFF (30 MB)\n");
+      printf("          -r|-9 [file.part]        Append Root     (9)\n");
       printf("          -e|-8 [file.part]        Append Ext      (8)\n");
       printf("          -g|-7 [file.part]        Append G        (7)\n");
       printf("          -2    [file.part]        Append Config0  (2) -> mtd5, offset 0\n");
       printf("          -3    [file.part]        Append Config4  (3) -> mtd5, offset 0x40000\n");
       printf("          -4    [file.part]        Append Config8  (4) -> mtd5, offset 0x80000\n");
       printf("          -5    [file.part]        Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
+      printf("          -1G                      Use squashfs3.0 dummy\n");
       printf("          -v                       Verbose operation\n");
       printf("       -s [unsigned.squashfs]     Sign squashfs part\n");
       printf("       -sv [unsigned.squashfs]    Sign squashfs part, verbose\n");
@@ -1243,8 +1312,8 @@ int32_t main(int32_t argc, char* argv[])
       printf("       -nv [update.ird] versionnr As -n, verbose\n");
       printf("       -v                         Display program version\n");
       printf("\n");
-      printf("Note: To create squashfs part, use mksquashfs v3.0:\n");
-      printf("      ./mksquashfs3.0 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
+      printf("Note: To create squashfs part, use mksquashfs v3.1:\n");
+      printf("      ./mksquashfs3.1 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
       printf("\n");
       printf("Examples:\n");
       printf("  Creating a new Fortis IRD file with rootfs and kernel:\n");
