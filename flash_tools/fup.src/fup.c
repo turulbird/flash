@@ -7,6 +7,11 @@
 /*          GNU General Public License version 2.                         */
 /**************************************************************************/
 /*
+ * Changes in Version 1.8.3b:
+ * + More rigid argument checking with -c and -ce; missing filenames for
+ *   suboptions requiring them are reported.
+ * + Several bugs involving suboptions -v and -1G in -c and -ce fixed.
+ *
  * Changes in Version 1.8.3a:
  * + -ce can now add block types 2, 3, 4 and 5 (config0 - configA);
  * + Option -1G added to -ce to use squashfs dummy file with squashfs 3.0 in
@@ -47,8 +52,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.8.3a"
-#define DATE "31.08.2014"
+#define VERSION "1.8.3b"
+#define DATE "06.09.2014"
 
 //#define USE_ZLIB
 
@@ -57,7 +62,8 @@ uint16_t blockCounterTotal = 0;
 uint16_t have;
 char zlibt[10];
 uint8_t verbose = 1;
-uint8_t oldsquash = 1;
+char printstring;
+uint8_t oldsquash = 0;
 uint16_t partBlocksize;
 uint16_t totalBlockCount;
 uint16_t headerDataBlockLen;
@@ -192,6 +198,14 @@ char ext[MAX_PART_NUMBER][EXTENSION_LEN] =
 ".user.mtd6",
 };
 
+void printverbose(const char *printstring)
+{
+   if (verbose)
+   {
+      printf("%s", printstring);
+   }
+}
+
 #if 0
 void fromint16_t(uint8_t ** int16_tBuf, uint16_t val)
 {
@@ -247,20 +261,14 @@ int32_t extractAndWrite(FILE* file, uint8_t * buffer, uint16_t len, uint16_t dec
       inflateEnd(&strm);
 
       fwrite(out, 1, decLen, file);
-      if (verbose == 1)
-      {
-         printf ("z");
-      }
+      printverbose("z");
       return decLen;
    }
    else
 #endif
    {
       fwrite(buffer, 1, len, file);
-      if (verbose == 1)
-      {
-         printf (".");
-      }
+      printverbose(".");
       return len;
    }
 }
@@ -301,14 +309,11 @@ uint16_t readAndCompress(FILE * file, uint8_t ** dataBuf, uint16_t pos, uint16_t
    {
       have = *uncompressedDataLen;
    }
-   if (verbose == 1)
-   {
-      printf (".");
-   }
+   printverbose(".");
 
-   if ((*uncompressedDataLen != DATA_BLOCKSIZE) && (verbose == 1)) //Last block of compressed partition was written
+   if ((*uncompressedDataLen != DATA_BLOCKSIZE)) //Last block of compressed partition was written
    {
-      printf("\n"); //Terminate progress bar
+      printverbose("\n"); //Terminate progress bar
    }
    return have;
 }
@@ -439,40 +444,37 @@ int32_t readBlock(FILE* file, const char * name, uint8_t firstBlock)
          {
             blockCounter = 1;
             has[type] = 1;
-            if (verbose == 1)
-            {
+            if (verbose)
                printf ("\nNew partition, type %02X ", type);
-               if (type==0x00)
-                  printf ("-> Loader (mtd0)");
-               if (type==0x01)
-                  printf ("-> Application (mtd2, squashfs or ubi)");
-               if (type==0x02)
-                  printf ("-> Config0 (mtd5, offset 0x00000)");
-               if (type==0x03)
-                  printf ("-> Config4 (mtd5, offset 0x40000)");
-               if (type==0x04)
-                  printf ("-> Config8 (mtd5, offset 0x80000)");
-               if (type==0x05)
-                  printf ("-> ConfigA (mtd5, offset 0xA0000)");
-               if (type==0x06)
-                  printf ("-> Kernel (mtd1)");
-               if (type==0x07)
-                  printf ("-> Dev (mtd4, squashfs)");
-               if (type==0x08)
-                  printf ("-> Rootfs (mtd3, squashfs)");
-               if (type==0x09)
-                  printf ("-> User data (mtd6)");
-               printf("\n");
-            }
+            if (type==0x00)
+               printverbose ("-> Loader (mtd0)");
+            if (type==0x01)
+               printverbose ("-> Application (mtd2, squashfs or ubi)");
+            if (type==0x02)
+               printverbose ("-> Config0 (mtd5, offset 0x00000)");
+            if (type==0x03)
+               printverbose ("-> Config4 (mtd5, offset 0x40000)");
+            if (type==0x04)
+               printverbose ("-> Config8 (mtd5, offset 0x80000)");
+            if (type==0x05)
+               printverbose ("-> ConfigA (mtd5, offset 0xA0000)");
+            if (type==0x06)
+               printverbose ("-> Kernel (mtd1)");
+            if (type==0x07)
+               printverbose ("-> Dev (mtd4, squashfs)");
+            if (type==0x08)
+               printverbose ("-> Rootfs (mtd3, squashfs)");
+            if (type==0x09)
+               printverbose ("-> User data (mtd6)");
+            printverbose("\n");
+
             char nameOut[strlen(name) + 1 + strlen(ext[type])];
             strncpy(nameOut, name, strlen(name));
             strncpy(nameOut + strlen(name), ext[type], strlen(ext[type]));
             nameOut[strlen(name) + strlen(ext[type])] = '\0';
             fd[type] = fopen(nameOut, "wb");
-            if (verbose == 1)
-            {
+            if (verbose)
                printf("\n-> %s\n", nameOut);
-            }
          }
 
          decLen = extractShort(dataBuf, 2);
@@ -497,28 +499,20 @@ int32_t main(int32_t argc, char* argv[])
    file = fopen("dummy.squash.signed.padded", "rb");
    if (file == NULL)
    {
-      if (verbose == 1)
-      {
-         printf("\nSigned dummy squashfs headerfile does not exist.\n");
-         printf("Creating it...");
-      }
-      file = fopen("dummy.squash.signed.padded", "w");
-      if (verbose == 1)
-      {
-         printf(".");
-      }
+      printverbose("\nSigned dummy squashfs headerfile does not exist.\n");
+      printverbose("Creating it...");
+
+      file = fopen("dummy.squash.signed.padded", "wb");
+      printverbose(".");
+
       fwrite(dummy, 1, dummy_size, file);
-      if (verbose == 1)
-      {
-         printf(".");
-      }
+      printverbose(".");
+
       fclose(file);
-      printf(".");
+      printverbose(".");
       file = fopen("dummy.squash.signed.padded", "rb");
-      if (verbose == 1)
-      {
-         printf(".");
-      }
+      printverbose(".");
+
       if (file != NULL && verbose == 1)
       {
          printf("\n\nCreating signed dummy squashfs header file successfully completed.\n");
@@ -619,7 +613,7 @@ int32_t main(int32_t argc, char* argv[])
       }
       else
       {
-         if ( crc != orgcrc )
+         if (crc != orgcrc)
          {
             printf("Signature is wrong, correct: 0x%08x, found in file: 0x%08x.\n", crc, orgcrc);
             return -1;
@@ -676,10 +670,7 @@ int32_t main(int32_t argc, char* argv[])
             fclose(fd[i]);
          }
       }
-      if (verbose == 1)
-      {
-         printf("\n");
-      }
+      printverbose("\n");
       verbose = 1;
    }
    else if (argc == 2 && strlen(argv[1]) == 2 && strncmp(argv[1], "-v", 2) == 0) // print version info
@@ -703,83 +694,94 @@ int32_t main(int32_t argc, char* argv[])
       headerDataBlockLen = writeBlock(irdFile, NULL, 1, 0x10);
       headerDataBlockLen += 4;
 
-      appendPartCount = argc - 3;
+      appendPartCount = argc;
       //search for -v
-      for (i = 0; i < appendPartCount; i += 2)
+      for (i = 3; i < argc; i++)
       {
-         if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
+         if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-v", 2)) == 0)
          {
             verbose = 1;
          }
       }
+      appendPartCount = appendPartCount - verbose - 3;
+
+      if (appendPartCount == 0)
+      {
+         printf("\nError: No input files for output file %s specified.\n",argv[2]);
+         fclose(irdFile);
+         remove(argv[2]);
+         return -1;
+      }
+
       //evaluate other options
-      for (i = 0; i < appendPartCount; i += 2)
+      for (i = 3; i < appendPartCount +3 + verbose; i += 2)
       {
          type = 0x99;
 
-         if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-ll", 3) && strncmp(argv[3 + i], "-00", 3)) == 0)
+         if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-ll", 3) && strncmp(argv[i], "-00", 3)) == 0)
          {
             type = 0x00;
          }
-         else if (strlen(argv[3 + i]) == 13 && (strncmp(argv[3 + i], "-feelinglucky", 13)) == 0)
+         else if (strlen(argv[i]) == 13 && (strncmp(argv[i], "-feelinglucky", 13)) == 0)
          {
             type = 0x00;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-a", 2) && strncmp(argv[3 + i], "-1", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-a", 2) && strncmp(argv[i], "-1", 2)) == 0)
          {
             type = 0x01;
          }
-         else if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-c0", 3)) == 0)
+         else if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-c0", 3)) == 0)
          {
             type = 0x02;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-2", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-2", 2)) == 0)
          {
             type = 0x02;
          }
-         else if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-c4", 3)) == 0)
+         else if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-c4", 3)) == 0)
          {
             type = 0x03;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-3", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-3", 2)) == 0)
          {
             type = 0x03;
          }
-         else if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-c8", 3)) == 0)
+         else if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-c8", 3)) == 0)
          {
             type = 0x04;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-4", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-4", 2)) == 0)
          {
             type = 0x04;
          }
-         else if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-ca", 3)) == 0)
+         else if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-ca", 3)) == 0)
          {
             type = 0x05;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-5", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-5", 2)) == 0)
          {
             type = 0x05;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-k", 2) && strncmp(argv[3 + i], "-6", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-k", 2) && strncmp(argv[i], "-6", 2)) == 0)
          {
             type = 0x06;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-d", 2) && strncmp(argv[3 + i], "-7", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-d", 2) && strncmp(argv[i], "-7", 2)) == 0)
          {
             type = 0x07;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-r", 2) && strncmp(argv[3 + i], "-8", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-r", 2) && strncmp(argv[i], "-8", 2)) == 0)
          {
             type = 0x08;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-u", 2) && strncmp(argv[3 + i], "-9", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-u", 2) && strncmp(argv[i], "-9", 2)) == 0)
          {
             type = 0x09;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-v", 2)) == 0)
          {
-            i-=1;
+            type = 0x88;
+            i--;
          }
 
          if (type == 0x99)
@@ -794,35 +796,38 @@ int32_t main(int32_t argc, char* argv[])
             }
             return -1;
          }
-         file = fopen(argv[3 + i + 1], "rb");
-         if (file==NULL)
-         {
-            printf("Error opening input file %s\n", argv[3+i+1]);
-            return -1;
-         }
 
-         if (verbose == 1)
+         if (type != 0x88)
          {
-            printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
-         }
-         partBlocksize = totalBlockCount;
-         while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-         {
-            totalBlockCount++;
-            if (verbose == 1)
+            if (((appendPartCount) % 2 == 1) && (argc == i + 1))
             {
-               printf(".");
+               printf("\nError: Input file name for option %s not specified.\n",argv[i]);
+               return -1;
             }
-         }
-         totalBlockCount++;
-         partBlocksize = totalBlockCount - partBlocksize;
-         if (verbose == 1)
-         {
-            printf("Added %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
-         }
-         fclose(file);
-      }
 
+            file = fopen(argv[i + 1], "rb");
+            if (file == NULL)
+            {
+               printf("Error opening input file %s\n", argv[i + 1]);
+               return -1;
+            }
+
+            if (verbose)
+               printf("Adding type %d block, file: %s\n", type, argv[i + 1]);
+
+            partBlocksize = totalBlockCount;
+            while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
+            {
+               totalBlockCount++;
+               printverbose(".");
+            }
+            totalBlockCount++;
+            partBlocksize = totalBlockCount - partBlocksize;
+            if (verbose)
+               printf("Added %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
+            fclose(file);
+         }
+      }
       // Refresh Header
       uint8_t * dataBuf = (uint8_t *)malloc(headerDataBlockLen);
 
@@ -848,17 +853,16 @@ int32_t main(int32_t argc, char* argv[])
       free(dataBuf);
       fclose(irdFile);
 
-      if (verbose == 1)
-      {
+      if (verbose)
          printf("Creating IRD file %s succesfully completed.\n", argv[2]);
-      }
+
       verbose = 1;
    }
    else if (argc >= 3 && strlen(argv[1]) == 3 && strncmp(argv[1], "-ce", 3) == 0) // Create Enigma2 IRD
    {
       verbose = 0;
-      irdFile = fopen(argv[2], "w+");
-      if (irdFile==NULL)
+      irdFile = fopen(argv[2], "wb+");
+      if (irdFile == NULL)
       {
          printf("Error while opening output file %s\n", argv[2]);
          return -1;
@@ -869,114 +873,89 @@ int32_t main(int32_t argc, char* argv[])
 
       // Header
       headerDataBlockLen = writeBlock(irdFile, NULL, 1, 0x10);
-      headerDataBlockLen+=4;
+      headerDataBlockLen += 4;
 
-      appendPartCount = argc - 3;
+      appendPartCount = argc;
       //search for -v and -1G
-      for (i=0; i < appendPartCount; i+=2)
+      for (i = 3; i < argc; i++)
       {
-         if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-v", 2)) == 0)
+         if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-v", 2)) == 0)
          {
             verbose = 1;
          }
-         if (strlen(argv[3 + i]) == 3 && (strncmp(argv[3 + i], "-1G", 2)) == 0)
+      }
+      for (i = 3; i < argc; i++)
+      {
+         if (strlen(argv[i]) == 3 && (strncmp(argv[i], "-1G", 3)) == 0)
          {
-            // Check if the file dummy.squash30.signed.padded exists. If not, create it
-            file = fopen("dummy.squash30.signed.padded", "rb");
-            if (file == NULL)
-            {
-               if (verbose == 1)
-               {
-                  printf("\nSigned dummy squashfs 3.0 headerfile does not exist.\n");
-                  printf("Creating it...");
-               }
-               file = fopen("dummy.squash30.signed.padded", "w");
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-               fwrite(dummy30, 1, dummy_size, file);
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-               fclose(file);
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-               file = fopen("dummy.squash30.signed.padded", "rb");
-               if (verbose == 1)
-               {
-                  printf(".");
-               }
-               if (file != NULL && verbose == 1)
-               {
-                  printf("\n\nCreating signed dummy squashfs3.0 header file successfully completed.\n");
-               }
-               else
-               {
-                  printf("\nCould not write signed dummy squashfs3.0 header file.\n");
-                  remove("dummy.squash30.signed.padded");
-                  return -1;
-               }
-            }
             oldsquash = 1;
          }
       }
-      for (i = 0; i < appendPartCount; i += 2)
+
+      appendPartCount = argc - verbose - oldsquash - 3;
+
+      if (appendPartCount == 0)
+      {
+         printf("\nError: No input files for output file %s specified.\n",argv[2]);
+         fclose(irdFile);
+         remove(argv[2]);
+         return -1;
+      }
+
+      for (i = 3; i < appendPartCount + 3 + verbose + oldsquash; i += 2)
       {
          type = 0x99;
 
-         if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-f", 2) && strncmp(argv[3 + i], "-1", 2) == 0))
-         { // Original APP now FW
+         if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-f", 2) && strncmp(argv[i], "-1", 2) == 0))
+         { // Original APP, now FW
             type = 0x01;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-k", 2) && strncmp(argv[3 + i], "-6", 2)) == 0)
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-k", 2) && strncmp(argv[i], "-6", 2)) == 0)
          { // KERNEL
             type = 0x06;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-e", 2) && strncmp(argv[3 + i], "-8", 2)) == 0)
-         { //Original ROOT now EXT
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-e", 2) && strncmp(argv[i], "-8", 2)) == 0)
+         { //Original ROOT, now EXT
             type = 0x08;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-g", 2) && strncmp(argv[3 + i], "-7", 2)) == 0)
-         { //Original DEV now G
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-g", 2) && strncmp(argv[i], "-7", 2)) == 0)
+         { //Original DEV, now G
             type = 0x07;
          }
-         else if (strlen(argv[3 + i]) == 2 && (strncmp(argv[3 + i], "-r", 2) && strncmp(argv[3 + i], "-9", 2)) == 0)
-         { //Original USER now ROOT
+         else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-r", 2) && strncmp(argv[i], "-9", 2)) == 0)
+         { //Original USER, now ROOT
             type = 0x09;
          }
-         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-2", 2) == 0)
+         else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-2", 2) == 0)
          {
             type = 0x02;
          }
-         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-3", 2) == 0)
+         else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-3", 2) == 0)
          {
             type = 0x03;
          }
-         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-4", 2) == 0)
+         else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-4", 2) == 0)
          {
             type = 0x04;
          }
-         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-5", 2) == 0)
+         else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-5", 2) == 0)
          {
             type = 0x05;
          }
-         else if (strlen(argv[3 + i]) == 3 && strncmp(argv[3 + i], "-1G", 2) == 0)
+         else if (strlen(argv[i]) == 3 && strncmp(argv[i], "-1G", 3) == 0)
          {
-            i-=1;
+            type = 0x88;
+            i--;
          }
-         else if (strlen(argv[3 + i]) == 2 && strncmp(argv[3 + i], "-v", 2) == 0)
+         else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-v", 2) == 0)
          {
-            type = 0x88; //flag verbose found
-            i-=1;
+            type = 0x88;
+            i--;
          }
 
-         if (type==0x99)
+         if (type == 0x99)
          {
-            printf("Unknown suboption %s.\n", argv[3+i]);
+            printf("Unknown suboption %s.\n", argv[i]);
             fclose(irdFile);
             irdFile = fopen(argv[2], "rb");
             if (irdFile != NULL)
@@ -986,92 +965,107 @@ int32_t main(int32_t argc, char* argv[])
             }
             return -1;
          }
-         if (verbose == 1)
+         if (type != 0x88)
          {
-            printf("\nNew partition, type %02X\n", type);
-         }
-         if (type == 0x01 || type == 0x08 || type== 0x07) // these must be signed squashfs
-         {
-            if (verbose == 1)
+            if (verbose) 
+               printf("\nNew partition, type %02X\n", type);
+
+//            printf("\ntype = %02X, appendPartcount = %d, argc = %d, i = %d, argv[%d] = [%s]\n",type,appendPartCount,argc,i,i,argv[i]);
+
+            if (((appendPartCount) % 2 == 1) && (argc==i+1))
             {
-               printf("Adding signed dummy squashfs header");
+               printf("\nError: Input file name for option %s not specified.\n",argv[i]);
+               return -1;
             }
-            if (oldsquash == 1)
+            if (type == 0x01 || type == 0x08 || type== 0x07) // these must be signed squashfs
             {
-               file = fopen("dummy.squash30.signed.padded", "rb");
-            }
-            else
-            {
-               file = fopen("dummy.squash.signed.padded", "rb");
-            }
-            if (verbose == 1)
-            {
-               printf(".");
-            }
-            if (file != NULL)
-            {
-               while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-               {
-                  if (verbose == 1)
-                  {
-                     printf(".");
-                  }
-                  totalBlockCount++;
-               }
-               totalBlockCount++;
-               fclose(file);
-            }
-            else
-            {
-               printf("\nCould not read signed dummy squashfs header file.\n");
+               printverbose("Adding signed dummy squashfs3.0 header");
                if (oldsquash == 1)
                {
-                  remove("dummy.squash30.signed.padded");
+                  // Check if the file dummy.squash30.signed.padded exists. If not, create it
+                  file = fopen("dummy.squash30.signed.padded", "rb");
+                  if (file == NULL)
+                  {
+                     printverbose("\nSigned dummy squashfs 3.0 headerfile does not exist.\n");
+                     printverbose("Creating it...");
+
+                     file = fopen("dummy.squash30.signed.padded", "w");
+                     printverbose(".");
+
+                     fwrite(dummy30, 1, dummy30_size, file);
+                     printverbose(".");
+
+                     fclose(file);
+                     printverbose(".");
+
+                     file = fopen("dummy.squash30.signed.padded", "rb");
+                     printverbose(".");
+                     if (file == NULL)
+                     {
+                        printf("\n\nCould not write signed dummy squashfs3.0 header file.\n");
+                        remove("dummy.squash30.signed.padded");
+                        return -1;
+                     }
+                     else
+                     {
+                     printverbose("\nCreating signed dummy squashfs3.0 header file successfully completed.\n");
+                     }
+                  }
+               }
+               else // new squashfs dummy, already present
+               {
+                  printverbose("Adding signed dummy squashfs header");
+                  file = fopen("dummy.squash.signed.padded", "rb");
+                  printverbose(".");
+               }
+
+               if (file != NULL)
+               {
+                  while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
+                  {
+                     printverbose(".");
+                     totalBlockCount++;
+                  }
+                  totalBlockCount++;
+                  fclose(file);
+//                  printverbose("Dummy squashfs header written to output file.\n");
                }
                else
                {
+                  printf("\nCould not read signed dummy squashfs header file.\n");
                   remove("dummy.squash.signed.padded");
+                  return -1;
                }
-            }
-         }
-
-         if (strncmp(argv[3 + i + 1], "foo", 3) != 0)
-         {
-            file = fopen(argv[3 + i + 1], "rb");
-            if (file != NULL)
+            } // squash header added, test if something more to add to this partition
+            if ((strlen(argv[i + 1]) == 3 && strncmp(argv[i + 1], "foo", 3) == 0)
+            &&  (strlen(argv[i + 1]) == 5 && strncmp(argv[i + 1], "dummy", 5) == 0))
             {
-               if (verbose == 1)
-               {
-                  printf("Adding type %d block, file: %s\n", type, argv[3 + i + 1]);
-               }
-               partBlocksize = totalBlockCount;
-               while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
-               {
-                  totalBlockCount++;
-                  if (verbose == 1)
-                  {
-                     printf(".");
-                  }
-               }
-               totalBlockCount++;
-               partBlocksize = totalBlockCount - partBlocksize;
-               if (verbose == 1)
-               {
-                  printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
-               }
-               fclose(file);
+               printverbose("This is a foo partition (squashfs dummy header only).\n");
             }
             else
-            {
-               printf("\nCould not append input file %s\n", argv[3 + i + 1]);
-               printf("\n");
-            }
-         }
-         else
-         {
-            if (verbose == 1)
-            {
-               printf("This is a foo partition\n");
+            { // append input file
+               file = fopen(argv[i + 1], "rb");
+               if (file != NULL)
+               {
+                  if (verbose)
+                     printf("Adding type %d block, file: %s\n", type, argv[i + 1]);
+                  partBlocksize = totalBlockCount;
+                  while (writeBlock(irdFile, file, 0, type) == DATA_BLOCKSIZE)
+                  {
+                     totalBlockCount++;
+                     printverbose(".");
+                  }
+                  totalBlockCount++;
+                  partBlocksize = totalBlockCount - partBlocksize;
+                  if (verbose)
+                     printf("\nAdded %d blocks, total is now %d blocks\n", partBlocksize, totalBlockCount);
+                  fclose(file);
+               }
+               else
+               {
+                  printf("\nCould not append input file %s\n", argv[i + 1]);
+                  printf("\n");
+               }
             }
          }
       }
@@ -1101,22 +1095,22 @@ int32_t main(int32_t argc, char* argv[])
       free(dataBuf);
 
       fclose(irdFile);
-      if (verbose == 1)
-      {
-         printf("Output file name is: %s\n", argv[2]);
-      }
-      if (oldsquash == 1)
+      if (verbose)
+         printf("Creating IRD file %s succesfully completed.\n", argv[2]);
+
+      if (oldsquash)
       {
          file = fopen("dummy.squash30.signed.padded", "rb");
-      }
-      if (file != NULL)
-      {
+         if (file != NULL)
+         {
             fclose(file);
             remove("dummy.squash30.signed.padded");
-      }
-      else
-      {
-         printf("Error removing file dummy.squash30.signed.padded.\n");
+//            printverbose("File dummy.squash30.signed.padded deleted.\n");
+         }
+         else
+         {
+            printf("Error: removing file dummy.squash30.signed.padded failed.\n");
+         }
       }
       oldsquash = 0;
       verbose = 1;
@@ -1159,7 +1153,7 @@ int32_t main(int32_t argc, char* argv[])
       headerDataBlockLen = readShort(irdFile);
       headerDataBlockLen -= 2;
 
-      if (verbose == 1)
+      if (verbose)
       {
          printf("Changing reseller ID in file %s to %04X.\n", argv[2], resellerId);
       }
@@ -1219,7 +1213,7 @@ int32_t main(int32_t argc, char* argv[])
       headerDataBlockLen = readShort(irdFile);
       headerDataBlockLen -= 2;
 
-      if (verbose == 1)
+      if (verbose)
       {
          printf("Changing SW version number in file %s to %04x.\n", argv[2], resellerId);
       }
@@ -1233,7 +1227,7 @@ int32_t main(int32_t argc, char* argv[])
 
       resellerId = extractShort(dataBuf, 12);	   //Get SW version hi from file
       temp = extractShort(dataBuf, 14);    //Get SW version lo from file
-      if (verbose == 1)
+      if (verbose)
       {
          printf("Current Software version number is V%X.%02X.%02X\n", resellerId&0xFFFF, temp>>8, temp&0xFF);
          printf("Changing Software version number to V%X.%02X.%02X\n", softwareversion1&0xFFFF, softwareversion2>>8, softwareversion2&0xFF);
@@ -1312,8 +1306,8 @@ int32_t main(int32_t argc, char* argv[])
       printf("       -nv [update.ird] versionnr As -n, verbose\n");
       printf("       -v                         Display program version\n");
       printf("\n");
-      printf("Note: To create squashfs part, use mksquashfs v3.1:\n");
-      printf("      ./mksquashfs3.1 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
+      printf("Note: To create squashfs part, use mksquashfs v3.3:\n");
+      printf("      ./mksquashfs3.3 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
       printf("\n");
       printf("Examples:\n");
       printf("  Creating a new Fortis IRD file with rootfs and kernel:\n");

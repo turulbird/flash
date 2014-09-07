@@ -7,11 +7,13 @@
 # " 1.19/1.21/1.23/1.25/1.54 or 2.19/2.21/2.23/2.25/2.54
 #
 # "Author: Schischu/Audioniek"
-# "Date: 08-25-2014"
+# "Date: 08-31-2014"
+#
+# " Note: this script requires fup 1.8.4 or later.
 #
 # "-----------------------------------------------------------------------"
-# "It is assumed that a neurino image was already built prior to executing"
-# "this script!"
+# "It is assumed that a neutrino image was already built prior to"
+# "executing this script!"
 # "-----------------------------------------------------------------------"
 #
 
@@ -30,21 +32,13 @@ echo "-----------------------------------------------------------------------"
 echo
 
 # Set up the variables
-TMPDUMDIR=$TMPDIR/DUMMY
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
 SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
-MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
 
 OUTFILE="$BOXTYPE"_"$IMAGE"_flash_R$RESELLERID.ird
 OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
-
-if [ -e $TMPDUMDIR ]; then
-  rm -rf $TMPDUMDIR/*
-elif [ ! -d $TMPDUMDIR ]; then
-  mkdir -p $TMPDUMDIR
-fi
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -53,86 +47,86 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 # mtd-layout after flashing:
-#		.name   = "Boot_firmware",      //mtd0
-#		.size   = 0x00300000,           // 3MB
-#		.offset = 0x00000000,
+#	.name   = "Boot_firmware",      //mtd0
+#	.size   = 0x00300000,           // 3MB
+#	.offset = 0x00000000
 #
-#		.name   = "kernel",             //mtd1
-#		.size   = 0x00300000,           // 3MB
-#		.offset = 0x00300000,           // 3MB
+#	.name   = "kernel",             //mtd1
+#	.size   = 0x00300000,           // 3MB
+#	.offset = 0x00300000            // 3MB
 #
-#		.name   = "app_low_unusable",   //mtd2
-#		.size   = 0x00500000,           // 5MB (squashfs)
-#		.offset = 0x00600000,           // 6MB
+#	.name   = "app_low_unusable",   //mtd2
+#	.size   = 0x00500000,           // 5MB (squashfs)
+#	.offset = 0x00600000            // 6MB
 #
-#		.name   = "app_high_sq",        //mtd3
-#		.size   = 0x00020000,           // 128kB (squashfs dummy)
-#		.offset = 0x00b00000,           // 11MB
+#	.name   = "app_high_sq",        //mtd3
+#	.size   = 0x00020000,           // 128kB (squashfs dummy)
+#	.offset = 0x00b00000            // 11MB
 #
-#		.name   = "ROOT_FS_sq",         //mtd4
-#		.size   = 0x00020000,           // 128kB (squashfs dummy)
-#		.offset = 0x01000000,           // 16MB
+#	.name   = "ROOT_FS_sq",         //mtd4
+#	.size   = 0x00020000,           // 128kB (squashfs dummy)
+#	.offset = 0x01000000            // 16MB
 #
-#		.name   = "Device_sq",          //mtd5
-#		.size   = 0x00020000,           // 128kB (squashfs dummy)
-#		.offset = 0x01800000,           // 24MB
+#	.name   = "Device_sq",          //mtd5
+#	.size   = 0x00020000,           // 128kB (squashfs dummy)
+#	.offset = 0x01800000            // 24MB
 #
-#		.name   = "Config_unusable",    //mtd6
-#		.size   = 0x00040000,           // 256kB
-#		.offset = 0x01bc0000,
+#	.name   = "Config_unusable",    //mtd6
+#	.size   = 0x00040000,           // 256kB
+#	.offset = 0x01bc0000 
 #
-#		.name   = "app_high_real",      //mtd7
-#		.size   = 0x004c0000,           // 5MB - 128kB squashfs - 128k checksum
-#		.offset = 0x00b20000,
+#	.name   = "app_high_real",      //mtd7
+#	.size   = 0x004c0000,           // 5MB - 128kB squashfs - 128k checksum
+#	.offset = 0x00b20000 
 #
-#		.name   = "ROOT_FS_real",       //mtd8
-#		.size   = 0x007c0000,           // 8MB - 128kB squashfs - 128k checksum
-#		.offset = 0x01020000,
+#	.name   = "ROOT_FS_real",       //mtd8
+#	.size   = 0x007c0000,           // 8MB - 128kB squashfs - 128k checksum
+#	.offset = 0x01020000 
 #
-#		.name   = "Device_real",        //mtd9
-#		.size   = 0x002c0000,           // 3MB - 128kB squashfs - 128k checksum
-#		.offset = 0x01820000,
+#	.name   = "Device_real",        //mtd9
+#	.size   = 0x002c0000,           // 3MB - 128kB squashfs - 128k checksum
+#	.offset = 0x01820000 
 #
-#		.name   = "Config_real",        //mtd10
-#		.size   = 0x000c0000,           // 768kB
-#		.offset = 0x01b00000,
+#	.name   = "Config_real",        //mtd10
+#	.size   = 0x000c0000,           // 768kB
+#	.offset = 0x01b00000 
 #
-#		.name = "User",                 //mtd11
-#		.size =   0x00400000,           // 4MB
-#		.offset = 0x01c00000,
+#	.name = "User",                 //mtd11
+#	.size =   0x00400000,           // 4MB
+#	.offset = 0x01c00000 
 #
 # mtd-layout after partition concatenating:
-#		.name   = "Boot_firmware",      //mtd0
-#		.size   = 0x00300000,           // 3MB
-#		.offset = 0x00000000,
+#	.name   = "Boot_firmware",      //mtd0
+#	.size   = 0x00300000,           // 3MB
+#	.offset = 0x00000000
 #
-#		.name   = "kernel",             //mtd1
-#		.size   = 0x00300000,           // 3MB
-#		.offset = 0x00300000,           // 3MB
+#	.name   = "kernel",             //mtd1
+#	.size   = 0x00300000,           // 3MB
+#	.offset = 0x00300000            // 3MB
 #
-#		.name   = "old_app_lo",         //mtd2
-#		.size   = 0x00500000,           // 5MB (app_lo_squashfs)
-#		.offset = 0x00600000,
+#	.name   = "old_app_lo",         //mtd2
+#	.size   = 0x00500000,           // 5MB (app_lo_squashfs)
+#	.offset = 0x00600000
 #
-#		.name   = "old_app_hi",         //mtd3
-#		.size   = 0x00020000,           // 128kB (app_high_squashfs dummy)
-#		.offset = 0x00b00000,
+#	.name   = "old_app_hi",         //mtd3
+#	.size   = 0x00020000,           // 128kB (app_high_squashfs dummy)
+#	.offset = 0x00b00000
 #
-#		.name   = "old_root",           //mtd4
-#		.size   = 0x00020000,           // 128kB (root_squashfs dummy)
-#		.offset = 0x00b20000,
+#	.name   = "Real_ROOT",           //mtd4
+#	.size   = 0x01460000,            // 20.375MB
+#	.offset = 0x00b20000             // 11.125MB
 #
-#		.name   = "old_dev",            //mtd5
-#		.size   = 0x00020000,           // 128kB (dev_squashfs dummy)
-#		.offset = 0x00b40000,
+#	.name   = "root_squash_dummy",   //mtd5
+#	.size   = 0x0001fffe,            // 128kB, one word too small, forces read-only mount
+#	.offset = 0x01f80000
 #
-#		.name   = "ConfigC",            //mtd6
-#		.size   = 0x00040000,           // 256kB (ConfigC)
-#		.offset = 0x00b60000,
+#	.name   = "dev_squash_dummy",    //mtd6
+#	.size   = 0x0001fffe,            // 128kB, one word too small, forces read-only mount
+#	.offset = 0x01fa0000
 #
-#		.name   = "Real_ROOT",          //mtd7  NOTE: Size is 0x60000 too small because of checksum holes
-#		.size   = 0x01400000,           // 20MB
-#		.offset = 0x00ba0000,           // 11.625MB
+#	.name   = "ConfigC",             //mtd7
+#	.size   = 0x0003fffe,            // 256kB, one word too small, forces read-only mount
+#	.offset = 0x01fc0000
 #
 
 echo -n " - Prepare kernel file..."
@@ -187,9 +181,9 @@ if [ "$IMAGE" != "kernel" ]; then
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo "ROOT TOO BIG: 0x$SIZEH instead of 0x01400000 bytes." > /dev/stderr
+    echo " ROOT TOO BIG: 0x$SIZEH instead of 0x01400000 bytes." > /dev/stderr
     echo
-    echo "Exiting..."
+    echo " Exiting..."
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     exit
@@ -198,54 +192,42 @@ if [ "$IMAGE" != "kernel" ]; then
   fi
 
   echo " - Split root into flash parts"
-  echo -n "   + Part one  : app partition...    "
+  echo -n "   + Part one  : app partition...     "
   # Root part one size is 0x4C0000, partition type 1 (app_high_real)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=76 2> /dev/null
-#  # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x00B00000,
-#  # real root flashed at 0x00B20000)
-#  cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.1.signed
-#  cat $TMPDIR/mtd_root.1.bin >> $TMPDIR/mtd_root.1.signed
   echo " done."
 
-  echo -n "   + Part two  : root partition...   "
+  echo -n "   + Part two  : root partition...    "
   # Root part two, size 0x7C0000, partition type 8 (ROOT_FS_sq)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.8.bin bs=65536 skip=76 count=124 2> /dev/null
-#  # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x01000000,
-#  # next root block starts at 0x01020000)
-#  cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.8.signed
-#  cat $TMPDIR/mtd_root.8.bin >> $TMPDIR/mtd_root.8.signed
   echo " done."
 
-  echo -n "   + Part three: dev partition...    "
+  echo -n "   + Part three: dev partition...     "
   # Root part three, size 0x2C0000, partition type 7 (Device_sq)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.7.bin bs=65536 skip=200 count=44 2> /dev/null
-#  # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x01800000,
-#  # next root block starts at 0x01820000)
-#  cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.7.signed
-#  cat $TMPDIR/mtd_root.7.bin >> $TMPDIR/mtd_root.7.signed
   echo " done."
 
-  echo -n "   + Part four : config0 partition..."
+  echo -n "   + Part four : config0 partition... "
   # Root part four, size 0x40000, partition type 2 (Config0, will be flashed at 0x01B00000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config0.bin bs=65536 skip=244 count=4 2> /dev/null
   echo " done."
 
-  echo -n "   + Part five : config4 partition..."
+  echo -n "   + Part five : config4 partition... "
   # Root part five, size 0x40000, partition type 3 (Config4, will be flashed at 0x01B40000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config4.bin bs=65536 skip=248 count=4 2> /dev/null
   echo " done."
 
-  echo -n "   + Part six  : config8 partition..."
+  echo -n "   + Part six  : config8 partition... "
   # Root part six, size 0x20000, partition type 4 (Config8, will be flashed at 0x01B80000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config8.bin bs=65536 skip=252 count=2 2> /dev/null
   echo " done."
 
-  echo -n "   + Part seven: configA partition..."
+  echo -n "   + Part seven: configA partition... "
   # Root part seven, size 0x20000, partition type 5 (ConfigA, will be flashed at 0x01BA0000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_configA.bin bs=65536 skip=254 count=2 2> /dev/null
   echo " done."
 
-  echo -n "   + Part eight: user partition...   "
+  echo -n "   + Part eight: user partition...    "
   # Root part eight, max. size 0x00400000, partition type 9 (User, will be flashed at 0x01C00000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.9.bin bs=65536 skip=256 count=64 2> /dev/null
   echo " done."
@@ -257,6 +239,7 @@ if [ "$IMAGE" == "kernel" ]; then
   $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage
 else
   $FUP -ce $OUTDIR/$OUTFILE \
+       -1G \
        -1 $TMPDIR/mtd_root.1.bin \
        -2 $TMPDIR/mtd_config0.bin \
        -3 $TMPDIR/mtd_config4.bin \
@@ -271,10 +254,10 @@ fi
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
 cd $CURDIR
 # Create MD5 file
-md5sum -b $OUTDIR/$OUTFILE  | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
-echo -n " - Creating .ZIP output file..."
+echo -n " - Creating .ZIP output file...       "
 cd $OUTDIR
 zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
@@ -284,8 +267,10 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo
-  echo " The receiver must be equipped with a standard Fortis bootloader with"
-  echo " unmodified bootargs."
+  echo " The receiver must be equipped with a standard Fortis bootloader:"
+  echo "  - FS9000/9200 : 1.19, 1.21, 1.23 or 1.54"
+  echo "  - HS9510      : 2.19, 2.21, 2.23 or 2.54"
+  echo " with unmodified bootargs."
   echo
   echo " To flash the created image copy the .ird file to the root directory"
   echo " of a FAT32 formatted USB stick."

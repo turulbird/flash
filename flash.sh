@@ -18,6 +18,9 @@ echo
 # 20140726 Audioniek   Setting own language on atevio7500 did not work; moved
 #                      upward.
 # 20140726 Audioniek   French added as third fixed language on atevio7500.
+# 20140831 Audioniek   Neutrino flash for Fortis 1st generation receivers
+#                      added.
+# 20140906 Audioniek   Tangos neutrino added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -175,6 +178,8 @@ if [ "$IMAGE" == "neutrino" ]; then
     NMP_REV=_NMP-rev`cd $CURDIR/../../apps/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
   elif [ -d $BASEDIR/apps/neutrino-mp-martii-github ]; then
     NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  elif [ -d $BASEDIR/apps/neutrino-mp-tangos ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
   else
     NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp && git log | grep "^commit" | wc -l`
   fi
@@ -283,10 +288,10 @@ echo
 echo " Build $IMAGE output file(s) for $BOXTYPE running in/on $OUTTYPE."
 echo
 
-# Handle common Fortis stuff
+if [ "$OUTTYPE" == "flash" ]; then
+# Handle common Fortis flash stuff
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon_1008|hs7110|hs7810a|hs7119|hs7819)
-#  atevio7500|hs7110|hs7810a|hs7119|hs7819)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7810a|hs7119|hs7819)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -296,7 +301,7 @@ case $BOXTYPE in
         fortis_hdbox)
           RESELLERID=20020000
           FORTISBOX="Octagon SF1018P HD Alliance";;
-        octagon_1008)
+        octagon1008)
           RESELLERID=20020300
           FORTISBOX="Octagon SF1008P HD Intelligence";;
         hs7110)
@@ -332,7 +337,6 @@ case $BOXTYPE in
     fi
 esac
 
-if [ "$OUTTYPE" == "flash" ]; then
   case $BOXTYPE in
     atevio7500)
       if [ "$IMAGE" == "enigma2" ]; then
@@ -353,13 +357,13 @@ if [ "$OUTTYPE" == "flash" ]; then
     ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1st"_"$IMAGE"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
-    hs7110|hs7810a)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x10"_"$IMAGE"_"$OUTTYPE".sh
-      unset RESELLERID;;
+#    hs7110|hs7810a)
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
+#      unset RESELLERID;;
 #    hs7119|hs7819)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"hs7x19"_"$IMAGE"_"$OUTTYPE".sh
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_3G"_"$IMAGE"_"$OUTTYPE".sh
 #      unset RESELLERID;;
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
