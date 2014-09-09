@@ -21,6 +21,7 @@ echo
 # 20140831 Audioniek   Neutrino flash for Fortis 1st generation receivers
 #                      added.
 # 20140906 Audioniek   Tangos neutrino added.
+# 20140907 Audioniek   Neutrino flash for HS7110 & HS7810A receivers added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -359,9 +360,9 @@ esac
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
-#    hs7110|hs7810a)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
-#      unset RESELLERID;;
+    hs7110|hs7810a)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
+      unset RESELLERID;;
 #    hs7119|hs7819)
 #      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_3G"_"$IMAGE"_"$OUTTYPE".sh
 #      unset RESELLERID;;
