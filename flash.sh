@@ -371,7 +371,7 @@ esac
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
     hs7119|hs7819)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_3G"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;

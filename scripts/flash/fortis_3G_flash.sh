@@ -23,8 +23,8 @@ echo
 echo " What would you like to flash?"
 echo "   1) The $IMAGE image plus kernel (*)"
 echo "   2) Only the kernel"
-echo "   2) Only the $IMAGE image"
-read -p " Select flash target (1-2)? "
+echo "   3) Only the $IMAGE image"
+read -p " Select flash target (1-3)? "
 case "$REPLY" in
 #  1) echo > /dev/null;;
   2) IMAGE="kernel";;
@@ -73,10 +73,10 @@ fi
 
 if [ ! "$IMAGE" == "kernel" ]; then
   echo -n " - Prepare UBIFS root file system..."
-  # Logical erablock size is physical eraseblock size (131072) minus -m parameter => -e 129024
-  # Number of erase blocks is partition size / eraseblock size: 96Mib / 131072 => -c 768
+  # Logical erase block size is physical erase block size (131072) minus -m parameter => -e 129024
+  # Number of erase blocks is partition size / physical eraseblock size: 96Mib / 131072 => -c 768
   # Fortis bootloader expects a zlib compressed ubifs => -x zlib
-  $MKFSUBIFS -d $TMPROOTDIR -m 2048 -e 129024 -c 768 -x zlib -U -o $TMPDIR/mtd_root.ubi
+  $MKFSUBIFS -d $TMPROOTDIR -m 2048 -e 129024 -c 768 -x zlib -U -o $TMPDIR/mtd_root.ubi 2> /dev/null
   echo " done."
 
   echo -n " - Create ubinize ini file..."
@@ -89,6 +89,7 @@ if [ ! "$IMAGE" == "kernel" ]; then
   # Net available for data: 752 x 129024 = 97026048 bytes
   echo "vol_size=97026048" >> $TMPDIR/ubi.ini
   echo "vol_type=dynamic" >> $TMPDIR/ubi.ini
+  # Fortis bootloader requires the volume label rootfs
   echo "vol_name=rootfs" >> $TMPDIR/ubi.ini
   # Allow UBI to dynamically resize the volume
   echo "vol_flags=autoresize" >> $TMPDIR/ubi.ini
@@ -99,7 +100,7 @@ if [ ! "$IMAGE" == "kernel" ]; then
   # UBInize the UBI partition of the rootfs
   # Physical eraseblock size is 131072 => -p 128BiB
   # Subpage size is 512 bytes => -s 512
-  $UBINIZE -v -o $TMPDIR/mtd_root.ubin -p 128KiB -m 2048 -s 512 -x 1 $TMPDIR/ubi.ini
+  $UBINIZE -o $TMPDIR/mtd_root.ubin -p 128KiB -m 2048 -s 512 -x 1 $TMPDIR/ubi.ini 2> /dev/null
   echo " done."
 
   echo -n " - Checking root size..."
