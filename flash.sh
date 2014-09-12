@@ -19,9 +19,10 @@ echo
 #                      upward.
 # 20140726 Audioniek   French added as third fixed language on atevio7500.
 # 20140831 Audioniek   Neutrino flash for Fortis 1st generation receivers
-#                      added.
+#                      added (requires latest fup).
 # 20140906 Audioniek   Tangos neutrino added.
 # 20140907 Audioniek   Neutrino flash for HS7110 & HS7810A receivers added.
+# 20140912 Audioniek   Flash for HS7119 & HS7819 receivers added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -260,7 +261,7 @@ echo
     echo " !!! ERROR: File size of video.elf is zero !!!"
   fi
   echo
-  echo " Make sure that you use correct .elf files in the"
+  echo " Make sure that you use the correct .elf files in the"
   echo " directory $CDKDIR/root/boot."
   echo
   echo " Exiting..."
@@ -292,7 +293,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle common Fortis flash stuff
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7810a|hs7119|hs7819)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -308,12 +309,18 @@ case $BOXTYPE in
         hs7110)
           RESELLERID=250202A0
           FORTISBOX="Octagon SF918SE+ HD Difference";;
+        hs7420)
+          RESELLERID=250203A0
+          FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
         hs7810a)
           RESELLERID=250200A0
           FORTISBOX="Octagon SF1008SE+ HD Intelligence";;
         hs7119)
           RESELLERID=270200A0
           FORTISBOX="Octagon SF918GSE+ HD Difference";;
+        hs7429)
+          RESELLERID=270230A0
+          FORTISBOX="Octagon SF1008G+SE+ HD Intelligence";;
         hs7819)
           RESELLERID=270220A0
           FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
@@ -363,9 +370,9 @@ esac
     hs7110|hs7810a)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
-#    hs7119|hs7819)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_3G"_"$IMAGE"_"$OUTTYPE".sh
-#      unset RESELLERID;;
+    hs7119|hs7819)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_3G"_"$OUTTYPE".sh
+      unset RESELLERID;;
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
     tf7700)

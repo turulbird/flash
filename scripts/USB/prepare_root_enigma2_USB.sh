@@ -35,7 +35,7 @@ case $BOXTYPE in
     # Move kernel back
     mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     ;;
-  [hs7110|hs7119|hs7810a|hs7819])
+  hs7110|hs7119|hs7810a|hs7819)
     common
     ;;
   [spark|spark7162])

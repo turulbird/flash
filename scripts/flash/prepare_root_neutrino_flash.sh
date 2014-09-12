@@ -33,7 +33,7 @@ common() {
 
 # Prepare neutrino root according to box type
 case $BOXTYPE in
-  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a)
+  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819)
     common;;
   spark|spark7162)
     common;;
