@@ -1,16 +1,18 @@
 #!/bin/bash
-# ----------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # This script prepares the root of an enigma2 image pending further
 # processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
 # Date: 07-06-2014"
-# ----------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Changes:
 # 20140726: Audioniek   Removed: if gstreamer found, /usr/lib/libav* was
 #                       deleted.
 # 20140726: Audioniek   French added as third fixed language.
-# ----------------------------------------------------------------------
+# 20140914: Audioniek   Retain all languages option added.
+#
+# ---------------------------------------------------------------------------
 
 RELEASEDIR=$1
 
@@ -39,38 +41,41 @@ common() {
 # Prepare enigma2 root according to box type
 case $BOXTYPE in
   atevio7500)
+# for loader 6.00
     common
-    echo -n " Strip root..."
-    # Language support: remove everything but English, French, German and own language
-    mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
-    mkdir $TMPROOTDIR/usr/local/share/enigma2/po
-    for i in en de fr $OWNLANG
-    do
-      cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$i $TMPROOTDIR/usr/local/share/enigma2/po
-    done
-    rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
+    if [[ ! "$OWNLANG" == "all" ]]; then
+      echo -n " Strip root..."
+      # Language support: remove everything but English, French, German and own language
+      mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
+      mkdir $TMPROOTDIR/usr/local/share/enigma2/po
+      for i in en de fr $OWNLANG
+      do
+        cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$i $TMPROOTDIR/usr/local/share/enigma2/po
+      done
+      rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
 
-    mv $TMPROOTDIR/usr/local/share/enigma2/countries $TMPROOTDIR/usr/local/share/enigma2/countries.old
-    mkdir $TMPROOTDIR/usr/local/share/enigma2/countries
-    cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/missing.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    for i in en de fr $OWNLANG
-    do
-      cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$i.* $TMPROOTDIR/usr/local/share/enigma2/countries
-    done
-    rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
-    # Update /usr/lib/enigma2/python/Components/Language.py
-    # First remove all language lines from it
-    sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
-    # Add en, fr and ge
-    sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
-    # Add own language if given
-    if [[ ! "$OWNLANG" == "" ]]; then
-      sed -i 's/("English",     "en", "EN")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      mv $TMPROOTDIR/usr/local/share/enigma2/countries $TMPROOTDIR/usr/local/share/enigma2/countries.old
+      mkdir $TMPROOTDIR/usr/local/share/enigma2/countries
+      cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/missing.* $TMPROOTDIR/usr/local/share/enigma2/countries
+      for i in en de fr $OWNLANG
+      do
+        cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$i.* $TMPROOTDIR/usr/local/share/enigma2/countries
+      done
+      rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
+      # Update /usr/lib/enigma2/python/Components/Language.py
+      # First remove all language lines from it
+      sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      # Add en, fr and ge
+      sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      # Add own language if given
+      if [[ ! "$OWNLANG" == "" ]]; then
+        sed -i 's/("English",     "en", "EN")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      fi
+
+      rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
+      # Compile Language.py
+      python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
     fi
-
-    rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
-    # Compile Language.py
-    python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
 
     #remove all .py-files
     find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
@@ -79,11 +84,12 @@ case $BOXTYPE in
     echo " done."
     ;;
   hs7110|hs7119|hs7810a|hs7819)
-# for loader 6.X0/7.X0
+# for loader 6.XX/7.XX
     common;;
   spark|spark7162)
     common;;
   fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+# Fortis needs TDT maxiboot or similar loader
     common
 
     echo -n " Move var directory..."
@@ -151,9 +157,9 @@ case $BOXTYPE in
     elif [ "$BOXTYPE" == "ufs913" ]; then
        echo "/dev/mtdblock8	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
        #echo "/dev/mtdblock10	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
-    elif [ "$BOXTYPE" == "hs7810a" ]; then
-      echo "/dev/mtdblock2	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
-      #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+#    elif [ "$BOXTYPE" == "hs7810a" ]; then
+#      echo "/dev/mtdblock2	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+#      #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
     fi
     echo " done."
     ;;

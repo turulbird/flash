@@ -10,11 +10,11 @@
 # " 7.20, 7.26 or 7.27 (HS7819)
 #
 # "Author: Schischu/Audioniek"
-# "Date: 09-12-2014"
+# "Date: 09-14-2014"
 #
 # "-----------------------------------------------------------------------"
-# "It is assumed that a neutrino image was already built prior to"
-# "executing this script!"
+# "It is assumed that an image was already built prior to executing this"
+# "script!"
 # "-----------------------------------------------------------------------"
 #
 
@@ -85,9 +85,9 @@ if [ ! "$IMAGE" == "kernel" ]; then
   echo "mode=ubi" >> $TMPDIR/ubi.ini
   echo "image=$TMPDIR/mtd_root.ubi" >> $TMPDIR/ubi.ini
   echo "vol_id=0" >> $TMPDIR/ubi.ini
-  # UBI needs a few free erase blocks for bad PEB handling, say 16, so:
-  # Net available for data: 752 x 129024 = 97026048 bytes
-  echo "vol_size=97026048" >> $TMPDIR/ubi.ini
+  # UBI needs a few free erase blocks for bad PEB handling, say 32, so:
+  # Net available for data: 736 x 129024 = 94961664 bytes
+  echo "vol_size=94961664" >> $TMPDIR/ubi.ini
   echo "vol_type=dynamic" >> $TMPDIR/ubi.ini
   # Fortis bootloader requires the volume label rootfs
   echo "vol_name=rootfs" >> $TMPDIR/ubi.ini
@@ -98,7 +98,7 @@ if [ ! "$IMAGE" == "kernel" ]; then
 
   echo -n " - Create UBI root image..."
   # UBInize the UBI partition of the rootfs
-  # Physical eraseblock size is 131072 => -p 128BiB
+  # Physical eraseblock size is 131072 => -p 128KiB
   # Subpage size is 512 bytes => -s 512
   $UBINIZE -o $TMPDIR/mtd_root.ubin -p 128KiB -m 2048 -s 512 -x 1 $TMPDIR/ubi.ini 2> /dev/null
   echo " done."
@@ -107,19 +107,19 @@ if [ ! "$IMAGE" == "kernel" ]; then
   SIZE=`stat $TMPDIR/mtd_root.ubin -t --format %s`
   SIZEH=`printf "%08X" $SIZE`
   SIZED=`printf "%d" $SIZE`
-  if [[ $SIZED > "97026048" ]]; then  echo -e "\033[01;31m"
+  if [[ $SIZED > "94961664" ]]; then  echo -e "\033[01;31m"
     echo
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo " ROOT TOO BIG: 0x$SIZEKH instead of max. 0x05C880000 bytes." > /dev/stderr
+    echo " ROOT TOO BIG: 0x$SIZEH instead of max. 0x05A900000 bytes." > /dev/stderr
     echo " Exiting..."
     echo
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     exit
   else
-    echo " OK: $SIZEKD (0x$SIZEKH, max. 0x05C880000) bytes."
+    echo " OK: $SIZED (0x$SIZEH, max. 0x05A900000) bytes."
   fi
 fi
 

@@ -1,11 +1,11 @@
-# "-----------------------------------------------------------------------"
-# "This script creates flashable images for Fortis HS8200 receivers"
-# "Author: Schischu/Audioniek"
-# "Date: 07-05-2014"
+# ---------------------------------------------------------------------------
+# This script creates flashable images for Fortis HS8200 receivers"
+# Author: Schischu/Audioniek"
+# Date: 07-05-2014"
 #
 # Note: for HS8200 with loader 6.00 (concatenated partitions version)
 #
-# "-----------------------------------------------------------------------"
+# ---------------------------------------------------------------------------
 # "It is assumed that an image was already built prior to executing this"
 # "script!"
 # "-----------------------------------------------------------------------"

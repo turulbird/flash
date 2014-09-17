@@ -23,6 +23,8 @@ echo
 # 20140906 Audioniek   Tangos neutrino added.
 # 20140907 Audioniek   Neutrino flash for HS7110 & HS7810A receivers added.
 # 20140912 Audioniek   Flash for HS7119 & HS7819 receivers added.
+# 20140914 Audioniek   Corrected some typos, add all languages option for
+#                      atevio7500.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -126,10 +128,6 @@ read -p " Select target (1-2)? "
 case "$REPLY" in
   1) export OUTTYPE="USB";;
   *) export OUTTYPE="flash";;
-#  *) echo " Invalid Input! Exiting..."
-#    echo
-#    echo "-----------------------------------------------------------------------"
-#    exit 2;;
 esac
 
 # Check if the receiver can accept an Enigma2 image in flash
@@ -222,13 +220,13 @@ echo
 echo " Prepare $IMAGE root for $BOXTYPE."
 echo
 if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == "enigma2" ]; then
-  # The root will be stripped of all language support except de (German), fr (French) and
-  # en (English) because the flash space is rather limited on this receiver.
+  # The root will be optionally stripped of all language support except de (German), fr (French)
+  # and en (English) because the flash space is rather limited on this receiver.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
-  # two lower case letters):
+  # two lower case letters). To leave all langauages in, specify 'all' here:
   export OWNLANG=nl
   # and the country to go with it (ISO code, two uppercase letters, often the same letters
-  # as the language):
+  # as the language; in case of OWNLANG=all it is ignored):
  export OWNCOUNTRY=NL
 fi
 $SCRIPTDIR/$OUTTYPE/prepare_root_"$IMAGE"_"$OUTTYPE".sh $TUFSBOXDIR/release
@@ -239,7 +237,7 @@ echo
 # Check .elf file sizes
 if [ $IMAGE == "enigma2" ]; then
   AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
-VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
+  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
 elif [ $IMAGE == "neutrino" ]; then
   AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
   VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
@@ -311,7 +309,7 @@ case $BOXTYPE in
           FORTISBOX="Octagon SF918SE+ HD Difference";;
         hs7420)
           RESELLERID=250203A0
-          FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
+          FORTISBOX="Octagon SF1008PSE+ HD Intelligence";;
         hs7810a)
           RESELLERID=250200A0
           FORTISBOX="Octagon SF1008SE+ HD Intelligence";;
@@ -392,6 +390,10 @@ else #USB
   case $BOXTYPE in
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
+#    hs7110|hs7810a)
+#      $SCRIPTDIR/$OUTTYPE/"fortis_2G"_"$OUTTYPE".sh;;
+#    hs7119|hs7819)
+#      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo

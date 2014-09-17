@@ -40,6 +40,8 @@ case $BOXTYPE in
     common
     # Move kernel back
     mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage;;
+  hs7119|hs7819)
+    common;;
   spark|spark7162)
     common;;
   ufc960)
