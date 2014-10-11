@@ -165,7 +165,8 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo " Insert the USB stick in any of the box's USB ports, and switch on"
   echo " the receiver using the mains switch or inserting the DC power plug"
   echo " while pressing and holding the channel up key on the frontpanel."
-  echo " Release the button when the display shows SCAN (USB)."
+  echo " Release the button when the display shows SCAN (USB) or when you see"
+  echo " regular activity on the USB stick."
   echo " Flashing the image will then begin."
   echo -e "\033[00m"
 fi
