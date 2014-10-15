@@ -11,6 +11,7 @@
 #                       deleted.
 # 20140726: Audioniek   French added as third fixed language on atevio7500.
 # 20140914: Audioniek   Retain all languages option added on atevio7500.
+# 20141015: Audioniek   Fortis 4th generation receivers added.
 #
 # ---------------------------------------------------------------------------
 
@@ -83,8 +84,8 @@ case $BOXTYPE in
     find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
     echo " done."
     ;;
-  hs7110|hs7119|hs7810a|hs7819)
-# for loader 6.XX/7.XX
+  hs7110|hs7119|hs7810a|hs7819|dp6010|dp7000|dp7001|epp8000)
+# for loader 6.XX/7.XX/8.XX
     common;;
   spark|spark7162)
     common;;

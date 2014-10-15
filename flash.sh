@@ -25,6 +25,7 @@ echo
 # 20140912 Audioniek   Flash for HS7119 & HS7819 receivers added.
 # 20140914 Audioniek   Corrected some typos, add all languages option for
 #                      atevio7500.
+# 20141015 Audioniek   Fortis 4th generation receivers added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -223,7 +224,7 @@ if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == 
   # The root will be optionally stripped of all language support except de (German), fr (French)
   # and en (English) because the flash space is rather limited on this receiver.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
-  # two lower case letters). To leave all langauages in, specify 'all' here:
+  # two lower case letters). To leave all languages in, specify 'all' here:
   export OWNLANG=nl
   # and the country to go with it (ISO code, two uppercase letters, often the same letters
   # as the language; in case of OWNLANG=all it is ignored):
@@ -291,7 +292,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle common Fortis flash stuff
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp7000|dp7001|epp8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -322,6 +323,15 @@ case $BOXTYPE in
         hs7819)
           RESELLERID=270220A0
           FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
+        dp6010)
+          RESELLERID=29060000
+          FORTISBOX="Rebox RE-2220HD S-PVR";;
+        dp7000|dp7001)
+          RESELLERID=29060100
+          FORTISBOX="Rebox RE-4220HD S-PVR";;
+        epp8000)
+          RESELLERID=2A020000
+          FORTISBOX="Rebox RE-8220HD S-PVR";;
       esac
       echo " No resellerID specified, using default $RESELLERID"
       echo " (equals $FORTISBOX)."
@@ -345,16 +355,6 @@ esac
 
   case $BOXTYPE in
     atevio7500)
-      if [ "$IMAGE" == "enigma2" ]; then
-        # The root will be stripped of all language support except de (German) and en (English)
-        # because the flash space is rather limited on this receiver.
-        # A third language can be specified here in ISO code (suggestion is your own language,
-        # two lower case letters):
-        export OWNLANG=nl
-        # and the country to go with it (ISO code, two uppercase letters, often the same letters
-        # as the language):
-        export OWNCOUNTRY=NL
-      fi
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
       unset OWNLANG
@@ -370,6 +370,9 @@ esac
       unset RESELLERID;;
     hs7119|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
+      unset RESELLERID;;
+    dp6010|dp7000|dp7001|epp8000)
+      $SCRIPTDIR/$OUTTYPE/"fortis_4G"_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;

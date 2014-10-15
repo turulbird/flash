@@ -4,7 +4,13 @@
 # processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
+#
 # Date: 07-12-2014"
+# ---------------------------------------------------------------------------
+# Changes:
+# 20141015: Audioniek   Fortis 4th generation receivers added.
+#
+# ---------------------------------------------------------------------------
 
 RELEASEDIR=$1
 
@@ -33,7 +39,7 @@ common() {
 
 # Prepare neutrino root according to box type
 case $BOXTYPE in
-  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819)
+  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819|dp6010|dp7000|dp7001|epp8000)
     common;;
   spark|spark7162)
     common;;
