@@ -9,7 +9,7 @@
 # " 8.05 (DP6010),
 # " ?.?? (DP7000, NOT tested),
 # " 8.05 (DP7001) or
-# " 8.37 (EPP8000)
+# " 8.35 or 8.37 (EPP8000)
 #
 # "Author: Schischu/Audioniek"
 # "Date: 10-15-2014"
@@ -30,7 +30,7 @@ read -p " Select flash target (1-3)? "
 case "$REPLY" in
 #  1) echo > /dev/null;;
   2) IMAGE="kernel";;
-  3) IMAGE="$IMAGE_only";;
+  3) IMAGE="image";;
 #  *) echo > /dev/null;;
 esac
 echo "-----------------------------------------------------------------------"
@@ -50,27 +50,29 @@ elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
 
-echo -n " - Prepare kernel file..."
-cp $TMPKERNELDIR/uImage $TMPDIR/uImage
-echo " done."
+if [ ! "$IMAGE" == "image" ]; then
+  echo -n " - Prepare kernel file..."
+  cp $TMPKERNELDIR/uImage $TMPDIR/uImage
+  echo " done."
 
-echo -n " - Checking kernel size..."
-SIZEK=`stat $TMPDIR/uImage -t --format %s`
-SIZEKD=`printf "%d" $SIZEK`
-SIZEKH=`printf "%08X" $SIZEK`
-if [ "$SIZEKD" -gt "4194304" ]; then
-  echo
-  echo -e "\033[01;31m"
-  echo "-- ERROR! -------------------------------------------------------------"
-  echo
-  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00400000 bytes." > /dev/stderr
-  echo " Exiting..."
-  echo
-  echo "-----------------------------------------------------------------------"
-  echo -e "\033[00m"
-  exit
-else
-  echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00400000) bytes."
+  echo -n " - Checking kernel size..."
+  SIZEK=`stat $TMPDIR/uImage -t --format %s`
+  SIZEKD=`printf "%d" $SIZEK`
+  SIZEKH=`printf "%08X" $SIZEK`
+  if [ "$SIZEKD" -gt "4194304" ]; then
+    echo
+    echo -e "\033[01;31m"
+    echo "-- ERROR! -------------------------------------------------------------"
+    echo
+    echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00400000 bytes." > /dev/stderr
+    echo " Exiting..."
+    echo
+    echo "-----------------------------------------------------------------------"
+    echo -e "\033[00m"
+    exit
+  else
+    echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00400000) bytes."
+  fi
 fi
 
 if [ ! "$IMAGE" == "kernel" ]; then
@@ -159,7 +161,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "  - DP6010: 8.05"
 # echo "  - DP7000: ?.??"
   echo "  - DP7001: 8.05"
-  echo "  - EPP8000: 8.37"
+  echo "  - EPP8000: 8.35 or 8.37"
   echo " with unmodified bootargs."
   echo
   echo " To flash the created image copy the .ird file to the root directory"
@@ -179,4 +181,3 @@ rm -f $TMPDIR/uImage
 rm -f $TMPDIR/mtd_root.ubi
 rm -f $TMPDIR/mtd_root.ubin
 rm -f $TMPDIR/ubi.ini
-
