@@ -32,7 +32,7 @@ common() {
     echo " done."
   fi
 
-  echo -n " Move kernel..."
+  echo -n " Moving kernel..."
   mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
   echo " done."
 }
@@ -46,11 +46,11 @@ case $BOXTYPE in
   ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
     common
 
-    echo -n " Move var directory..."
+    echo -n " Moving var directory..."
     mv $TMPROOTDIR/var/* $TMPVARDIR/
     echo " done."
 
-    echo -n " Create mini-rcS and inittab..."
+    echo -n " Creating mini-rcS and inittab..."
     rm -f $TMPROOTDIR/etc
     mkdir -p $TMPROOTDIR/etc/init.d
     echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rcS
@@ -69,7 +69,7 @@ case $BOXTYPE in
   ufc960)
     common
 
-    echo -n " Set up init_mini_fo..."
+    echo -n " Setting up init_mini_fo..."
     mkdir $TMPROOTDIR/root_rw
     mkdir $TMPROOTDIR/storage
     cp $TOOLSDIR/init_mini_fo $TMPROOTDIR/sbin/
@@ -78,11 +78,11 @@ case $BOXTYPE in
     mkdir $TMPVARDIR/root_ro
     echo " done."
 
-#    echo -n " Move var directory..."
+#    echo -n " Moving var directory..."
 #    mv $TMPROOTDIR/var $TMPVARDIR/
 #    echo " done."
 
-    echo -n " Adapt var/etc/fstab..."
+    echo -n " Adapting var/etc/fstab..."
     sed -i 's|/dev/sda.*||g' $TMPROOTDIR/var/etc/fstab
     #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
     echo " done."
@@ -108,12 +108,12 @@ case $BOXTYPE in
     cp $RELEASEDIR/.version $TMPROOTDIR
     rm -fr $TMPROOTDIR/boot
 
-    echo -n " Move firmwares..."
+    echo -n " Moving firmwares..."
     mv $TMPROOTDIR/lib/firmware/* $TMPVARDIR
     echo " done."
 
     if [ -e $TMPROOTDIR/var/etc/fstab ]; then
-      echo -n " Adapt var/etc/fstab..."
+      echo -n " Adapting var/etc/fstab..."
       if [ "$BOXTYPE" == "ufs912" ]; then
          echo "/dev/mtdblock3	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
          #echo "/dev/mtdblock5	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
@@ -123,7 +123,7 @@ case $BOXTYPE in
       fi
     else
       if [ "$BOXTYPE" == "ufs912" ]; then
-        echo -n " Adapt etc/fstab..."
+        echo -n " Adapting etc/fstab..."
         echo "/dev/mtdblock3	/lib/firmware	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
         #echo "/dev/mtdblock5	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
       else

@@ -51,7 +51,7 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 if [ ! "$IMAGE" == "image" ]; then
-  echo -n " - Prepare kernel file..."
+  echo -n " - Preparing kernel file..."
   cp $TMPKERNELDIR/uImage $TMPDIR/uImage
   echo " done."
 
@@ -76,14 +76,14 @@ if [ ! "$IMAGE" == "image" ]; then
 fi
 
 if [ ! "$IMAGE" == "kernel" ]; then
-  echo -n " - Prepare UBIFS root file system..."
+  echo -n " - Preparing UBIFS root file system..."
   # Logical erase block size is physical erase block size (131072) minus -m parameter => -e 129024
   # Number of erase blocks is partition size / physical eraseblock size: 182Mib / 131072 => -c 1456
   # Fortis bootloader expects a zlib compressed ubifs => -x zlib
   $MKFSUBIFS -d $TMPROOTDIR -m 2048 -e 129024 -c 1456 -x zlib -U -o $TMPDIR/mtd_root.ubi 2> /dev/null
   echo " done."
 
-  echo -n " - Create ubinize ini file..."
+  echo -n " - Creating ubinize ini file..."
   # Create ubi.ini
   echo "[ubi-rootfs]" > $TMPDIR/ubi.ini
   echo "mode=ubi" >> $TMPDIR/ubi.ini
@@ -100,7 +100,7 @@ if [ ! "$IMAGE" == "kernel" ]; then
   echo "vol_alignment=1" >> $TMPDIR/ubi.ini
   echo " done."
 
-  echo -n " - Create UBI root image..."
+  echo -n " - Creating UBI root image..."
   # UBInize the UBI partition of the rootfs
   # Physical eraseblock size is 131072 => -p 128KiB
   # Subpage size is 512 bytes => -s 512
@@ -147,7 +147,7 @@ cd $CURDIR
 md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
-echo -n " - Creating .ZIP output file...       "
+echo -n " - Creating .ZIP output file..."
 cd $OUTDIR
 zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR

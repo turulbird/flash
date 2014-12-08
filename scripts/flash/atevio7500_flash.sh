@@ -111,7 +111,7 @@ fi
 #	 .size   = 0x03C00000,	//60M
 #	 .offset = 0x003E0000,  //4M - 128k force flash hole
 
-echo -n " - Prepare kernel file..."
+echo -n " - Preparing kernel file..."
 # Note: padding the kernel to set start offset of type 8 (root) does not work;
 # boot loader always uses the actual kernel size (at offset 0x0c?) to find/check
 # the root.
@@ -231,14 +231,14 @@ if [ ! -e $TOOLSDIR/seedfile ]; then
   dd if=/dev/urandom count=3538943 bs=1 of=$TOOLSDIR/seedfile bs=1 skip=0 2> /dev/null
   echo " done."
 fi
-echo -n " - Create dummy root squashfs 3.3 partition (Fake_ROOT)..."
+echo -n " - Creating dummy root squashfs 3.3 partition (Fake_ROOT)..."
 dd if=$TOOLSDIR/seedfile of=$TMPDUMDIR/dummy bs=1 skip=0 count=$FAKESIZE 2> /dev/null
 $MKSQUASHFS $TMPDUMDIR $TMPDIR/mtd_fakeroot.bin -nopad -le > /dev/null
 # Sign partition
 $FUP -s $TMPDIR/mtd_fakeroot.bin > /dev/null
 echo " done."
 
-echo -n " - Create dummy dev squashfs 3.3 partition (Fake_DEV)..."
+echo -n " - Creating dummy dev squashfs 3.3 partition (Fake_DEV)..."
 echo "#!/bin/bash" > $TMPDUMDIR/dummy
 echo "exit" >> $TMPDUMDIR/dummy
 chmod 755 $TMPDUMDIR/dummy > /dev/null
@@ -252,7 +252,7 @@ if [ "$IMAGE" == "kernel" ]; then
   cat $TMPDIR/mtd_fakedev.bin.signed > $TMPDIR/mtd_root.1.signed
   echo " done."
 else
-  echo -n " - Prepare real root..."
+  echo -n " - Preparing real root..."
   # Create a jffs2 partition for the complete root
   $MKFSJFFS2 -qUfl -e 0x20000 -r $TMPROOTDIR -o $TMPDIR/mtd_root.bin
   $SUMTOOL -p -l -e 0x20000 -i $TMPDIR/mtd_root.bin -o $TMPDIR/mtd_root.sum > /dev/null
@@ -279,7 +279,7 @@ else
     echo " OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes"
   fi
 
-  echo " - Split root into flash parts"
+  echo " - Splitting root into flash parts"
   echo -n "   + Part one: app partition..."
   # Root part one size is 0x1D00000, partition type 1 (Fake_APP, extending into Real_ROOT)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=464 2> /dev/null

@@ -26,6 +26,7 @@ echo
 # 20140914 Audioniek   Corrected some typos, add all languages option for
 #                      atevio7500.
 # 20141015 Audioniek   Fortis 4th generation receivers added.
+# 20141208 Audioniek   Bug fixed with Fortis dp6010.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -292,7 +293,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle common Fortis flash stuff
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp7000|dp7001|epp8000)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp7000|dp6010|dp7001|epp8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -359,7 +360,6 @@ esac
       unset RESELLERID
       unset OWNLANG
       unset OWNCOUNTRY;;
-#    fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
     ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)

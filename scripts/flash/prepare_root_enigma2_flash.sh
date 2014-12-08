@@ -34,7 +34,7 @@ common() {
     echo " done."
   fi
 
-  echo -n " Move kernel..."
+  echo -n " Moving kernel..."
   mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
   echo " done."
 }
@@ -45,7 +45,7 @@ case $BOXTYPE in
 # for loader 6.00
     common
     if [[ ! "$OWNLANG" == "all" ]]; then
-      echo -n " Strip root..."
+      echo -n " Stripping root..."
       # Language support: remove everything but English, French, German and own language
       mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
       mkdir $TMPROOTDIR/usr/local/share/enigma2/po
@@ -93,11 +93,11 @@ case $BOXTYPE in
 # Fortis needs TDT maxiboot or similar loader
     common
 
-    echo -n " Move var directory..."
+    echo -n " Moving var directory..."
     mv $TMPROOTDIR/var/* $TMPVARDIR/
     echo " done."
 
-    echo -n " Create mini-rcS and inittab..."
+    echo -n " Creating mini-rcS and inittab..."
     rm -f $TMPROOTDIR/etc
     mkdir -p $TMPROOTDIR/etc/init.d
     echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rcS
@@ -116,7 +116,7 @@ case $BOXTYPE in
   ufc960)
     common
 
-    echo -n " Set up init_mini_fo..."
+    echo -n " Setting up init_mini_fo..."
     mkdir $TMPROOTDIR/root_rw
     mkdir $TMPROOTDIR/storage
     cp $TOOLSDIR/init_mini_fo $TMPROOTDIR/sbin/
@@ -125,11 +125,11 @@ case $BOXTYPE in
     mkdir $TMPVARDIR/root_ro
     echo " done."
 
-#    echo -n " Move var directory..."
+#    echo -n " Moving var directory..."
 #    mv $TMPROOTDIR/var $TMPVARDIR/
 #    echo " done."
 
-    echo -n " Adapt var/etc/fstab..."
+    echo -n " Adapting var/etc/fstab..."
     sed -i 's|/dev/sda.*||g' $TMPROOTDIR/var/etc/fstab
     #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
     echo " done."
@@ -143,7 +143,7 @@ case $BOXTYPE in
       mkdir $TMPFWDIR
     fi
 
-    echo -n "Fill firmware directory..."
+    echo -n "Filling firmware directory..."
     mv $TMPROOTDIR/boot/audio.elf $TMPFWDIR/audio.elf
     mv $TMPROOTDIR/boot/video.elf $TMPFWDIR/video.elf
 
