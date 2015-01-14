@@ -7,6 +7,7 @@
 # "Changed for \"classic flash\" (no mini_fo) for UFS910 and add more"
 # "receivers by BPanther, 13-Feb-2013."
 # "Adapted to new flash environment by Audioniek, 11-07-2014."
+# "UFS922 erase size corrected, 14-01-2015."
 #
 # "Supported receivers (autoselection) are:"
 # " - Kathrein UFS910 (ufs910)"
@@ -44,7 +45,7 @@ case "$BOXTYPE" in
     SIZE_ROOTD=11796480
     SIZE_VARH=0x002E0000
     SIZE_VARD=3014656
-    ERASE_SIZE=0x10000;;
+    ERASE_SIZE=0x20000;;
   fortis_hdbox) echo "Creating $IMAGE flash image for $BOXTYPE..."
     SIZE_KERNEL=0x00200000
     SIZE_ROOTH=0x00C00000
