@@ -1,12 +1,17 @@
 #!/bin/bash
-# "-----------------------------------------------------------------------"
-# "This script creates flashable images for Spark and Spark7162 receivers"
-# "Author: Schischu/Audioniek"
-# "Date: 08-07-2014"
-# "-----------------------------------------------------------------------"
-# "It is assumed that an image was already built prior to executing this"
-# "script!"
-# "-----------------------------------------------------------------------"
+# -----------------------------------------------------------------------
+# This script creates flashable images for Spark and Spark7162 receivers
+# Author: Schischu/Audioniek
+# Date: 08-07-2014
+# -----------------------------------------------------------------------
+# It is assumed that an image was already built prior to executing this
+# script!
+# -----------------------------------------------------------------------
+#
+# Date      Who          Description
+# 201504021 Audioniek    Maximum kernel size adapted to Spark (8M -> 7M).
+#
+# -----------------------------------------------------------------------
 
 # Set up the variables
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
@@ -38,19 +43,19 @@ echo -n " - Checking kernel size..."
 SIZEK=`stat $OUTDIR/enigma2/uImage -t --format %s`
 SIZEKD=`printf "%d" $SIZEK`
 SIZEKH=`printf "%08X" $SIZEK`
-if [[ $SIZEKD > "8388608" ]]; then
+if [[ $SIZEKD > "7340032" ]]; then
   echo
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
-  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00800000 bytes." > /dev/stderr
+  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00700000 bytes." > /dev/stderr
   echo " Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
   exit
 else
-  echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00800000) bytes."
+  echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00700000) bytes."
 fi
 
 # --- ROOT ---
