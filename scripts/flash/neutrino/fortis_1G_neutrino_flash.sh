@@ -188,46 +188,46 @@ if [ "$IMAGE" != "kernel" ]; then
     echo -e "\033[00m"
     exit
   else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x1400000) bytes."
+    echo " OK: $SIZED (0x$SIZEH, max. 0x01400000) bytes."
   fi
 
   echo " - Split root into flash parts"
-  echo -n "   + Part one  : app partition...     "
+  echo -n "   + Part one  : app partition........"
   # Root part one size is 0x4C0000, partition type 1 (app_high_real)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=76 2> /dev/null
   echo " done."
 
-  echo -n "   + Part two  : root partition...    "
+  echo -n "   + Part two  : root partition......."
   # Root part two, size 0x7C0000, partition type 8 (ROOT_FS_sq)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.8.bin bs=65536 skip=76 count=124 2> /dev/null
   echo " done."
 
-  echo -n "   + Part three: dev partition...     "
+  echo -n "   + Part three: dev partition........"
   # Root part three, size 0x2C0000, partition type 7 (Device_sq)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.7.bin bs=65536 skip=200 count=44 2> /dev/null
   echo " done."
 
-  echo -n "   + Part four : config0 partition... "
+  echo -n "   + Part four : config0 partition...."
   # Root part four, size 0x40000, partition type 2 (Config0, will be flashed at 0x01B00000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config0.bin bs=65536 skip=244 count=4 2> /dev/null
   echo " done."
 
-  echo -n "   + Part five : config4 partition... "
+  echo -n "   + Part five : config4 partition...."
   # Root part five, size 0x40000, partition type 3 (Config4, will be flashed at 0x01B40000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config4.bin bs=65536 skip=248 count=4 2> /dev/null
   echo " done."
 
-  echo -n "   + Part six  : config8 partition... "
+  echo -n "   + Part six  : config8 partition...."
   # Root part six, size 0x20000, partition type 4 (Config8, will be flashed at 0x01B80000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config8.bin bs=65536 skip=252 count=2 2> /dev/null
   echo " done."
 
-  echo -n "   + Part seven: configA partition... "
+  echo -n "   + Part seven: configA partition...."
   # Root part seven, size 0x20000, partition type 5 (ConfigA, will be flashed at 0x01BA0000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_configA.bin bs=65536 skip=254 count=2 2> /dev/null
   echo " done."
 
-  echo -n "   + Part eight: user partition...    "
+  echo -n "   + Part eight: user partition......."
   # Root part eight, max. size 0x00400000, partition type 9 (User, will be flashed at 0x01C00000)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.9.bin bs=65536 skip=256 count=64 2> /dev/null
   echo " done."
@@ -257,7 +257,7 @@ cd $CURDIR
 md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
-echo -n " - Creating .ZIP output file...       "
+echo -n " - Creating .ZIP output file.........."
 cd $OUTDIR
 zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR

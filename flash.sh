@@ -115,7 +115,7 @@ export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,l
 export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
 cd $CDKDIR/Patches/build-$IMAGE
-ls linux-sh4-2.6.32.??-$FNAME.config > $CURDIR/lastChoice
+ls linux-sh4-2.6.32.??_$FNAME.config > $CURDIR/lastChoice
 cd $CURDIR
 export SUBVERS=`grep -e "linux-sh4-2.6.32." ./lastChoice | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
 rm ./lastChoice
