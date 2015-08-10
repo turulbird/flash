@@ -27,6 +27,7 @@ echo
 #                      atevio7500.
 # 20141015 Audioniek   Fortis 4th generation receivers added.
 # 20141208 Audioniek   Bug fixed with Fortis dp6010.
+# 20150806 Audioniek   Tvheadend added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -103,10 +104,16 @@ sed -i 's/ --/\n&/g' ./lastChoice
 sed -i 's/ --//g' ./lastChoice
 if [ `grep -e "enable-enigma2" ./lastChoice` ]; then
   IMAGE=`grep -e "enable-enigma2" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+  IMAGEN="Enigma2"
 elif [ `grep -e "enable-neutrino" ./lastChoice` ]; then
   IMAGE=`grep -e "enable-neutrino" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+  IMAGEN="Neutrino"
+elif [ `grep -e "enable-tvheadend" ./lastChoice` ]; then
+  IMAGE=`grep -e "enable-tvheadend" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+  IMAGEN="Tvheadend"
 fi
 export IMAGE
+export IMAGEN
 
 # Determine receiver type
 export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,length($0)-12)}'`
@@ -114,7 +121,11 @@ export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,l
 # Determine patch level and last part of linux version number
 export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
-cd $CDKDIR/Patches/build-$IMAGE
+if [ "$IMAGE" == "tvheadend" ]; then
+  cd $CDKDIR/Patches/build-enigma2
+else
+  cd $CDKDIR/Patches/build-$IMAGE
+fi
 ls linux-sh4-2.6.32.??_$FNAME.config > $CURDIR/lastChoice
 cd $CURDIR
 export SUBVERS=`grep -e "linux-sh4-2.6.32." ./lastChoice | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
@@ -123,7 +134,7 @@ rm ./lastChoice
 # Ask for output type (USB or flash)
 echo "-- Output destination -------------------------------------------------"
 echo
-echo " Where would you like your $IMAGE image to run?"
+echo " Where would you like your $IMAGEN image to run?"
 echo "   1) on a USB stick"
 echo "   2) in the receivers flash memory (*)"
 read -p " Select target (1-2)? "
@@ -162,7 +173,7 @@ else
 fi
 export HOST
 
-# Determine GIT version 
+# Determine Neutrino GIT version 
 if [ "$IMAGE" == "neutrino" ]; then
   if [ -d $BASEDIR/apps/libstb-hal-next ]; then
     HAL_REV=_HAL-rev`cd $BASEDIR/apps/libstb-hal-next && git log | grep "^commit" | wc -l`-next
@@ -209,8 +220,8 @@ echo "+  ======="
 echo "+"
 echo "+  Receiver           : $BOXTYPE"
 echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
-echo "+  Kernel patch level : $PATCH"
-echo "+  Image              : $IMAGE"
+echo "+  Kernel patch level : P0$PATCH"
+echo "+  Image              : $IMAGEN"
 echo "+  Will run in/on     : $OUTTYPE"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -219,7 +230,7 @@ echo
 # Prepare root
 echo "-- Prepare root -------------------------------------------------------"
 echo
-echo " Prepare $IMAGE root for $BOXTYPE."
+echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
 if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == "enigma2" ]; then
   # The root will be optionally stripped of all language support except de (German), fr (French)
@@ -237,10 +248,10 @@ echo " Root preparation completed."
 echo
 
 # Check .elf file sizes
-if [ $IMAGE == "enigma2" ]; then
+if [ $IMAGEN == "Enigma2" ]; then
   AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
   VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
-elif [ $IMAGE == "neutrino" ]; then
+elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
   AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
   VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
 fi
@@ -287,11 +298,11 @@ fi
 # Build output files, depending on receiver type, image type and output type
 echo "-- Create output file(s) ----------------------------------------------"
 echo
-echo " Build $IMAGE output file(s) for $BOXTYPE running in/on $OUTTYPE."
+echo " Build $IMAGEN output file(s) for $BOXTYPE running in/on $OUTTYPE."
 echo
 
 if [ "$OUTTYPE" == "flash" ]; then
-# Handle common Fortis flash stuff
+# Handle Fortis resellerID
 case $BOXTYPE in
   atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp7000|dp6010|dp7001|epp8000)
     RESELLERID=$1
@@ -360,15 +371,15 @@ esac
       unset RESELLERID
       unset OWNLANG
       unset OWNCOUNTRY;;
-    ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    cuberevo|cuberevo_mini2|cuberevo_2000hd|ufs910|ufs922)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
-    hs7110|hs7810a)
+    hs7420|hs7110|hs7810a)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
-    hs7119|hs7819)
+    hs7429|hs7119|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
       unset RESELLERID;;
     dp6010|dp7000|dp7001|epp8000)
@@ -393,9 +404,9 @@ else #USB
   case $BOXTYPE in
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-#    hs7110|hs7810a)
+#    hs7420|hs7110|hs7810a)
 #      $SCRIPTDIR/$OUTTYPE/"fortis_2G"_"$OUTTYPE".sh;;
-#    hs7119|hs7819)
+#    hs7429|hs7119|hs7819)
 #      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
@@ -434,6 +445,7 @@ unset TMPVARDIR
 unset OUTDIR
 unset PATCH
 unset IMAGE
+unset IMAGEN
 unset OUTTYPE
 unset HOST
 unset GITVERSION
