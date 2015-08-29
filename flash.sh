@@ -369,8 +369,10 @@ esac
     atevio7500)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
-      unset OWNLANG
-      unset OWNCOUNTRY;;
+      if [ "$IMAGE" == "enigma2" ]; then
+        unset OWNLANG
+        unset OWNCOUNTRY
+      fi;;
     cuberevo|cuberevo_mini2|cuberevo_2000hd|ufs910|ufs922)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
@@ -402,6 +404,8 @@ esac
   esac
 else #USB
   case $BOXTYPE in
+    atevio7500)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
 #    hs7420|hs7110|hs7810a)

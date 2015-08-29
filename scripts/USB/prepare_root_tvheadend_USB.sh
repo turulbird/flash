@@ -1,10 +1,10 @@
 #!/bin/bash
 # ----------------------------------------------------------------------
-# This script prepares the root of an tvheadend image intended to run
+# This script prepares the root of a Tvheadend image intended to run
 # from or on a USB stick pending further processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 08-07-2014"
+# Date: 08-28-2014"
 
 # ---------------------------------------------------------------------------
 # Changes:
@@ -19,11 +19,17 @@ common() {
   find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
   echo " done."
 
-  echo -n " Creating devices..."
-  cd $TMPROOTDIR/dev/
-  $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
-  cd - > /dev/null
-  echo " done."
+  if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
+    echo -n " Creating devices..."
+    cd $TMPROOTDIR/dev/
+    if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
+      $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
+    else
+      $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
+    fi
+    cd - > /dev/null
+    echo " done."
+  fi
 
   echo -n " Move kernel..."
   mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
@@ -96,4 +102,3 @@ case $BOXTYPE in
     echo
     ;;
 esac
-
