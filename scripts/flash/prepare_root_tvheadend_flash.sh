@@ -4,7 +4,6 @@
 # processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-#
 # Date: 28-08-2015"
 # ---------------------------------------------------------------------------
 # Changes:
@@ -35,7 +34,7 @@ common() {
   echo " done."
 }
 
-# Prepare tvheadend root according to box type
+# Prepare Tvheadend root according to box type
 case $BOXTYPE in
   fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819|dp6010|dp7000|dp7001|epp8000)
     common;;
@@ -106,7 +105,14 @@ case $BOXTYPE in
     cp $RELEASEDIR/.version $TMPROOTDIR
     rm -fr $TMPROOTDIR/boot
 
-    echo -n " Moving firmwares..."
+ export TMPFWDIR=$TMPDIR/FW
+    if [ -e $TMPFWDIR ]; then
+      rm -rf $TMPFWDIR/*
+    elif [ ! -d $TMPFWDIR ]; then
+      mkdir $TMPFWDIR
+    fi
+
+   echo -n " Moving firmwares..."
     mv $TMPROOTDIR/lib/firmware/* $TMPVARDIR
     echo " done."
 
@@ -131,4 +137,3 @@ case $BOXTYPE in
     fi
     echo " done.";;
 esac
-
