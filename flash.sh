@@ -122,7 +122,7 @@ export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,l
 export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
-  cd $CDKDIR/Patches/build-enigma2
+  cd $CDKDIR/Patches/build-neutrino
 else
   cd $CDKDIR/Patches/build-$IMAGE
 fi
