@@ -67,10 +67,10 @@ case $BOXTYPE in
       # First remove all language lines from it
       sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
       # Add en, fr and ge
-      sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\", \"ISO-8859-15\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\", \"ISO-8859-15\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\", \"ISO-8859-15\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
       # Add own language if given
       if [[ ! "$OWNLANG" == "" ]]; then
-        sed -i 's/("English",     "en", "EN")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+        sed -i 's/("English",     "en", "EN", \"ISO-8859-15\")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\", \"ISO-8859-15\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
       fi
 
       rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
