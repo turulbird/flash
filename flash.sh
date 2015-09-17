@@ -28,6 +28,7 @@ echo
 # 20141015 Audioniek   Fortis 4th generation receivers added.
 # 20141208 Audioniek   Bug fixed with Fortis dp6010.
 # 20150806 Audioniek   Tvheadend added.
+# 20150911 Audioniek   Exit when building Topfield installer fails.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -201,13 +202,25 @@ export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL
 
 # Build tfinstaller if not done yet
 if [ $BOXTYPE == "tf7700" ]; then
-  if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ]; then
+  if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
     echo "-- Create Topfield installer-------------------------------------------"
     echo
     $SCRIPTDIR/tfinstaller.sh
-    echo
-    echo " Topfield installer built."
-    echo
+    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+      echo -e "\033[01;31m"
+      echo "-- ERROR! -------------------------------------------------------------"
+      echo
+      echo " Building Topfield installer failed !!!"
+      echo
+      echo " Exiting..."
+      echo "-----------------------------------------------------------------------"
+      echo -e "\033[00m"
+      exit 2
+    else
+      echo
+      echo " Topfield installer built."
+      echo
+    fi
   fi
 fi
 

@@ -12,11 +12,13 @@ rm -f $TFINSTALLERDIR/uImage
 rm -f $TFINSTALLERDIR/Enigma_Installer.tfd
 rm -f $TFINSTALLERDIR/tfpacker
 rm -f $CDKDIR/.deps/uboot_tf7700
+rm -f $CDKDIR/.deps/tfkernel.do_compile
 echo " done."
 
 cd $CDKDIR
-make uboot_tf7700
+make uboot_tf7700 2> /dev/null
 make tfinstaller/u-boot.ftfd
 make -C tfinstaller 2> /dev/null
+
 
 

@@ -173,9 +173,9 @@ case $BOXTYPE in
       echo -n " Creating devices..."
       cd $TMPROOTDIR/dev/
       if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
-        $TMPROOTDIR/var/etc/init.d/makedev start 2>/dev/null
+        $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
       else
-        $TMPROOTDIR/etc/init.d/makedev start 2>/dev/null
+        $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
       fi
       cd - > /dev/null
       echo " done."

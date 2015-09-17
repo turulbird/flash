@@ -42,19 +42,35 @@ if [ -e $OUTDIR/rootfs.tar.gz ]; then
   echo " Switch the receiver off and insert the stick in the receivers' USB"
   echo " port."
   echo
+  echo " If the receiver is still only running the stock firmware, do the"
+  echo " following extra steps (you need to do this only once):"
+  echo " - Start the receiver with the stock firmware;"
+  echo " - Press MENU on the remote control;"
+  echo " - Select Installation in the main menu and press OK on the remote"
+  echo "   control;"
+  echo " - Select USB Firmware Upgrade in the Installation menu (you have"
+  echo "   to scroll down to see it) and press OK on the remote control;"
+  echo " - Select the file Enigma_Installer.tfd from the list and press OK"
+  echo "   on the remote control;"
+  echo " - Confirm the Are you sure question by selecting Yes and pressing"
+  echo "   on the remote control;"
+  echo " - When the receivers' display shows a blinking text END, switch"
+  echo "   the receiver off leaving the USB stick connected. This is"
+  echo "   the last of the extra steps."
+  echo
   echo " To start the flashing process, switch the receiver on with the USB"
   echo " stick inserted."
   echo " Follow the instructions on the front panel display if you use an"
   echo " external USB hard disk: the USB stick possibly has to be removed"
-  echo " to format the hard disk."
+  echo " to format that hard disk."
   echo
   echo " When the process is complete, the receiver will reboot automatically."
   echo " NOTE: It may take several minutes before a picture is shown on your"
   echo " television after that."
   echo
   echo " CAUTION: read, understand and if necessary change the file"
-  echo " Enigma_Installer.ini regarding the contents of your hard disk before"
-  echo " flashing."
+  echo " Enigma_Installer.ini regarding the contents of the hard disk in the"
+  echo " receiver before flashing."
   echo -e "\033[00m"
 fi
 
