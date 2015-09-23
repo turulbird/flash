@@ -16,9 +16,9 @@ rm -f $CDKDIR/.deps/tfkernel.do_compile
 echo " done."
 
 cd $CDKDIR
-make uboot_tf7700 2> /dev/null
+make uboot_tf7700 > /dev/null 2> /dev/null
 make tfinstaller/u-boot.ftfd
-make -C tfinstaller 2> /dev/null
+make -C tfinstaller > /dev/null 2> /dev/null
 
 
 

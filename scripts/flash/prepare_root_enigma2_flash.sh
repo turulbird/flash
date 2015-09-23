@@ -143,24 +143,22 @@ case $BOXTYPE in
       mkdir $TMPFWDIR
     fi
 
-    echo -n "Filling firmware directory..."
-    mv $TMPROOTDIR/boot/audio.elf $TMPFWDIR/audio.elf
-    mv $TMPROOTDIR/boot/video.elf $TMPFWDIR/video.elf
+    echo -n " Moving firmwares..."
+    mv $TMPROOTDIR/boot/*.elf $TMPFWDIR
+    echo " done."
 
     mv $TMPROOTDIR/boot/bootlogo.mvi $TMPROOTDIR/etc/bootlogo.mvi
     sed -i "s/\/boot\/bootlogo.mvi/\/etc\/bootlogo.mvi/g" $TMPROOTDIR/etc/init.d/rcS
 
     rm -f $TMPROOTDIR/boot/*
 
+      echo -n " Adapting var/etc/fstab..."
     if [ "$BOXTYPE" == "ufs912" ]; then
        echo "/dev/mtdblock3	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
        #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
-    elif [ "$BOXTYPE" == "ufs913" ]; then
+    else
        echo "/dev/mtdblock8	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
        #echo "/dev/mtdblock10	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
-#    elif [ "$BOXTYPE" == "hs7810a" ]; then
-#      echo "/dev/mtdblock2	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
-#      #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
     fi
     echo " done."
     ;;

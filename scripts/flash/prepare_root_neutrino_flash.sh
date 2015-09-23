@@ -16,7 +16,6 @@ RELEASEDIR=$1
 
 common() {
   echo -n " Copying release image..."
-#  cp -a $RELEASEDIR/* $TMPROOTDIR
   find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
   echo " done."
 
@@ -87,22 +86,6 @@ case $BOXTYPE in
     #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
     echo " done."
     ;;
-  tf7700)
-    echo -n " Copying release image..."
-    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
-    echo " done."
-
-    if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
-      echo -n " Creating devices..."
-      cd $TMPROOTDIR/dev/
-      if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
-        $TMPROOTDIR/var/etc/init.d/makedev start 2>/dev/null
-      else
-        $TMPROOTDIR/etc/init.d/makedev start 2>/dev/null
-      fi
-      cd - > /dev/null
-      echo " done."
-    fi;;
   ufs912|ufs913)
     common
     cp $RELEASEDIR/.version $TMPROOTDIR
@@ -131,6 +114,24 @@ case $BOXTYPE in
         #echo "/dev/mtdblock10	/swap	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
       fi
     fi
-    echo " done.";;
-esac
+    echo " done."
+    ;;
+  tf7700)
+    echo -n " Copying release image..."
+    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
+    echo " done."
 
+    if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
+      echo -n " Creating devices..."
+      cd $TMPROOTDIR/dev/
+      if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
+        $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
+      else
+        $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
+      fi
+      cd - > /dev/null
+      echo " done."
+    fi;;
+  *)
+    common;;
+esac

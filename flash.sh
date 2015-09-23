@@ -148,6 +148,7 @@ esac
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
     fortis_hdbox|octagon1008|hs7110|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+      echo
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
@@ -176,51 +177,73 @@ export HOST
 
 # Determine Neutrino GIT version 
 if [ "$IMAGE" == "neutrino" ]; then
-  if [ -d $BASEDIR/apps/libstb-hal-next ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/apps/libstb-hal-next && git log | grep "^commit" | wc -l`-next
-  elif [ -d $BASEDIR/apps/libstb-hal-github ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/apps/libstb-hal-github && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/apps/libstb-hal-martii-github ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/apps/libstb-hal-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  if [ -d $BASEDIR/source/libstb-hal-next ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-next && git log | grep "^commit" | wc -l`-next
+  elif [ -d $BASEDIR/source/libstb-hal-github ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-github && git log | grep "^commit" | wc -l`-github
+  elif [ -d $BASEDIR/source/libstb-hal-martii-github ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  elif [ -d $BASEDIR/source/libstb-hal ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal && git log | grep "^commit" | wc -l`
   else
-    HAL_REV=_HAL-rev`cd $BASEDIR/apps/libstb-hal && git log | grep "^commit" | wc -l`
+    HAL_REV=_HAL-revXX
   fi
 
-  if [ -d $BASEDIR/apps/neutrino-mp-next ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp-next && git log | grep "^commit" | wc -l`-next
-  elif [ -d $BASEDIR/apps/neutrino-mp-github ]; then
-    NMP_REV=_NMP-rev`cd $CURDIR/../../apps/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/apps/neutrino-mp-martii-github ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
-  elif [ -d $BASEDIR/apps/neutrino-mp-tangos ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
+  if [ -d $BASEDIR/source/neutrino-mp-next ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-next && git log | grep "^commit" | wc -l`-next
+  elif [ -d $BASEDIR/source/neutrino-mp-github ]; then
+    NMP_REV=_NMP-rev`cd $CURDIR/../../source/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
+  elif [ -d $BASEDIR/source/neutrino-mp-martii-github ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  elif [ -d $BASEDIR/source/neutrino-mp-tangos ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
+  elif [ -d $BASEDIR/source/neutrino-mp ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp && git log | grep "^commit" | wc -l`
   else
-    NMP_REV=_NMP-rev`cd $BASEDIR/apps/neutrino-mp && git log | grep "^commit" | wc -l`
+    NMP_REV=_NMP-revXXX
   fi
 fi
 export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
 # Build tfinstaller if not done yet
 if [ $BOXTYPE == "tf7700" ]; then
-  if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
-    echo "-- Create Topfield installer-------------------------------------------"
-    echo
-    $SCRIPTDIR/tfinstaller.sh
-    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
-      echo -e "\033[01;31m"
-      echo "-- ERROR! -------------------------------------------------------------"
+  if [ "$IMAGE" == "enigma2" ]; then
+    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
       echo
-      echo " Building Topfield installer failed !!!"
+      echo "-- Create Topfield installer-------------------------------------------"
       echo
-      echo " Exiting..."
-      echo "-----------------------------------------------------------------------"
-      echo -e "\033[00m"
-      exit 2
+      $SCRIPTDIR/tfinstaller.sh
+      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+        echo -e "\033[01;31m"
+        echo "-- ERROR! -------------------------------------------------------------"
+        echo
+        echo " Building the Topfield installer failed !!!"
+        echo
+        echo " Exiting..."
+        echo "-----------------------------------------------------------------------"
+        echo -e "\033[00m"
+        exit 2
+      else
+        echo
+        echo " Topfield installer built."
+        echo
+      fi
     else
-      echo
-      echo " Topfield installer built."
-      echo
-    fi
+      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+        echo -e "\033[01;31m"
+        echo "-- ERROR! -------------------------------------------------------------"
+        echo
+        echo " Building the Topfield installer has not been done yet."
+        echo
+        echo " Build an Enigma2 image first and then run this script again to build"
+        echo " the Topfield installer."
+        echo
+        echo " Exiting..."
+        echo "-----------------------------------------------------------------------"
+        echo -e "\033[00m"
+        exit 2
+      fi
+    fi  
   fi
 fi
 
