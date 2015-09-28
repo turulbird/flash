@@ -179,6 +179,8 @@ export HOST
 if [ "$IMAGE" == "neutrino" ]; then
   if [ -d $BASEDIR/source/libstb-hal-next ]; then
     HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-next && git log | grep "^commit" | wc -l`-next
+  elif [ -d $BASEDIR/source/libstb-hal-cst-next ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-cst-next && git log | grep "^commit" | wc -l`-github
   elif [ -d $BASEDIR/source/libstb-hal-github ]; then
     HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-github && git log | grep "^commit" | wc -l`-github
   elif [ -d $BASEDIR/source/libstb-hal-martii-github ]; then
@@ -186,7 +188,7 @@ if [ "$IMAGE" == "neutrino" ]; then
   elif [ -d $BASEDIR/source/libstb-hal ]; then
     HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal && git log | grep "^commit" | wc -l`
   else
-    HAL_REV=_HAL-revXX
+    HAL_REV=_HAL-revXXX
   fi
 
   if [ -d $BASEDIR/source/neutrino-mp-next ]; then
