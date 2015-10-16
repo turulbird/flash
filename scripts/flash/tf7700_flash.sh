@@ -53,7 +53,7 @@ if [ -e $OUTDIR/rootfs.tar.gz ]; then
   echo " - Select the file Enigma_Installer.tfd from the list and press OK"
   echo "   on the remote control;"
   echo " - Confirm the Are you sure question by selecting Yes and pressing"
-  echo "   on the remote control;"
+  echo "   OK on the remote control;"
   echo " - When the receivers' display shows a blinking text END, switch"
   echo "   the receiver off leaving the USB stick connected. This is"
   echo "   the last of the extra steps."

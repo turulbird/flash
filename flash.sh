@@ -208,12 +208,14 @@ fi
 export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
 # Build tfinstaller if not done yet
+TFINSTALL="present"
 if [ $BOXTYPE == "tf7700" ]; then
   if [ "$IMAGE" == "enigma2" ]; then
     if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
       echo
       echo "-- Create Topfield installer-------------------------------------------"
       echo
+      TFINSTALL="built"
       $SCRIPTDIR/tfinstaller.sh
       if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
         echo -e "\033[01;31m"
@@ -225,10 +227,6 @@ if [ $BOXTYPE == "tf7700" ]; then
         echo "-----------------------------------------------------------------------"
         echo -e "\033[00m"
         exit 2
-      else
-        echo
-        echo " Topfield installer built."
-        echo
       fi
     else
       if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
@@ -257,6 +255,9 @@ echo "+  Summary"
 echo "+  ======="
 echo "+"
 echo "+  Receiver           : $BOXTYPE"
+if [ $BOXTYPE == "tf7700" ] && [ "$IMAGE" == "enigma2" ]; then
+  echo "+  Topfield installer : $TFINSTALL"
+fi
 echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
 echo "+  Kernel patch level : P0$PATCH"
 echo "+  Image              : $IMAGEN"
