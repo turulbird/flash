@@ -20,7 +20,7 @@ echo -n " Build uboot_tf7700..."
 make uboot_tf7700 > /dev/null 2> /dev/null
 echo " done."
 echo -n " Build tfpacker & u-boot.ftfd..."
-make tfinstaller/u-boot.ftfd /dev/null 2> /dev/null
+make tfinstaller/u-boot.ftfd > /dev/null 2> /dev/null
 echo " done."
 echo -n " Create Enigma_Installer.tfd..."
 make -C tfinstaller > /dev/null 2> /dev/null
