@@ -358,22 +358,22 @@ case $BOXTYPE in
           FORTISBOX="Octagon SF1008P HD Intelligence";;
         hs7110)
           RESELLERID=250202A0
-          FORTISBOX="Octagon SF918SE+ HD Difference";;
+          FORTISBOX="Octagon SF918 SE+ HD Difference";;
         hs7420)
           RESELLERID=250203A0
-          FORTISBOX="Octagon SF1008PSE+ HD Intelligence";;
+          FORTISBOX="Octagon SF1008P SE+ HD Intelligence";;
         hs7810a)
           RESELLERID=250200A0
-          FORTISBOX="Octagon SF1008SE+ HD Intelligence";;
+          FORTISBOX="Octagon SF1008 SE+ HD Intelligence";;
         hs7119)
           RESELLERID=270200A0
-          FORTISBOX="Octagon SF918GSE+ HD Difference";;
+          FORTISBOX="Octagon SF918G SE+ HD Difference";;
         hs7429)
-          RESELLERID=270230A0
-          FORTISBOX="Octagon SF1008G+SE+ HD Intelligence";;
+          RESELLERID=270130A0
+          FORTISBOX="Octagon SF1008G+ SE+ HD Intelligence";;
         hs7819)
           RESELLERID=270220A0
-          FORTISBOX="Octagon SF1008GSE+ HD Intelligence";;
+          FORTISBOX="Octagon SF1008G SE+ HD Intelligence";;
         dp6010)
           RESELLERID=29060000
           FORTISBOX="Rebox RE-2220HD S-PVR";;
