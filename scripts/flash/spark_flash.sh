@@ -8,8 +8,9 @@
 # script!
 # -----------------------------------------------------------------------
 #
-# Date      Who          Description
-# 201504021 Audioniek    Maximum kernel size adapted to Spark (8M -> 7M).
+# Date     Who          Description
+# 20150421 Audioniek    Maximum kernel size adapted to Spark (8M -> 7M).
+# 20160310 Audioniek    Maximum kernel check now automatic.
 #
 # -----------------------------------------------------------------------
 
@@ -34,28 +35,35 @@ elif [ ! -d $OUTDIR/enigma2 ]; then
 fi
 
 # --- KERNEL ---
-# Maximum size is 8 MByte
+# Maximum size is 7Mbyte on Spark, 8 MByte on Spark7162
 echo -n " - Creating kernel output file uImage..."
 cp -f $TMPKERNELDIR/uImage $OUTDIR/enigma2/uImage
 echo " done."
 
 echo -n " - Checking kernel size..."
+if [[ $BOXTYPE == spark ]]; then
+  SIZEMAX=7340032
+  SIZEMAXH=700000
+else
+  SIZEMAX=8388608
+  SIZEMAXH=800000
+fi
 SIZEK=`stat $OUTDIR/enigma2/uImage -t --format %s`
 SIZEKD=`printf "%d" $SIZEK`
 SIZEKH=`printf "%08X" $SIZEK`
-if [[ $SIZEKD > "7340032" ]]; then
+if [[ $SIZEKD > $SIZEMAX ]]; then
   echo
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
-  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00700000 bytes." > /dev/stderr
+  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x00$SIZEMAXH bytes." > /dev/stderr
   echo " Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
   exit
 else
-  echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00700000) bytes."
+  echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00$SIZEMAXH) bytes."
 fi
 
 # --- ROOT ---

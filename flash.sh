@@ -29,6 +29,8 @@ echo
 # 20141208 Audioniek   Bug fixed with Fortis dp6010.
 # 20150806 Audioniek   Tvheadend added.
 # 20150911 Audioniek   Exit when building Topfield installer fails.
+# 20160416 Audioniek   ./LastChoice handling adapted to handle E2..
+#                      environment variables.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -103,6 +105,8 @@ fi
 cp $CDKDIR/lastChoice ./lastChoice
 sed -i 's/ --/\n&/g' ./lastChoice
 sed -i 's/ --//g' ./lastChoice
+sed -i 's/ E2/\n&E2/g' ./lastChoice
+sed -i 's/ E2//g' ./lastChoice
 if [ `grep -e "enable-enigma2" ./lastChoice` ]; then
   IMAGE=`grep -e "enable-enigma2" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
   IMAGEN="Enigma2"
