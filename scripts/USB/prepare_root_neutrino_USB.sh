@@ -35,6 +35,7 @@ common() {
 
 case $BOXTYPE in
   atevio7500)
+    common
     ;;
   fortis_hdbox|octagon1008)
     common
