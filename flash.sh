@@ -31,6 +31,7 @@ echo
 # 20150911 Audioniek   Exit when building Topfield installer fails.
 # 20160416 Audioniek   ./LastChoice handling adapted to handle E2..
 #                      environment variables.
+# 20160512 Audioniek   Check for E2 in flash for hs7420 was missing.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -283,7 +284,7 @@ if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == 
   export OWNLANG=nl
   # and the country to go with it (ISO code, two uppercase letters, often the same letters
   # as the language; in case of OWNLANG=all it is ignored):
- export OWNCOUNTRY=NL
+  export OWNCOUNTRY=NL
 fi
 $SCRIPTDIR/$OUTTYPE/prepare_root_"$IMAGE"_"$OUTTYPE".sh $TUFSBOXDIR/release
 echo
