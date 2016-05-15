@@ -25,13 +25,27 @@ case $BOXTYPE in
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     echo -n " Compressing release image..."
     cd $TMPROOTDIR
-    tar -zcf $OUTDIR/$OUTFILE.tar.gz * > /dev/null 2> /dev/null
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    # Create MD5 file
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
     cd $CURDIR
     echo " done."
-    echo -n " Move kernel..."
-    mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
+    ;;
+  ufs910|ufs912|ufs922|ufc960)
+    cd $OUTDIR
+    echo "-- Creating tar.gz output file ----------------------------------------"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Compressing release image..."
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    cd $CURDIR
     echo " done.";;
 esac
 cd $CURDIR
@@ -40,29 +54,47 @@ if [ -e $OUTDIR/$OUTFILE.tar.gz ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo
-  echo " The receiver must be equipped with the TDT maxiboot bootloader or"
-  echo " a bootloader with similar capabilities. The bootloader must be able"
-  echo " to boot the receiver by reading uImage from the first FAT32 formatted"
-  echo " partition of a USB stick."
-  echo " The rootfs of the image must reside on the second ext2 formatted"
-  echo " partition on the same USB stick."
-  echo
-  echo " The kernel file is located in $TMPKERNELDIR"
-  echo " The image rootfs is located in $TMPROOTDIR"
-  echo
-  echo " There are several ways to prepare the USB stick:"
-  echo " - By hand using (G)parted and copying the files to the correct"
-  echo "   partitions;"
-  echo " - Under Windows: using the createMINI program;"
-  echo " - On some receivers (e.g. Fortis) by using Eisha's TGZ installer"
-  echo "   plugin."
-  echo
-  echo " Insert the thus prepared USB stick in any of the box's USB ports,"
-  echo " and switch on the receiver using the mains switch."
-  echo " With TDT maxiboot bootloader, select the partition and USB port to"
-  echo " start from using the up and down buttons (RC or front panel)."
-  echo " To set the currently displayed boot option as default, press RED"
-  echo " on the remote control while it is displayed."
-  echo -e "\033[00m"
+case $BOXTYPE in
+  fortis_hdbox|octagon1008)
+    echo " The receiver must be equipped with the TDT maxiboot bootloader or"
+    echo " a bootloader with similar capabilities. The bootloader must be able"
+    echo " to boot the receiver by reading uImage from the first FAT32 formatted"
+    echo " partition of a USB stick."
+    echo " The rootfs of the image must reside on the second ext2 formatted"
+    echo " partition on the same USB stick."
+    echo
+    echo " The kernel file is located in $TMPKERNELDIR"
+    echo " The image rootfs is located in $TMPROOTDIR"
+    echo " The entire image is also provided as .tar.gz in $OUTDIR"
+    echo
+    echo " There are several ways to prepare the USB stick:"
+    echo " - By hand using (G)parted and copying the files to the correct"
+    echo "   partitions;"
+    echo " - Under Windows: using the createMINI program;"
+    echo " - On some receivers (e.g. Fortis) by using Eisha's TGZ installer"
+    echo "   plugin."
+    echo
+    echo " Insert the thus prepared USB stick in any of the box's USB ports,"
+    echo " and switch on the receiver using the mains switch."
+    echo " With TDT maxiboot bootloader, select the partition and USB port to"
+    echo " start from using the up and down buttons (RC or front panel)."
+    echo " To set the currently displayed boot option as default, press RED"
+    echo " on the remote control while it is displayed."
+    ;;
+  ufs910|ufs912|ufs922|ufc960)
+    echo " The receiver must be equipped with the TDT maxiboot bootloader or"
+    echo " a bootloader with similar capabilities."
+    echo " Prepare the USB stick per the instructions on the HDMU forum"
+    echo " and unpack the .tar.gz file in one of its ext2 partitions,"
+    echo " or use the AAF Recovery Tool program to prepare the USB-stick."
+    echo
+    echo " Insert the thus prepared USB stick in any of the box's USB ports,"
+    echo " and switch on the receiver using the mains switch."
+    echo " When the box displays its sign on (e.g. Kathrein UFS-910), press"
+    echo " arrow down on the remote control to select the partition on"
+    echo " the USB stick. The image will then be loaded and run."
+    ;;
+esac
+    echo -e "\033[00m"
 fi
 

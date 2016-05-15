@@ -456,6 +456,8 @@ else #USB
 #      $SCRIPTDIR/$OUTTYPE/"fortis_2G"_"$OUTTYPE".sh;;
 #    hs7429|hs7119|hs7819)
 #      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh;;
+    ufs910|ufs912|ufs922|ufc960)
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo

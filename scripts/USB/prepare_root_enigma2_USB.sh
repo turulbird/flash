@@ -32,39 +32,25 @@ case $BOXTYPE in
     ;;
   fortis_hdbox|octagon1008)
     common
-    # Move kernel back
-    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     ;;
-  hs7110|hs7119|hs7810a|hs7819)
+  hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)
     common
     ;;
-  [spark|spark7162])
+  spark|spark7162)
     common
     ;;
-  ufc960|ufs910)
+  ufc960|ufs910|ufs912|ufs922)
     common
-#    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
 
-#    echo -n " Creating devices..."
-#    cd $TMPROOTDIR/dev/
-#    $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
-#    cd - > /dev/null
-#    echo " done."
+#    mkdir $TMPROOTDIR/root_rw
+#    mkdir $TMPROOTDIR/storage
+#    cp ./flash_tools/init_mini_fo $TMPROOTDIR/sbin/
+#    chmod 777 $TMPROOTDIR/sbin/init_mini_fo
 
-    mkdir $TMPROOTDIR/root_rw
-    mkdir $TMPROOTDIR/storage
-    cp ../common/init_mini_fo $TMPROOTDIR/sbin/
-    chmod 777 $TMPROOTDIR/sbin/init_mini_fo
-
-#    echo -n "Moving kernel..."
-#    mv $TMPROOTDIR/boot/uImage $TMPKERNELDIR/uImage
-#    echo " done."
-
-    # --- STORAGE FOR MINI_FO ---
-!!    mkdir $TMPSTORAGEDIR/root_ro
-    echo " done."
+#    # --- STORAGE FOR MINI_FO ---
+#    mkdir $TMPROOTDIR/root_ro
     ;;
-  [ufs912|ufs913])
+  ufs912|ufs913)
     common
 
     echo -n "Fill firmware directory..."
