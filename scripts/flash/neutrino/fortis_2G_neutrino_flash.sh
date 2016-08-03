@@ -325,7 +325,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
   echo "  - HS7110 : 6.40, 6.46 or 6.47"
-#  echo "  - HS7420 : 6.30, 6.36 or 6.37"
+  echo "  - HS7420 : 6.30, 6.36 or 6.37"
   echo "  - HS7810A: 6.20, 6.26 or 6.27"
   echo " with unmodified bootargs."
   echo
