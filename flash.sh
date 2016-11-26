@@ -9,7 +9,7 @@ echo "+ in the receiver's flash memory or from a USB stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 08-07-2014"
+echo "+ Date   : 26-11-2016"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -32,6 +32,7 @@ echo
 # 20160416 Audioniek   ./LastChoice handling adapted to handle E2..
 #                      environment variables.
 # 20160512 Audioniek   Check for E2 in flash for hs7420 was missing.
+# 20161126 Audioniek   Adapted to work with cdk_new as well.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -39,6 +40,7 @@ export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
 export CDKDIR=$BASEDIR/cdk
+export CDKNEWDIR=$BASEDIR/cdk_new
 export TFINSTALLERDIR=$CDKDIR/tfinstaller
 export SCRIPTDIR=$CURDIR/scripts
 export TOOLSDIR=$CURDIR/flash_tools
@@ -48,8 +50,8 @@ export TMPVARDIR=$TMPDIR/VAR
 export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$CURDIR/out
 
-# Check if lastChoice exists (TODO/note: not a watertight guarantee that the build was completed)
-if [ ! -e $CDKDIR/lastChoice ] || [ ! -d $TUFSBOXDIR/release ]; then
+# Check if lastChoice or config exists (TODO/note: not a watertight guarantee that the build was completed)
+if ([ ! -e $CDKDIR/lastChoice ] && [ ! -e $CDKNEWDIR/config ]) || [ ! -d $TUFSBOXDIR/release ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
@@ -103,29 +105,52 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 # Determine which image has been built last
-cp $CDKDIR/lastChoice ./lastChoice
-sed -i 's/ --/\n&/g' ./lastChoice
-sed -i 's/ --//g' ./lastChoice
-sed -i 's/ E2/\n&E2/g' ./lastChoice
-sed -i 's/ E2//g' ./lastChoice
-if [ `grep -e "enable-enigma2" ./lastChoice` ]; then
-  IMAGE=`grep -e "enable-enigma2" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-  IMAGEN="Enigma2"
-elif [ `grep -e "enable-neutrino" ./lastChoice` ]; then
-  IMAGE=`grep -e "enable-neutrino" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-  IMAGEN="Neutrino"
-elif [ `grep -e "enable-tvheadend" ./lastChoice` ]; then
-  IMAGE=`grep -e "enable-tvheadend" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-  IMAGEN="Tvheadend"
+if [ -e $CDKDIR/lastChoice ]; then
+  BUILTFROM="cdk"
+  cp $CDKDIR/lastChoice ./lastChoice
+  sed -i 's/ --/\n&/g' ./lastChoice
+  sed -i 's/ --//g' ./lastChoice
+  sed -i 's/ E2/\n&E2/g' ./lastChoice
+  sed -i 's/ E2//g' ./lastChoice
+  if [ `grep -e "enable-enigma2" ./lastChoice` ]; then
+    IMAGE=`grep -e "enable-enigma2" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+    IMAGEN="Enigma2"
+  elif [ `grep -e "enable-neutrino" ./lastChoice` ]; then
+    IMAGE=`grep -e "enable-neutrino" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+    IMAGEN="Neutrino"
+  elif [ `grep -e "enable-tvheadend" ./lastChoice` ]; then
+    IMAGE=`grep -e "enable-tvheadend" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+    IMAGEN="Tvheadend"
+  fi
+else
+  BUILTFROM="cdk_new"
+  CDKDIR=$CDKNEWDIR
+  cp $CDKDIR/config ./config
+  if [ `grep -e "IMAGE=enigma2" ./config` ]; then
+    IMAGE=enigma2
+    IMAGEN="Enigma2"
+  elif [ `grep -e "IMAGE=neutrino" ./config` ]; then
+    IMAGE=neutrino
+    IMAGEN="Neutrino"
+  fi
 fi
 export IMAGE
 export IMAGEN
 
 # Determine receiver type
-export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,length($0)-12)}'`
+if [ -e ./lastChoice ]; then
+  export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,length($0)-12)}'`
+else
+  export BOXTYPE=`grep -e "BOXTYPE" ./config | awk '{print substr($0,9,length($0)-7)}'`
+fi
 
 # Determine patch level and last part of linux version number
-export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
+if [ -e ./lastChoice ]; then
+  export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
+else
+  export PATCH=`grep -e "KERNEL=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
+  rm ./config
+fi
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
   cd $CDKDIR/Patches/build-neutrino
@@ -266,6 +291,7 @@ fi
 echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
 echo "+  Kernel patch level : P0$PATCH"
 echo "+  Image              : $IMAGEN"
+echo "+  Built from         : $BUILTFROM"
 echo "+  Will run in/on     : $OUTTYPE"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
