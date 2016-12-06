@@ -5,11 +5,12 @@ echo "+"
 echo "+  flash.sh"
 echo "+"
 echo "+ This script creates the file(s) you need to run the image built last"
-echo "+ in the receiver's flash memory or from a USB stick."
+echo "+ in the receiver's flash memory, the internal hard disk or from a USB"
+echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 26-11-2016"
+echo "+ Date   : 05-12-2016"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -33,25 +34,36 @@ echo
 #                      environment variables.
 # 20160512 Audioniek   Check for E2 in flash for hs7420 was missing.
 # 20161126 Audioniek   Adapted to work with cdk_new as well.
+# 20161205 Audioniek   Fixed tfinstaller with cdk_new.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
-export CDKDIR=$BASEDIR/cdk
-export CDKNEWDIR=$BASEDIR/cdk_new
-export TFINSTALLERDIR=$CDKDIR/tfinstaller
-export SCRIPTDIR=$CURDIR/scripts
-export TOOLSDIR=$CURDIR/flash_tools
-export TMPDIR=$CURDIR/tmp
+#echo "TUFSBOXDIR = $TUFSBOXDIR"
+CDKOLDDIR=$BASEDIR/cdk
+CDKNEWDIR=$BASEDIR/cdk_new
+if [ -e ../cdk/lastChoice ]; then
+  BUILTFROM="cdk"
+  CDKDIR=$BASEDIR/cdk
+else
+  BUILTFROM="cdk_new"
+  CDKDIR=$BASEDIR/cdk_new
+fi
+export CDKDIR
+export FLASHDIR=$BASEDIR/flash
+export SCRIPTDIR=$FLASHDIR/scripts
+export TOOLSDIR=$FLASHDIR/flash_tools
+export TMPDIR=$FLASHDIR/tmp
 export TMPROOTDIR=$TMPDIR/ROOT
 export TMPVARDIR=$TMPDIR/VAR
 export TMPKERNELDIR=$TMPDIR/KERNEL
-export OUTDIR=$CURDIR/out
+export OUTDIR=$FLASHDIR/out
+export TFINSTALLERDIR=$CDKDIR/tfinstaller
 
-# Check if lastChoice or config exists (TODO/note: not a watertight guarantee that the build was completed)
-if ([ ! -e $CDKDIR/lastChoice ] && [ ! -e $CDKNEWDIR/config ]) || [ ! -d $TUFSBOXDIR/release ]; then
+# Check if cdk/lastChoice or cdk_new/config and the release directory exist
+if ([ ! -e $CDKOLDDIR/lastChoice ] && [ ! -e $CDKNEWDIR/config ]) || ([ ! -e $CDKOLDDIR/.deps/build_complete ] && [ ! -e $CDKNEWDIR/.deps/build_complete ]); then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
@@ -105,31 +117,28 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 # Determine which image has been built last
-if [ -e $CDKDIR/lastChoice ]; then
-  BUILTFROM="cdk"
-  cp $CDKDIR/lastChoice ./lastChoice
-  sed -i 's/ --/\n&/g' ./lastChoice
-  sed -i 's/ --//g' ./lastChoice
-  sed -i 's/ E2/\n&E2/g' ./lastChoice
-  sed -i 's/ E2//g' ./lastChoice
-  if [ `grep -e "enable-enigma2" ./lastChoice` ]; then
-    IMAGE=`grep -e "enable-enigma2" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+if [ "$BUILTFROM" == "cdk" ]; then
+  cp $CDKDIR/lastChoice $FLASHDIR/lastChoice
+  sed -i 's/ --/\n&/g' $FLASHDIR/lastChoice
+  sed -i 's/ --//g' $FLASHDIR/lastChoice
+  sed -i 's/ E2/\n&E2/g' $FLASHDIR/lastChoice
+  sed -i 's/ E2//g' $FLASHDIR/lastChoice
+  if [ `grep -e "enable-enigma2" $FLASHDIR/lastChoice` ]; then
+    IMAGE=`grep -e "enable-enigma2" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
     IMAGEN="Enigma2"
-  elif [ `grep -e "enable-neutrino" ./lastChoice` ]; then
-    IMAGE=`grep -e "enable-neutrino" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+  elif [ `grep -e "enable-neutrino" $FLASHDIR/lastChoice` ]; then
+    IMAGE=`grep -e "enable-neutrino" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
     IMAGEN="Neutrino"
-  elif [ `grep -e "enable-tvheadend" ./lastChoice` ]; then
-    IMAGE=`grep -e "enable-tvheadend" ./lastChoice | awk '{print substr($0,8,length($0)-7)}'`
+  elif [ `grep -e "enable-tvheadend" $FLASHDIR/lastChoice` ]; then
+    IMAGE=`grep -e "enable-tvheadend" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
     IMAGEN="Tvheadend"
   fi
 else
-  BUILTFROM="cdk_new"
-  CDKDIR=$CDKNEWDIR
-  cp $CDKDIR/config ./config
-  if [ `grep -e "IMAGE=enigma2" ./config` ]; then
+  cp $CDKDIR/config $FLASHDIR/config
+  if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
     IMAGE=enigma2
     IMAGEN="Enigma2"
-  elif [ `grep -e "IMAGE=neutrino" ./config` ]; then
+  elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
     IMAGE=neutrino
     IMAGEN="Neutrino"
   fi
@@ -138,15 +147,16 @@ export IMAGE
 export IMAGEN
 
 # Determine receiver type
-if [ -e ./lastChoice ]; then
-  export BOXTYPE=`grep -e "with-boxtype" ./lastChoice | awk '{print substr($0,14,length($0)-12)}'`
+if [ "$BUILTFROM" == "cdk" ]; then
+  export BOXTYPE=`grep -e "with-boxtype" $FLASHDIR/lastChoice | awk '{print substr($0,14,length($0)-12)}'`
 else
-  export BOXTYPE=`grep -e "BOXTYPE" ./config | awk '{print substr($0,9,length($0)-7)}'`
+  export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9,length($0)-7)}'`
 fi
 
 # Determine patch level and last part of linux version number
-if [ -e ./lastChoice ]; then
+if [ "$BUILTFROM" == "cdk" ]; then
   export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
+  rm ./lastChoice
 else
   export PATCH=`grep -e "KERNEL=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
   rm ./config
@@ -157,10 +167,10 @@ if [ "$IMAGE" == "tvheadend" ]; then
 else
   cd $CDKDIR/Patches/build-$IMAGE
 fi
-ls linux-sh4-2.6.32.??_$FNAME.config > $CURDIR/lastChoice
+ls linux-sh4-2.6.32.??_$FNAME.config > $FLASHDIR/lastconfig
 cd $CURDIR
-export SUBVERS=`grep -e "linux-sh4-2.6.32." ./lastChoice | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
-rm ./lastChoice
+export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
+rm $FLASHDIR/lastconfig
 
 # Ask for output type (USB or flash)
 echo "-- Output destination -------------------------------------------------"
@@ -240,14 +250,14 @@ export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL
 # Build tfinstaller if not done yet
 TFINSTALL="present"
 if [ $BOXTYPE == "tf7700" ]; then
-  if [ "$IMAGE" == "enigma2" ]; then
+  if [ "$BUILTFROM" == "cdk" ]; then
+    TFINSTALL="not built"
     if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
       echo
       echo "-- Create Topfield installer-------------------------------------------"
       echo
-      TFINSTALL="built"
-      $SCRIPTDIR/tfinstaller.sh
-      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+      $SCRIPTDIR/tfinstaller.sh $TFINSTALLERDIR
+      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/u-boot.ftfd ]; then
         echo -e "\033[01;31m"
         echo "-- ERROR! -------------------------------------------------------------"
         echo
@@ -257,23 +267,24 @@ if [ $BOXTYPE == "tf7700" ]; then
         echo "-----------------------------------------------------------------------"
         echo -e "\033[00m"
         exit 2
+      else
+        TFINSTALL="built"
       fi
-    else
-      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
-        echo -e "\033[01;31m"
-        echo "-- ERROR! -------------------------------------------------------------"
-        echo
-        echo " Building the Topfield installer has not been done yet."
-        echo
-        echo " Build an Enigma2 image first and then run this script again to build"
-        echo " the Topfield installer."
-        echo
-        echo " Exiting..."
-        echo "-----------------------------------------------------------------------"
-        echo -e "\033[00m"
-        exit 2
-      fi
-    fi  
+#    else
+#      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+#        echo -e "\033[01;31m"
+#        echo "-- ERROR! -------------------------------------------------------------"
+#        echo
+#        echo " Building the Topfield installer has not been done yet."
+#        echo
+#        echo " Build an image first and then run this script again to build"
+#        echo " the Topfield installer."
+#        echo
+#        echo " Exiting..."
+#        echo "-----------------------------------------------------------------------"
+#        echo -e "\033[00m"
+#        exit 2
+    fi
   fi
 fi
 
@@ -285,7 +296,7 @@ echo "+  Summary"
 echo "+  ======="
 echo "+"
 echo "+  Receiver           : $BOXTYPE"
-if [ $BOXTYPE == "tf7700" ] && [ "$IMAGE" == "enigma2" ]; then
+if [ $BOXTYPE == "tf7700" ]; then
   echo "+  Topfield installer : $TFINSTALL"
 fi
 echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
