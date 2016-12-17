@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 05-12-2016"
+echo "+ Date   : 17-12-2016"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -30,11 +30,15 @@ echo
 # 20141208 Audioniek   Bug fixed with Fortis dp6010.
 # 20150806 Audioniek   Tvheadend added.
 # 20150911 Audioniek   Exit when building Topfield installer fails.
-# 20160416 Audioniek   ./LastChoice handling adapted to handle E2..
+# 20160416 Audioniek   ./lastChoice handling adapted to handle E2..
 #                      environment variables.
 # 20160512 Audioniek   Check for E2 in flash for hs7420 was missing.
 # 20161126 Audioniek   Adapted to work with cdk_new as well.
 # 20161205 Audioniek   Fixed tfinstaller with cdk_new.
+# 20161216 Audioniek   Skip output type selection if built with cdk_new
+#                      and destination already set.
+# 20161216 Audioniek   Enable USB for Fortis 2G receivers with 32MB of flash.
+# 20161217 Audioniek   Enable USB for Fortis 3G receivers.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -159,7 +163,6 @@ if [ "$BUILTFROM" == "cdk" ]; then
   rm ./lastChoice
 else
   export PATCH=`grep -e "KERNEL=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
-  rm ./config
 fi
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
@@ -172,18 +175,22 @@ cd $CURDIR
 export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
 rm $FLASHDIR/lastconfig
 
-# Ask for output type (USB or flash)
-echo "-- Output destination -------------------------------------------------"
-echo
-echo " Where would you like your $IMAGEN image to run?"
-echo "   1) on a USB stick"
-echo "   2) in the receivers flash memory (*)"
-read -p " Select target (1-2)? "
-case "$REPLY" in
-  1) export OUTTYPE="USB";;
-  *) export OUTTYPE="flash";;
-esac
-
+# Determine/ask for output type (USB or flash)
+if [ "$BUILTFROM" == "cdk_new" ] && [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
+  export OUTTYPE="USB"
+  rm $FLASHDIR/config
+else
+  echo "-- Output destination -------------------------------------------------"
+  echo
+  echo " Where would you like your $IMAGEN image to run?"
+  echo "   1) on a USB stick"
+  echo "   2) in the receivers flash memory (*)"
+  read -p " Select target (1-2)? "
+  case "$REPLY" in
+    1) export OUTTYPE="USB";;
+    *) export OUTTYPE="flash";;
+  esac
+fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
@@ -192,7 +199,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
-      echo " receiver $BOXTYPE."
+      echo " $BOXTYPE receiver."
       echo
       echo " Consider running Enigma2 from a USB stick or building Neutrino."
       echo
@@ -489,10 +496,8 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-#    hs7420|hs7110|hs7810a)
-#      $SCRIPTDIR/$OUTTYPE/"fortis_2G"_"$OUTTYPE".sh;;
-#    hs7429|hs7119|hs7819)
-#      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh;;
+    hs7420|hs7110|hs7810a|hs7429|hs7119|hs7819)
+      $SCRIPTDIR/$OUTTYPE/"fortis_23G"_"$OUTTYPE".sh;;
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     *)
@@ -523,6 +528,8 @@ unset BASEDIR
 unset TUFSBOXDIR
 unset TFINSTALLERDIR
 unset CDKDIR
+unset CDKOLDDIR
+unset CDKNEWDIR
 unset SCRIPTDIR
 unset TOOLSDIR
 unset TMPDIR
