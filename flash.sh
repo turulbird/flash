@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 17-12-2016"
+echo "+ Date   : 07-02-2017"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -39,15 +39,16 @@ echo
 #                      and destination already set.
 # 20161216 Audioniek   Enable USB for Fortis 2G receivers with 32MB of flash.
 # 20161217 Audioniek   Enable USB for Fortis 3G receivers.
+# 20170207 Audioniek   Improved check on existence of a flashable image.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
-#echo "TUFSBOXDIR = $TUFSBOXDIR"
 CDKOLDDIR=$BASEDIR/cdk
 CDKNEWDIR=$BASEDIR/cdk_new
+#Determine which cdk was used to build
 if [ -e ../cdk/lastChoice ]; then
   BUILTFROM="cdk"
   CDKDIR=$BASEDIR/cdk
@@ -66,8 +67,12 @@ export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$FLASHDIR/out
 export TFINSTALLERDIR=$CDKDIR/tfinstaller
 
-# Check if cdk/lastChoice or cdk_new/config and the release directory exist
-if ([ ! -e $CDKOLDDIR/lastChoice ] && [ ! -e $CDKNEWDIR/config ]) || ([ ! -e $CDKOLDDIR/.deps/build_complete ] && [ ! -e $CDKNEWDIR/.deps/build_complete ]); then
+# Check if an image was actually built
+# built from cdk: lastChoice, ./deps/build_complete and release directory should exist
+# built from cdk_new: config, ./deps/build_complete and release directory should exist
+if (([ "$BUILTFROM" == "cdk" ]  && ([ ! -e $CDKOLDDIR/lastChoice ] || [ ! -e $CDKOLDDIR/.deps/build_complete ])) \
+|| ([ "$BUILTFROM" == "cdk_new" ] && ([ ! -e $CDKNEWDIR/config ] || [ ! -e $CDKNEWDIR/.deps/build_complete ])) \
+|| [ ! -d $BASEDIR/tufsbox/release ]); then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
