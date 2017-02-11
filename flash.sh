@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 07-02-2017"
+echo "+ Date   : 11-02-2017"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -40,21 +40,23 @@ echo
 # 20161216 Audioniek   Enable USB for Fortis 2G receivers with 32MB of flash.
 # 20161217 Audioniek   Enable USB for Fortis 3G receivers.
 # 20170207 Audioniek   Improved check on existence of a flashable image.
+# 20170211 Audioniek   Support for buildsystem added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
-CDKOLDDIR=$BASEDIR/cdk
-CDKNEWDIR=$BASEDIR/cdk_new
 #Determine which cdk was used to build
 if [ -e ../cdk/lastChoice ]; then
   BUILTFROM="cdk"
   CDKDIR=$BASEDIR/cdk
-else
+elif [ -e ../cdk_new/config ]; then
   BUILTFROM="cdk_new"
   CDKDIR=$BASEDIR/cdk_new
+else
+  BUILTFROM="buildsystem"
+  CDKDIR=$BASEDIR
 fi
 export CDKDIR
 export FLASHDIR=$BASEDIR/flash
@@ -69,9 +71,10 @@ export TFINSTALLERDIR=$CDKDIR/tfinstaller
 
 # Check if an image was actually built
 # built from cdk: lastChoice, ./deps/build_complete and release directory should exist
-# built from cdk_new: config, ./deps/build_complete and release directory should exist
-if (([ "$BUILTFROM" == "cdk" ]  && ([ ! -e $CDKOLDDIR/lastChoice ] || [ ! -e $CDKOLDDIR/.deps/build_complete ])) \
-|| ([ "$BUILTFROM" == "cdk_new" ] && ([ ! -e $CDKNEWDIR/config ] || [ ! -e $CDKNEWDIR/.deps/build_complete ])) \
+# built from cdk_new or buidlsystem  config, ./deps/build_complete and release directory should exist
+if ([ "$BUILTFROM" == "cdk" ]  && [ ! -e $CDKDIR/lastChoice ] \
+|| (([ "$BUILTFROM" == "cdk_new" ] || [ "$BUILTFROM" == "buildsystem" ]) && [ ! -e $CDKDIR/config ]) \
+|| [ ! -e $CDKDIR/.deps/build_complete ] \
 || [ ! -d $BASEDIR/tufsbox/release ]); then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
@@ -181,7 +184,7 @@ export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print s
 rm $FLASHDIR/lastconfig
 
 # Determine/ask for output type (USB or flash)
-if [ "$BUILTFROM" == "cdk_new" ] && [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
+if ([ "$BUILTFROM" == "cdk_new" ] || [ "$BUILTFROM" == "buildsystem" ]) && [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
   export OUTTYPE="USB"
   rm $FLASHDIR/config
 else
@@ -533,8 +536,6 @@ unset BASEDIR
 unset TUFSBOXDIR
 unset TFINSTALLERDIR
 unset CDKDIR
-unset CDKOLDDIR
-unset CDKNEWDIR
 unset SCRIPTDIR
 unset TOOLSDIR
 unset TMPDIR
