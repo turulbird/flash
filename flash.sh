@@ -41,6 +41,7 @@ echo
 # 20161217 Audioniek   Enable USB for Fortis 3G receivers.
 # 20170207 Audioniek   Improved check on existence of a flashable image.
 # 20170211 Audioniek   Support for buildsystem added.
+# 20170310 Audioniek   Support for Kathrein UFS912 improved/debugged.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -65,6 +66,7 @@ export TOOLSDIR=$FLASHDIR/flash_tools
 export TMPDIR=$FLASHDIR/tmp
 export TMPROOTDIR=$TMPDIR/ROOT
 export TMPVARDIR=$TMPDIR/VAR
+export TMPFWDIR=$TMPDIR/FW
 export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$FLASHDIR/out
 export TFINSTALLERDIR=$CDKDIR/tfinstaller
@@ -120,6 +122,12 @@ if [ -e $TMPKERNELDIR ]; then
   rm -rf $TMPKERNELDIR/*
 elif [ ! -d $TMPKERNELDIR ]; then
   mkdir -p $TMPKERNELDIR
+fi
+
+if [ -e $TMPFWDIR ]; then
+  rm -rf $TMPFWDIR/*
+elif [ ! -d $TMPFWDIR ]; then
+  mkdir -p $TMPFWDIR
 fi
 
 if [ -e $OUTDIR ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 # "This script creates flashable images for Kathrein UFS912 receivers."
 # "Author: Audioniek, based on previous work by Schischu"
-# "Date: 01-31-2011, Last Change: 07-13-2014"
+# "Date: 01-31-2011, Last Change: 03-11-2017"
 #
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
@@ -15,9 +15,12 @@ SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 MUP=$TOOLSDIR/mup
 PAD=$TOOLSDIR/pad
 
-SIZE_KERNEL=0x00400000
-SIZE_ROOT=0x04000000
-SIZE_FW=0x00800000
+SIZE_KERNEL=4194304
+SIZE_ROOT=67108864
+SIZE_FW=8388608
+#SIZE_KERNELH=0x400000
+SIZE_ROOTH=0x4000000
+SIZE_FWH=0x800000
 
 OUTFILE="Kathrein_UFS912"_"$IMAGE"_"$OUTTYPE"_"full".img
 OUTZIPFILE="$HOST"_"$IMAGE"_"P$PATCH"_"$GITVERSION".zip
@@ -28,13 +31,18 @@ elif [ ! -d $OUTDIR/kathrein ]; then
   mkdir $OUTDIR/kathrein
 fi
 
-if [ -e $OUTDIR/kathrein/$BOXTYPE ]; then
-  rm -f $OUTDIR/kathrein/$BOXTYPE/*
-elif [ ! -d $OUTDIR/kathrein/$BOXTYPE ]; then
-  mkdir $OUTDIR/kathrein/$BOXTYPE
+if [ -e $OUTDIR/kathrein/ufs912 ]; then
+  rm -f $OUTDIR/kathrein/ufs912/*
+elif [ ! -d $OUTDIR/kathrein/ufs912 ]; then
+  mkdir $OUTDIR/kathrein/ufs912
 fi
 
-echo
+if [ -e $OUTDIR/kathrein/ufs912_Bargs ]; then
+  rm -f $OUTDIR/kathrein/ufs912_Bargs/*
+elif [ ! -d $OUTDIR/kathrein/ufs912_Bargs ]; then
+  mkdir $OUTDIR/kathrein/ufs912_Bargs
+fi
+
 echo -n " - Prepare kernel file..."
 cp $TMPKERNELDIR/uImage $TMPDIR/uImage
 echo " done."
@@ -43,7 +51,7 @@ echo -n " - Checking kernel size..."
 SIZE=`stat $TMPDIR/uImage -t --format %s`
 SIZED=`printf "%d" $SIZE`
 SIZEH=`printf "0x%08X" $SIZE`
-if [[ $SIZEH > "$SIZE_KERNEL" ]]; then
+if [[ $SIZED > $SIZE_KERNEL ]]; then
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
@@ -60,16 +68,15 @@ fi
 
 # --- ROOT ---
 echo -n " - Create a jffs2 partition for root..."
+#$MKFSJFFS2 -qUfv -p0x4000000 -e0x20000 -r $TMPROOTDIR -o $TMPDIR/mtd_root.bin
 $MKFSJFFS2 -qUf -e0x20000 -r $TMPROOTDIR -o $TMPDIR/mtd_root.bin > /dev/null
-$SUMTOOL -p -e 0x20000 -i $TMPDIR/mtd_root.bin -o $TMPDIR/mtd_root.sum > /dev/null
-$PAD $SIZE_ROOT $TMPDIR/mtd_root.sum $TMPDIR/mtd_root.pad
 echo " done."
 
 echo -n " - Checking root size..."
 SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
 SIZED=`printf "%d" $SIZE`
 SIZEH=`printf "0x%08X" $SIZE`
-if [[ $SIZEH > "$SIZE_ROOT" ]]; then
+if [[ $SIZED > $SIZE_ROOT ]]; then
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
@@ -82,18 +89,19 @@ if [[ $SIZEH > "$SIZE_ROOT" ]]; then
 else
 echo " OK: $SIZED ($SIZEH, max. $SIZE_ROOT) bytes."
 fi
+$SUMTOOL -p -e 0x20000 -i $TMPDIR/mtd_root.bin -o $TMPDIR/mtd_root.sum
+$PAD $SIZE_ROOTH $TMPDIR/mtd_root.sum $TMPDIR/mtd_root.pad
 
 echo -n " - Create a jffs2 partition for firmwares..."
-$MKFSJFFS2 -qUf -e0x20000 -r $TMPVARDIR -o $TMPDIR/mtd_fw.bin > /dev/null
-$SUMTOOL -p -e 0x20000 -i $TMPDIR/mtd_fw.bin -o $TMPDIR/mtd_fw.sum
-$PAD $SIZE_FW $TMPDIR/mtd_fw.sum $TMPDIR/mtd_fw.pad
+#$MKFSJFFS2 -qUfv -p0x800000 -e0x20000 -r $TMPFWDIR -o $TMPDIR/mtd_fw.bin
+$MKFSJFFS2 -qUf -e0x20000 -r $TMPFWDIR -o $TMPDIR/mtd_fw.bin > /dev/null
 echo " done."
 
 echo -n " - Checking firmware size..."
 SIZE=`stat $TMPDIR/mtd_fw.bin -t --format %s`
 SIZED=`printf "%d" $SIZE`
 SIZEH=`printf "0x%08X" $SIZE`
-if [[ $SIZEH > "$SIZE_FW" ]]; then
+if [[ $SIZED > $SIZE_FW ]]; then
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
@@ -107,26 +115,24 @@ if [[ $SIZEH > "$SIZE_FW" ]]; then
 else
 echo " OK: $SIZED ($SIZEH, max. $SIZE_FW) bytes."
 fi
+$SUMTOOL -p -e 0x20000 -i $TMPDIR/mtd_fw.bin -o $TMPDIR/mtd_fw.sum
+$PAD $SIZE_FWH $TMPDIR/mtd_fw.sum $TMPDIR/mtd_fw.pad
 
-# Create a Kathrein update file
+# Create a Kathrein update file for the firmwares
 # To get the partitions erased we first need to fake an yaffs2 update
-echo -n " - Create output file and MD5..."
-cd $OUTDIR/kathrein/$BOXTYPE
-$MUP c $OUTFILE << EOF
+echo -n " - Create output files and MD5..."
+cd $OUTDIR/kathrein/ufs912
+$MUP -cs $OUTFILE << EOF
 2
 0x00400000, 0x800000, 3, foo
 0x00C00000, 0x4000000, 3, foo
 0x00000000, 0x0, 1, $TMPDIR/uImage
-0x00400000, 0x0, 1, $TMPDIR/mtd_fw.sum
-0x00C00000, 0x0, 1, $TMPDIR/mtd_root.sum
+0x00400000, 0x0, 1, $TMPDIR/mtd_fw.pad
+0x00C00000, 0x0, 1, $TMPDIR/mtd_root.pad
 ;
 EOF
-# REMARK:
-#  SUMTOOL destroys the padding added by MKFSJFFS2, so the intended padding in effect was absent.
-#  This has been corrected by removing the MKFSJFFS2 padding altogether and adding and extra call to PAD.
-#  To revert back to padded files, replace .sum (2x) by .pad in the lines directly above.
 
-cp $SCRIPTDIR/flash/"$BOXTYPE"_updatescript.sh updatescript.sh
+cp $SCRIPTDIR/flash/ufs912_updatescript.sh ../ufs912_Bargs/updatescript.sh
 
 # Create MD5 file
 md5sum -b $OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
@@ -148,24 +154,47 @@ if [ -e $OUTDIR/kathrein/$BOXTYPE/$OUTFILE ]; then
   echo " Copy the folder kathrein and all of its contents to your FAT32"
   echo " formatted USB stick."
   echo
-  echo " Switch the receiver off using the mains switch and connect the USB"
-  echo " stick to it."
+  echo " If the receiver is still running the factory firmware, perform"
+  echo " the following steps on the USB stick in order to change the bootargs:"
+  echo
+  echo " 1. Rename the folder /kathrein/ufs912 to /katrein/ufs912_img"
+  echo " 2. Rename the folder /kathrein/ufs912_Bargs to /kathrein/ufs912"
+  echo
+  echo " Switch the receiver off using the mains switch on the back and"
+  echo " insert the USB stick into its front USB port."
+  echo
+  echo " To start changing the bootargs, press and hold the key TV/RADIO on"
+  echo " the front panel and switch the receiver on using the mains switch."
+  echo
+  echo " Release the TV/RADIO key when the display shows EMERGENCY BOOT."
+  echo " Changing the bootargs will now begin and is completed when the"
+  echo " display shows UPDATE SUCCESS!"
+  echo
+  echo " Switch the receiver off using the mains switch and remove the USB"
+  echo " stick. Perform the following steps:"
+  echo " 1. Rename the folder /kathrein/ufs912 to /katrein/ufs912_Bargs"
+  echo " 2. Rename the folder /kathrein/ufs912_img to /kathrein/ufs912"
+  echo " NOTE: Changing the bootargs needs to be done only once."
+  echo
+  echo " -- Flashing the image --"
+  echo " Switch the receiver off using the mains switch on the back and"
+  echo " connect the USB stick to its front USB port."
   echo
   echo " To start the flashing process, press and hold the key TV/RADIO on the"
-  echo " front panel and switch the receiver on."
+  echo " front panel and switch the receiver on using the mains switch."
   echo
   echo " Release the TV/RADIO key when the display shows EMERGENCY BOOT."
   echo " Flashing the image will now begin and is completed when the receiver"
-  echo " switches to standby."
+  echo " reboots."
   echo -e "\033[00m"
 fi
 
 # Clean up
-rm -f $TMPDIR/uImage
-rm -f $TMPDIR/mtd_root.bin
-rm -f $TMPDIR/mtd_root.sum
-rm -f $TMPDIR/mtd_root.pad
-rm -f $TMPDIR/mtd_fw.bin
-rm -f $TMPDIR/mtd_fw.sum
-rm -f $TMPDIR/mtd_fw.pad
+#rm -f $TMPDIR/uImage
+#rm -f $TMPDIR/mtd_root.bin
+#rm -f $TMPDIR/mtd_root.sum
+#rm -f $TMPDIR/mtd_root.pad
+#rm -f $TMPDIR/mtd_fw.bin
+#rm -f $TMPDIR/mtd_fw.sum
+#rm -f $TMPDIR/mtd_fw.pad
 

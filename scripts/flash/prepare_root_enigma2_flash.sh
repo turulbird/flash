@@ -12,6 +12,7 @@
 # 20140726: Audioniek   French added as third fixed language on atevio7500.
 # 20140914: Audioniek   Retain all languages option added on atevio7500.
 # 20141015: Audioniek   Fortis 4th generation receivers added.
+# 20170310: Audioniek   Setting TMPFWDIR moved to flash.sh.
 #
 # ---------------------------------------------------------------------------
 
@@ -136,23 +137,24 @@ case $BOXTYPE in
     ;;
   ufs912|ufs913)
     common
-    export TMPFWDIR=$TMPDIR/FW
+
+    echo -n " Moving firmwares..."
     if [ -e $TMPFWDIR ]; then
       rm -rf $TMPFWDIR/*
     elif [ ! -d $TMPFWDIR ]; then
       mkdir $TMPFWDIR
     fi
-
-    echo -n " Moving firmwares..."
     mv $TMPROOTDIR/boot/*.elf $TMPFWDIR
     echo " done."
 
-    mv $TMPROOTDIR/boot/bootlogo.mvi $TMPROOTDIR/etc/bootlogo.mvi
+    if [ -e $TMPROOTDIR/boot/bootlogo.mvi ]; then
+      mv $TMPROOTDIR/boot/bootlogo.mvi $TMPROOTDIR/etc/bootlogo.mvi
+    fi
     sed -i "s/\/boot\/bootlogo.mvi/\/etc\/bootlogo.mvi/g" $TMPROOTDIR/etc/init.d/rcS
 
     rm -f $TMPROOTDIR/boot/*
 
-      echo -n " Adapting var/etc/fstab..."
+    echo -n " Adapting /etc/fstab..."
     if [ "$BOXTYPE" == "ufs912" ]; then
        echo "/dev/mtdblock3	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
        #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
