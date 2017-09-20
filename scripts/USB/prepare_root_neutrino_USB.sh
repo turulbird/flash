@@ -79,4 +79,9 @@ case $BOXTYPE in
     # --- STORAGE FOR MINI_FO ---
     mkdir $TMPSTORAGEDIR/root_ro
     ;;
+  *)
+    echo "Receiver $BOXTYPE not supported."
+    echo
+    ;;
 esac
+

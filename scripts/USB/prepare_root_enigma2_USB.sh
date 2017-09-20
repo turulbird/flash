@@ -39,7 +39,7 @@ case $BOXTYPE in
   spark|spark7162)
     common
     ;;
-  ufc960|ufs910|ufs912|ufs922)
+  ufc960|ufs910|ufs922)
     common
 
 #    mkdir $TMPROOTDIR/root_rw

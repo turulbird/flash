@@ -11,6 +11,7 @@
 # Date     Who          Description
 # 20150421 Audioniek    Maximum kernel size adapted to Spark (8M -> 7M).
 # 20160310 Audioniek    Maximum kernel check now automatic.
+# 20170902 Audioniek    Improved root size checking.
 #
 # -----------------------------------------------------------------------
 
@@ -79,19 +80,27 @@ echo -n " - Checking root size..."
 SIZE=`stat $OUTDIR/enigma2/$OUTFILE -t --format %s`
 SIZEH=`printf "%08X" $SIZE`
 SIZED=`printf "%d" $SIZE`
-if [[ $SIZED > "67108864" ]]; then
+SIZEDS=$(expr $SIZED / 16)
+if [[ $BOXTYPE == spark ]]; then
+  SIZEMAX=4194304
+  SIZEMAXH=4000000
+else
+  SIZEMAX=7798784
+  SIZEMAXH=7700000
+fi
+if [[ $SIZEDS > $SIZEMAX ]]; then
   echo
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
-  echo " ROOT TOO BIG: 0x$SIZEH instead of max. 0x04000000 bytes" > /dev/stderr
+  echo " ROOT TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXH bytes." > /dev/stderr
   echo
   echo " Exiting..."
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
   exit
 else
-  echo " OK: $SIZED (0x$SIZEH, max. 0x04000000) bytes"
+  echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXH) bytes."
 fi
 
 # Clean up
@@ -111,7 +120,7 @@ if [ -e $OUTDIR/enigma2/$OUTFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " To flash the created image, copy the enigma2 folder and its contents"
-  echo " to the root folder (/) of your USB stick, so the root of the stick."
+  echo " to the root folder (/) of your USB stick, so the root of the stick"
   echo " has a folder enigma2."
   echo
   echo " Before flashing make sure that enigma2 is the default system on your"

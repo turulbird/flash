@@ -177,8 +177,10 @@ fi
 if [ "$BUILTFROM" == "cdk" ]; then
   export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
   rm ./lastChoice
-else
+elif [ "$BUILTFROM" == "cdk_new" ]; then
   export PATCH=`grep -e "KERNEL=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
+else
+  export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
 fi
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
@@ -222,6 +224,41 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
       echo " Exiting..."      
       echo "-----------------------------------------------------------------------"
       exit;;
+  esac
+fi
+
+# Check if there is support for the receiver combined with imagetype
+if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
+  case "$BOXTYPE" in
+    atevio7500|fortis_hdbox|octagon1008|hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs922|ufs912|ufs913)
+      ;;
+    *)
+      echo
+      echo "-- Message ----------------------------------------------------------------"
+      echo
+      echo " Currently there is no enigma2-USB support for your receiver $BOXTYPE."
+      echo
+      echo " Sorry."
+      echo
+      echo " Exiting..."
+      echo "---------------------------------------------------------------------------"
+      exit;;
+  esac
+elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
+  case "$BOXTYPE" in
+    atevio7500|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960)
+      ;;
+    *)
+      echo
+      echo "-- Message ----------------------------------------------------------------"
+      echo
+      echo " Currently there is no neutrino-USB support for your receiver $BOXTYPE."
+      echo
+      echo " Sorry."
+      echo
+      echo " Exiting..."
+      echo "---------------------------------------------------------------------------"
+      exit;
   esac
 fi
 

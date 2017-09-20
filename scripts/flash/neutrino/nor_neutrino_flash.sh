@@ -20,6 +20,10 @@
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
 # "-----------------------------------------------------------------------"
+# ---------------------------------------------------------------------------
+# Changes:
+# 20170920 Audioniek   Fix syntax error in call of mksquashfs4.0.
+#
 
 # Set up the variables
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
@@ -129,9 +133,9 @@ fi
 
 # --- ROOT ---
 echo -n " - Create a squashfs 4.0 partition for root..."
-#echo "MKSQUASHFS4 $TMPROOTDIR $CURDIR/mtd_root.bin -noappend -comp gzip -always-use-fragments -b 262144"
-$MKSQUASHFS4 $TMPROOTDIR $TMPDIR/mtd_root.bin -noappend -comp gzip -always-use-fragments -b 262144 > /dev/null
-#echo "PAD $SIZE_ROOT $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad.bin"
+#echo -e "\nMKSQUASHFS4 $TMPROOTDIR $CURDIR/mtd_root.bin -noappend -always-use-fragments -b 262144"
+$MKSQUASHFS4 $TMPROOTDIR $TMPDIR/mtd_root.bin -noappend -always-use-fragments -b 262144 > /dev/null
+#echo -e "\nPAD $SIZE_ROOT $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad.bin"
 $PAD $SIZE_ROOTH $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad
 echo " done."
 
