@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 11-02-2017"
+echo "+ Date   : 22-09-2017"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -42,6 +42,7 @@ echo
 # 20170207 Audioniek   Improved check on existence of a flashable image.
 # 20170211 Audioniek   Support for buildsystem added.
 # 20170310 Audioniek   Support for Kathrein UFS912 improved/debugged.
+# 20170922 Audioniek   Support for Kathrein UFS910 Neutrino USB added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -91,7 +92,7 @@ if [ `id -u` != 0 ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " You are not running this script with fakeroot."
-  echo " Try it again with \"fakeroot ./flash.sh\"."
+  echo " Try it again with \"fakeroot $0\"."
   echo
   echo " Exiting..."
   echo
@@ -246,13 +247,13 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960)
+    atevio7500|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960|ufs910)
       ;;
     *)
       echo
       echo "-- Message ----------------------------------------------------------------"
       echo
-      echo " Currently there is no neutrino-USB support for your receiver $BOXTYPE."
+      echo " Currently there is no Neutrino-USB support for your receiver $BOXTYPE."
       echo
       echo " Sorry."
       echo

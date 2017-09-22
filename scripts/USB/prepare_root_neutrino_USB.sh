@@ -45,7 +45,7 @@ case $BOXTYPE in
     common;;
   spark|spark7162)
     common;;
-  ufc960)
+  ufc960|ufs910)
     find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
 
     if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
