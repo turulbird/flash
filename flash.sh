@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 22-09-2017"
+echo "+ Date   : 23-12-2017"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -43,6 +43,7 @@ echo
 # 20170211 Audioniek   Support for buildsystem added.
 # 20170310 Audioniek   Support for Kathrein UFS912 improved/debugged.
 # 20170922 Audioniek   Support for Kathrein UFS910 Neutrino USB added.
+# 201712233 Audioniek   Support for Tvheadend built by buildsystem added.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -74,7 +75,7 @@ export TFINSTALLERDIR=$CDKDIR/tfinstaller
 
 # Check if an image was actually built
 # built from cdk: lastChoice, ./deps/build_complete and release directory should exist
-# built from cdk_new or buidlsystem  config, ./deps/build_complete and release directory should exist
+# built from cdk_new or buildsystem  config, ./deps/build_complete and release directory should exist
 if ([ "$BUILTFROM" == "cdk" ]  && [ ! -e $CDKDIR/lastChoice ] \
 || (([ "$BUILTFROM" == "cdk_new" ] || [ "$BUILTFROM" == "buildsystem" ]) && [ ! -e $CDKDIR/config ]) \
 || [ ! -e $CDKDIR/.deps/build_complete ] \
@@ -162,6 +163,9 @@ else
   elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
     IMAGE=neutrino
     IMAGEN="Neutrino"
+  elif [ `grep -e "IMAGE=tvheadend" $FLASHDIR/config` ]; then
+    IMAGE=tvheadend
+    IMAGEN="Tvheadend"
   fi
 fi
 export IMAGE

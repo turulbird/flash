@@ -265,7 +265,9 @@ else
   SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
   SIZEH=`printf "%08X" $SIZE`
   SIZED=`printf "%d" $SIZE`
-  if [[ $SIZED > "62914560" ]]; then
+  MAXSIZE=62914560
+  CHECKSIZE=$(( SIZED > MAXSIZE ))
+  if [ "$CHECKSIZE" == "1" ]; then
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
