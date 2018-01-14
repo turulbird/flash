@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 23-12-2017"
+echo "+ Date   : 14-01-2018"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -43,7 +43,8 @@ echo
 # 20170211 Audioniek   Support for buildsystem added.
 # 20170310 Audioniek   Support for Kathrein UFS912 improved/debugged.
 # 20170922 Audioniek   Support for Kathrein UFS910 Neutrino USB added.
-# 201712233 Audioniek   Support for Tvheadend built by buildsystem added.
+# 20171223 Audioniek   Support for Tvheadend built by buildsystem added.
+# 20180114 Audioniek   Handle tfinstaller built from buildsystem.
 # ---------------------------------------------------------------------------
 
 #Set up some variables
@@ -335,20 +336,23 @@ if [ $BOXTYPE == "tf7700" ]; then
       else
         TFINSTALL="built"
       fi
-#    else
-#      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
-#        echo -e "\033[01;31m"
-#        echo "-- ERROR! -------------------------------------------------------------"
-#        echo
-#        echo " Building the Topfield installer has not been done yet."
-#        echo
-#        echo " Build an image first and then run this script again to build"
-#        echo " the Topfield installer."
-#        echo
-#        echo " Exiting..."
-#        echo "-----------------------------------------------------------------------"
-#        echo -e "\033[00m"
-#        exit 2
+    fi
+  elif [ "$BUILTFROM" == "buildsystem" ]; then
+    TFINSTALL="built"
+  else
+    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
+      echo -e "\033[01;31m"
+      echo "-- ERROR! -------------------------------------------------------------"
+      echo
+      echo " Building the Topfield installer has not been done yet."
+      echo
+      echo " Build an image first and then run this script again to build"
+      echo " the Topfield installer."
+      echo
+      echo " Exiting..."
+      echo "-----------------------------------------------------------------------"
+      echo -e "\033[00m"
+      exit 2
     fi
   fi
 fi

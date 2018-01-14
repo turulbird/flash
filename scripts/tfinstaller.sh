@@ -15,7 +15,6 @@ rm -f $CDKDIR/.deps/uboot_tf7700
 rm -f $CDKDIR/.deps/tfkernel.do_compile
 echo " done."
 
-echo "TFINSTALLERDIR = $1"
 cd $CDKDIR
 echo -n " Build uboot_tf7700..."
 make uboot_tf7700 > /dev/null 2> /dev/null
@@ -26,6 +25,5 @@ echo " done."
 echo -n " Create Enigma_Installer.tfd..."
 make -C tfinstaller > /dev/null 2> /dev/null
 echo " done."
-
 
 
