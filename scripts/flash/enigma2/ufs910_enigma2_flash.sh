@@ -3,7 +3,7 @@
 # "This script creates flashable images for Kathrein UFS910 receivers"
 # " equipped with MINI/MAXI UBOOT boot loader."
 # "Author: Audioniek, based on previous work by Schischu, Oxygen-1"
-# "Date: 04-02-2012", Last Change: 07-14-2014"
+# "Date: 04-02-2012", Last Change: 10-25-2017"
 #
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
@@ -142,7 +142,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo " Insert the USB stick in the/a USB port on the receiver."
   echo
   echo " To start the flashing process press RECORD for 10 sec on your"
-  echo " control while the receiver is starting."
+  echo " remote control while the receiver is starting."
   echo -e "\033[00m"
 fi
 
