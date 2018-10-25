@@ -7,12 +7,15 @@
 #echo "Date: 07-02-2014"
 #echo
 #
+# 20180729 Audioniek - Use Archive directory for source code retrieved from
+#                      the internet; squashfs4.0 replaced by squashfs4.2.
 # 20140829 Audioniek - Added mksquashfs3.0 as this version is needed by first
 #                      generation Fortis receivers.
 
+ARCHIVE=~/Archive
 TOOLSDIR=$1
 cd $TOOLSDIR
-BASEDIR=`cd ../.. && pwd`
+BASEDIR=`cd .. && pwd`
 
 # Tool program pad..."
 if [ ! -e $TOOLSDIR/pad ]; then
@@ -43,13 +46,13 @@ if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/mksquash.src
-  if [ ! -d ./squashfs3.0 ]; then
+  if [ -d ./squashfs3.0 ]; then
     rm -rf ./squashfs3.0
   fi
-  if [ ! -e ./squashfs3.0.tar.gz ]; then
-    wget "http://pkgs.fedoraproject.org/repo/pkgs/squashfs-tools/squashfs3.0.tar.gz/9fd05d0bfbb712f5fb95edafea5bc733/squashfs3.0.tar.gz"
+  if [ ! -e $ARCHIVE/squashfs3.0.tar.gz ]; then
+    wget "http://pkgs.fedoraproject.org/repo/pkgs/squashfs-tools/squashfs3.0.tar.gz/9fd05d0bfbb712f5fb95edafea5bc733/squashfs3.0.tar.gz" -P $ARCHIVE
   fi
-  tar -xzf $TOOLSDIR/mksquash.src/squashfs3.0.tar.gz
+  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs3.0.tar.gz 
   cd $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools
   make
   mv $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.0
@@ -73,16 +76,19 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/mksquash.src
-  if [ ! -d ./squashfs-tools ]; then
-    rm -rf ./squashfs-tools
+  if [ -d ./squashfs3.3 ]; then
+    rm -rf ./squashfs3.3
   fi
-  tar -xzf $TOOLSDIR/mksquash.src/squashfs3.3.tar.gz
-  cd $TOOLSDIR/mksquash.src/squashfs-tools
+  if [ ! -e $ARCHIVE/squashfs3.3.tar.gz ]; then
+    wget "https://sourceforge.net/projects/squashfs/files/OldFiles/squashfs3.3.tar.gz" -P $ARCHIVE
+  fi
+  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs3.3.tar.gz
+  cd $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools
   make all
-  mv $TOOLSDIR/mksquash.src/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.3
-  mv $TOOLSDIR/mksquash.src/squashfs-tools/unsquashfs $TOOLSDIR/unsquashfs3.3
+  mv $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.3
+  mv $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools/unsquashfs $TOOLSDIR/unsquashfs3.3
   cd $TOOLSDIR
-  rm -rf $TOOLSDIR/mksquash.src/squashfs-tools
+  rm -rf $TOOLSDIR/mksquash.src/squashfs3.3
   if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
     echo " Compiling mksquashfs3.3 failed! Exiting..."
     exit 3
@@ -93,47 +99,42 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   fi
 fi
 
-# Tool program mksquashfs4.0..."
-if [ ! -e $TOOLSDIR/mksquashfs4.0 ]; then
+# Tool program mksquashfs4.2..."
+if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
   echo "-----------------------------------------------------------------------"
-  echo " Tool program mksquashfs4.0 is missing, trying to compile it..."
+  echo " Tool program mksquashfs4.2 is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/mksquash.src
-  if [ ! -d ./squashfs4.0 ]; then
-    rm -rf ./squashfs4.0
+  if [ -d ./squashfs4.2 ]; then
+    rm -rf ./squashfs4.2
   fi
-  if [ ! -e ./squashfs4.0.tar.gz ]; then
-    #wget "http://heanet.dl.sourceforge.net/sourceforge/squashfs/squashfs4.0.tar.gz"
-    wget "http://pkgs.fedoraproject.org/repo/pkgs/squashfs-tools/squashfs4.0.tar.gz/a3c23391da4ebab0ac4a75021ddabf96/squashfs4.0.tar.gz"
+  if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
+    wget "https://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz/download" -P $ARCHIVE
   fi
-  if [ ! -e ./lzma465.tar.bz2 ]; then
-    #wget "http://heanet.dl.sourceforge.net/sourceforge/sevenzip/lzma465.tar.bz2"
-    wget "http://pkgs.fedoraproject.org/repo/pkgs/SevenZip/lzma465.tar.bz2/29d5ffd03a5a3e51aef6a74e9eafb759/lzma465.tar.bz2"
+  if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
+    wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
   fi
-  if [ ! -d ./squashfs-tools ]; then
-    mkdir ./squashfs-tools
-  fi
-  cd ./squashfs-tools
-  tar -xzf $TOOLSDIR/mksquash.src/squashfs4.0.tar.gz
-  tar -xjf $TOOLSDIR/mksquash.src/lzma465.tar.bz2
-  cd ./squashfs4.0/squashfs-tools
-  if [ -e $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch ]; then
-    echo "patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch"
-    patch -p1 < $BASEDIR/cdk/Patches/squashfs-tools-4.0-lzma.patch > /dev/null
-  fi
-  make all
-  mv ./mksquashfs $TOOLSDIR/mksquashfs4.0
-  mv ./unsquashfs $TOOLSDIR/unsquashfs4.0
+  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
+  tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
+  cd ./squashfs4.2/squashfs-tools
+#  if [ -e $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch ]; then
+#    echo "patch -p1 < $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch"
+#    patch -p1 < $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch > /dev/null
+#  fi
+  make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
+  mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
+  mv ./unsquashfs $TOOLSDIR/unsquashfs4.2
   cd $TOOLSDIR
-  rm -rf ./mksquash.src/squashfs-tools
-  if [ ! -e $TOOLSDIR/mksquashfs4.0 ]; then
-    echo " Compiling mksquashfs4.0 failed! Exiting..."
+  rm -rf ./mksquash.src/squashfs4.2
+  rm -rf ./mksquash.src/lzma-4.65
+  if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
+    echo " Compiling mksquashfs4.2 failed! Exiting..."
     exit 3
   else
     clear
     echo "-----------------------------------------------------------------------"
-    echo " Compiling mksquashfs4.0 successfully completed."
+    echo " Compiling mksquashfs4.2 successfully completed."
   fi
 fi
 
@@ -148,10 +149,10 @@ if [ ! -e $TOOLSDIR/mkcramfs1.1 ]; then
     rm -rf $TOOLSDIR/cramfs.src/cramfs.src
   fi
   cd ./cramfs.src
-  if [ ! -e ./cramfs-1.1.tar.gz ]; then
-    wget "http://downloads.sourceforge.net/project/cramfs/cramfs/1.1/cramfs-1.1.tar.gz"
+  if [ ! -e $ARCHIVE/cramfs-1.1.tar.gz ]; then
+    wget "http://downloads.sourceforge.net/project/cramfs/cramfs/1.1/cramfs-1.1.tar.gz" -P $ARCHIVE
   fi
-  tar -xzf ./cramfs-1.1.tar.gz
+  tar -xzf $ARCHIVE/cramfs-1.1.tar.gz
   cd ./cramfs-1.1
   make all
   mv ./mkcramfs $TOOLSDIR/mkcramfs1.1

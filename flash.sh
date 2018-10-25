@@ -51,17 +51,7 @@ echo
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
-#Determine which cdk was used to build
-if [ -e ../cdk/lastChoice ]; then
-  BUILTFROM="cdk"
-  CDKDIR=$BASEDIR/cdk
-elif [ -e ../cdk_new/config ]; then
-  BUILTFROM="cdk_new"
-  CDKDIR=$BASEDIR/cdk_new
-else
-  BUILTFROM="buildsystem"
-  CDKDIR=$BASEDIR
-fi
+CDKDIR=$BASEDIR
 export CDKDIR
 export FLASHDIR=$BASEDIR/flash
 export SCRIPTDIR=$FLASHDIR/scripts
@@ -75,12 +65,10 @@ export OUTDIR=$FLASHDIR/out
 export TFINSTALLERDIR=$CDKDIR/tfinstaller
 
 # Check if an image was actually built
-# built from cdk: lastChoice, ./deps/build_complete and release directory should exist
-# built from cdk_new or buildsystem  config, ./deps/build_complete and release directory should exist
-if ([ "$BUILTFROM" == "cdk" ]  && [ ! -e $CDKDIR/lastChoice ] \
-|| (([ "$BUILTFROM" == "cdk_new" ] || [ "$BUILTFROM" == "buildsystem" ]) && [ ! -e $CDKDIR/config ]) \
+# built from buildsystem:  config, ./deps/build_complete and release directory should exist
+if [ ! -e $CDKDIR/config ] \
 || [ ! -e $CDKDIR/.deps/build_complete ] \
-|| [ ! -d $BASEDIR/tufsbox/release ]); then
+|| [ ! -d $BASEDIR/tufsbox/release ]; then
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
   echo " Please build an image first. Exiting..."
@@ -140,54 +128,25 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 # Determine which image has been built last
-if [ "$BUILTFROM" == "cdk" ]; then
-  cp $CDKDIR/lastChoice $FLASHDIR/lastChoice
-  sed -i 's/ --/\n&/g' $FLASHDIR/lastChoice
-  sed -i 's/ --//g' $FLASHDIR/lastChoice
-  sed -i 's/ E2/\n&E2/g' $FLASHDIR/lastChoice
-  sed -i 's/ E2//g' $FLASHDIR/lastChoice
-  if [ `grep -e "enable-enigma2" $FLASHDIR/lastChoice` ]; then
-    IMAGE=`grep -e "enable-enigma2" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-    IMAGEN="Enigma2"
-  elif [ `grep -e "enable-neutrino" $FLASHDIR/lastChoice` ]; then
-    IMAGE=`grep -e "enable-neutrino" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-    IMAGEN="Neutrino"
-  elif [ `grep -e "enable-tvheadend" $FLASHDIR/lastChoice` ]; then
-    IMAGE=`grep -e "enable-tvheadend" $FLASHDIR/lastChoice | awk '{print substr($0,8,length($0)-7)}'`
-    IMAGEN="Tvheadend"
-  fi
-else
-  cp $CDKDIR/config $FLASHDIR/config
-  if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
-    IMAGE=enigma2
-    IMAGEN="Enigma2"
-  elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
-    IMAGE=neutrino
-    IMAGEN="Neutrino"
-  elif [ `grep -e "IMAGE=tvheadend" $FLASHDIR/config` ]; then
-    IMAGE=tvheadend
-    IMAGEN="Tvheadend"
-  fi
+cp $CDKDIR/config $FLASHDIR/config
+if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
+  IMAGE=enigma2
+  IMAGEN="Enigma2"
+elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
+  IMAGE=neutrino
+  IMAGEN="Neutrino"
+elif [ `grep -e "IMAGE=tvheadend" $FLASHDIR/config` ]; then
+  IMAGE=tvheadend
+  IMAGEN="Tvheadend"
 fi
 export IMAGE
 export IMAGEN
 
 # Determine receiver type
-if [ "$BUILTFROM" == "cdk" ]; then
-  export BOXTYPE=`grep -e "with-boxtype" $FLASHDIR/lastChoice | awk '{print substr($0,14,length($0)-12)}'`
-else
-  export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9,length($0)-7)}'`
-fi
+export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9,length($0)-7)}'`
 
 # Determine patch level and last part of linux version number
-if [ "$BUILTFROM" == "cdk" ]; then
-  export PATCH=`grep -e "enable-p0" ./lastChoice | awk '{print substr($0,length($0)-2,length($0))}'`
-  rm ./lastChoice
-elif [ "$BUILTFROM" == "cdk_new" ]; then
-  export PATCH=`grep -e "KERNEL=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
-else
-  export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
-fi
+export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
   cd $CDKDIR/Patches/build-neutrino
@@ -200,7 +159,7 @@ export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print s
 rm $FLASHDIR/lastconfig
 
 # Determine/ask for output type (USB or flash)
-if ([ "$BUILTFROM" == "cdk_new" ] || [ "$BUILTFROM" == "buildsystem" ]) && [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
+if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
   export OUTTYPE="USB"
   rm $FLASHDIR/config
 else
@@ -316,45 +275,7 @@ export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL
 # Build tfinstaller if not done yet
 TFINSTALL="present"
 if [ $BOXTYPE == "tf7700" ]; then
-  if [ "$BUILTFROM" == "cdk" ]; then
-    TFINSTALL="not built"
-    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $CDKDIR/.deps/uboot_tf7700 ] || [ ! -e $CDKDIR/.deps/tfkernel.do_compile ]; then
-      echo
-      echo "-- Create Topfield installer-------------------------------------------"
-      echo
-      $SCRIPTDIR/tfinstaller.sh $TFINSTALLERDIR
-      if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/u-boot.ftfd ]; then
-        echo -e "\033[01;31m"
-        echo "-- ERROR! -------------------------------------------------------------"
-        echo
-        echo " Building the Topfield installer failed !!!"
-        echo
-        echo " Exiting..."
-        echo "-----------------------------------------------------------------------"
-        echo -e "\033[00m"
-        exit 2
-      else
-        TFINSTALL="built"
-      fi
-    fi
-  elif [ "$BUILTFROM" == "buildsystem" ]; then
     TFINSTALL="built"
-  else
-    if [ ! -e $TFINSTALLERDIR/uImage ] || [ ! -e $TFINSTALLERDIR/Enigma_Installer.tfd ] || [ ! -e $TFINSTALLERDIR/tfpacker ]; then
-      echo -e "\033[01;31m"
-      echo "-- ERROR! -------------------------------------------------------------"
-      echo
-      echo " Building the Topfield installer has not been done yet."
-      echo
-      echo " Build an image first and then run this script again to build"
-      echo " the Topfield installer."
-      echo
-      echo " Exiting..."
-      echo "-----------------------------------------------------------------------"
-      echo -e "\033[00m"
-      exit 2
-    fi
-  fi
 fi
 
 # All is OK so far, display summary
@@ -371,7 +292,6 @@ fi
 echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
 echo "+  Kernel patch level : P0$PATCH"
 echo "+  Image              : $IMAGEN"
-echo "+  Built from         : $BUILTFROM"
 echo "+  Will run in/on     : $OUTTYPE"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
