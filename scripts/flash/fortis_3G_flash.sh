@@ -18,29 +18,33 @@
 # "-----------------------------------------------------------------------"
 #
 
-echo "-- Output selection ---------------------------------------------------"
-echo
-echo " What would you like to flash?"
-echo "   1) The $IMAGE image plus kernel (*)"
-echo "   2) Only the kernel"
-echo "   3) Only the $IMAGE image"
-read -p " Select flash target (1-3)? "
-case "$REPLY" in
-#  1) echo > /dev/null;;
-  2) IMAGE="kernel";;
-  3) IMAGE="$IMAGE_only";;
-#  *) echo > /dev/null;;
-esac
-echo "-----------------------------------------------------------------------"
-echo
+if [ "$BATCH_MODE" == "yes" ]; then
+  IMAGE=
+else
+  echo "-- Output selection ---------------------------------------------------"
+  echo
+  echo " What would you like to flash?"
+  echo "   1) The $IMAGE image plus kernel (*)"
+  echo "   2) Only the kernel"
+  echo "   3) Only the $IMAGE image"
+  read -p " Select flash target (1-3)? "
+  case "$REPLY" in
+#    1) echo > /dev/null;;
+    2) IMAGE="kernel";;
+    3) IMAGE="$IMAGE_only";;
+#    *) echo > /dev/null;;
+  esac
+  echo "-----------------------------------------------------------------------"
+  echo
+fi
 
 # Set up the variables
 MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
 UBINIZE=$TUFSBOXDIR/host/bin/ubinize
 FUP=$TOOLSDIR/fup
 
-OUTFILE="$BOXTYPE"_"$IMAGE"_flash_R$RESELLERID.ird
-OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -155,7 +159,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
   echo "  - HS7119: 7.40, 7.46 or 7.47"
-#  echo "  - HS7429: 7.30, 7.36 or 7.37"
+  echo "  - HS7429: 7.30, 7.36 or 7.37"
   echo "  - HS7819: 7.20, 7.26 or 7.27"
   echo " with unmodified bootargs."
   echo

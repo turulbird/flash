@@ -9,7 +9,7 @@
 # "-----------------------------------------------------------------------"
 
 # Set up the variables
-OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
 echo -n " - Assembling flash file set..."
 cp $TFINSTALLERDIR/Enigma_Installer.ini $OUTDIR

@@ -1,7 +1,7 @@
 #!/bin/bash
 # "This script creates flashable images for Kathrein UFS912 receivers."
 # "Author: Audioniek, based on previous work by Schischu"
-# "Date: 01-31-2011, Last Change: 03-11-2017"
+# "Date: 01-31-2011, Last Change: 13-01-2019"
 #
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
@@ -22,8 +22,8 @@ SIZE_FW=8388608
 SIZE_ROOTH=0x4000000
 SIZE_FWH=0x800000
 
-OUTFILE="Kathrein_UFS912"_"$IMAGE"_"$OUTTYPE"_"full".img
-OUTZIPFILE="$HOST"_"$IMAGE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"full".img
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR/kathrein ]; then
   rm -f $OUTDIR/kathrein/*

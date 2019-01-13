@@ -12,7 +12,7 @@
 # -----------------------------------------------------------------------
 #
 
-OUTFILE="$BOXTYPE"_"$IMAGE"_USB_"$GITVERSION"
+OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*

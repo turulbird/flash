@@ -20,29 +20,33 @@
 # "-----------------------------------------------------------------------"
 #
 
-echo "-- Output selection ---------------------------------------------------"
-echo
-echo " What would you like to flash?"
-echo "   1) The $IMAGE image plus kernel (*)"
-echo "   2) Only the kernel"
-echo "   3) Only the $IMAGE image"
-read -p " Select flash target (1-3)? "
-case "$REPLY" in
-#  1) echo > /dev/null;;
-  2) IMAGE="kernel";;
-  3) IMAGE="image";;
-#  *) echo > /dev/null;;
-esac
-echo "-----------------------------------------------------------------------"
-echo
+if [ "$BATCH_MODE" == "yes" ]; then
+  IMAGE=
+else
+  echo "-- Output selection ---------------------------------------------------"
+  echo
+  echo " What would you like to flash?"
+  echo "   1) The $IMAGE image plus kernel (*)"
+  echo "   2) Only the kernel"
+  echo "   3) Only the $IMAGE image"
+  read -p " Select flash target (1-3)? "
+  case "$REPLY" in
+#    1) echo > /dev/null;;
+    2) IMAGE="kernel";;
+    3) IMAGE="image";;
+#    *) echo > /dev/null;;
+  esac
+  echo "-----------------------------------------------------------------------"
+  echo
+fi
 
 # Set up the variables
 MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
 UBINIZE=$TUFSBOXDIR/host/bin/ubinize
 FUP=$TOOLSDIR/fup
 
-OUTFILE="$BOXTYPE"_"$IMAGE"_flash_R$RESELLERID.ird
-OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_"$I_NAME"_$IMAGE"_flash_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$I_NAME"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*

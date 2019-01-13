@@ -45,9 +45,10 @@ echo
 # 20170922 Audioniek   Support for Kathrein UFS910 Neutrino USB added.
 # 20171223 Audioniek   Support for Tvheadend built by buildsystem added.
 # 20180114 Audioniek   Handle tfinstaller built from buildsystem.
+# 20190113 Audioniek   Add batch mode.
 # ---------------------------------------------------------------------------
 
-#Set up some variables
+# Set up some variables
 export CURDIR=`pwd`
 export BASEDIR=`cd .. && pwd`
 export TUFSBOXDIR=$BASEDIR/tufsbox
@@ -74,6 +75,7 @@ if [ ! -e $CDKDIR/config ] \
   echo " Please build an image first. Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
+  export ERROR="yes"
   exit
 fi
 
@@ -87,6 +89,7 @@ if [ `id -u` != 0 ]; then
   echo " Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
+  export ERROR="yes"
   exit
 fi
 
@@ -127,6 +130,25 @@ elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
 
+# Evaluate -b / --bootmode command line parameter
+set="$@"
+for i in $set;
+do
+  if [ $"$i" == -b ] || [ $"$i" == --batchmode ]; then
+    shift
+    BATCH_MODE="yes"
+    break
+  fi
+done
+export BATCH_MODE
+
+# Set image name
+if [ "$BATCH_MODE" == "yes" ]; then
+  INAME=Audioniek
+else
+  INAME =
+fi
+
 # Determine which image has been built last
 cp $CDKDIR/config $FLASHDIR/config
 if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
@@ -145,6 +167,20 @@ export IMAGEN
 # Determine receiver type
 export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9,length($0)-7)}'`
 
+# Determine media framework
+MFW=`grep -e "MEDIAFW=" ./config | awk '{print substr($0,length($0)-8,length($0))}'`
+if [ "$MFW" == "gstreamer" ]; then
+  MEDIAFW=gst
+elif [ "$MFW" == "eplayer3" ]; then
+  MEDIAFW=epl3
+elif [ "$MFW" == "gst-eplayer3" ]; then
+  MEDIAFW=gst-epl3
+elif [ "$MFW" == "gst-eplayer3-dual" ]; then
+  MEDIAFW=dual
+else
+  MEDIAFW=builtin
+fi
+
 # Determine patch level and last part of linux version number
 export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
@@ -159,8 +195,12 @@ export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print s
 rm $FLASHDIR/lastconfig
 
 # Determine/ask for output type (USB or flash)
-if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
-  export OUTTYPE="USB"
+if [ "$BATCH_MODE" == "yes" ]; then
+  if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
+    export OUTTYPE="USB"
+  else
+    export OUTTYPE="flash"
+  fi
   rm $FLASHDIR/config
 else
   echo "-- Output destination -------------------------------------------------"
@@ -174,6 +214,7 @@ else
     *) export OUTTYPE="flash";;
   esac
 fi
+
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
@@ -188,6 +229,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
       echo
       echo " Exiting..."      
       echo "-----------------------------------------------------------------------"
+      export ERROR="yes"
       exit;;
   esac
 fi
@@ -195,9 +237,7 @@ fi
 # Check if there is support for the receiver combined with imagetype
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|fortis_hdbox|octagon1008|hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs922|ufs912|ufs913)
-      ;;
-    *)
+    atevio7500|spark|spark7162|ufs913)
       echo
       echo "-- Message ----------------------------------------------------------------"
       echo
@@ -207,7 +247,10 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
       echo
       echo " Exiting..."
       echo "---------------------------------------------------------------------------"
+      export ERROR="yes"
       exit;;
+    *)
+      ;;
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
@@ -223,6 +266,7 @@ elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
       echo
       echo " Exiting..."
       echo "---------------------------------------------------------------------------"
+      export ERROR="yes"
       exit;
   esac
 fi
@@ -279,23 +323,25 @@ if [ $BOXTYPE == "tf7700" ]; then
 fi
 
 # All is OK so far, display summary
-clear
-echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo "+"
-echo "+  Summary"
-echo "+  ======="
-echo "+"
-echo "+  Receiver           : $BOXTYPE"
-if [ $BOXTYPE == "tf7700" ]; then
-  echo "+  Topfield installer : $TFINSTALL"
+if [ ! "$BATCH_MODE" == "yes" ]; then
+  clear
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo "+"
+  echo "+  Summary"
+  echo "+  ======="
+  echo "+"
+  echo "+  Receiver           : $BOXTYPE"
+  if [ $BOXTYPE == "tf7700" ]; then
+    echo "+  Topfield installer : $TFINSTALL"
+  fi
+  echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
+  echo "+  Kernel patch level : P0$PATCH"
+  echo "+  Image              : $IMAGEN"
+  echo "+  Will run in/on     : $OUTTYPE"
+  echo "+"
+  echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+  echo
 fi
-echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
-echo "+  Kernel patch level : P0$PATCH"
-echo "+  Image              : $IMAGEN"
-echo "+  Will run in/on     : $OUTTYPE"
-echo "+"
-echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-echo
 
 # Prepare root
 echo "-- Prepare root -------------------------------------------------------"
@@ -348,6 +394,7 @@ echo
   echo " Exiting..."
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
+  export ERROR="yes"
   exit 2
 fi
 
@@ -523,6 +570,8 @@ unset IMAGEN
 unset OUTTYPE
 unset HOST
 unset GITVERSION
+unset BATCH_MODE
+unset INAME
 
 if [ -e dummy.squash.signed.padded ]; then
   rm -f dummy.squash.signed.padded

@@ -16,19 +16,23 @@
 # the enigma2 part of it untouched.
 #
 
-echo "-- Output selection ---------------------------------------------------"
-echo
-echo " What would you like to flash?"
-echo "   1) The whole $IMAGE image"
-echo "   2) Only the kernel"
-read -p " Select flash target (1-2)? "
-case "$REPLY" in
-  1) echo > /dev/null;;
-  2) IMAGE="kernel";;
-  *) echo > /dev/null;;
-esac
-echo "-----------------------------------------------------------------------"
-echo
+if [ "$BATCH_MODE" == "yes" ]; then
+  IMAGE=
+else
+  echo "-- Output selection ---------------------------------------------------"
+  echo
+  echo " What would you like to flash?"
+  echo "   1) The whole $IMAGE image"
+  echo "   2) Only the kernel"
+  read -p " Select flash target (1-2)? "
+  case "$REPLY" in
+    1) echo > /dev/null;;
+    2) IMAGE="kernel";;
+    *) echo > /dev/null;;
+  esac
+  echo "-----------------------------------------------------------------------"
+  echo
+fi
 
 # Set up the variables
 TMPDUMDIR=$TMPDIR/DUMMY
@@ -38,8 +42,8 @@ PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
 
-OUTFILE=HS8200_L600_"$IMAGE"_flash_R$RESELLERID.ird
-OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_L600_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $TMPDUMDIR ]; then
   rm -rf $TMPDUMDIR/*
@@ -135,6 +139,7 @@ if [[ $SIZEKD < "1048577" ]]; then
   echo
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
+  export ERROR="yes"
   exit
 fi
 if [[ $SIZEKD > "3276799" ]]; then
@@ -146,6 +151,7 @@ if [[ $SIZEKD > "3276799" ]]; then
   echo
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
+  export ERROR="yes"
   exit
 else
   echo " OK: $SIZEKD (0x$SIZEKH, max. 0x0031FFFF) bytes."
@@ -221,6 +227,7 @@ if [[ "$FAKESIZE" == "999" ]]; then
   echo " Exiting..."
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
+  export ERROR="yes"
   exit
 else
   echo " done."
@@ -276,6 +283,7 @@ else
     echo "Exiting..."
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
+    export ERROR="yes"
     exit
   else
     echo " OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes"
@@ -322,7 +330,7 @@ zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
 echo " done."
 
-if [ -e $OUTDIR/$OUTFILE ]; then
+if [ -e $OUTDIR/$OUTFILE ] && [ ! "$BATCH_MODE" == "yes" ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo

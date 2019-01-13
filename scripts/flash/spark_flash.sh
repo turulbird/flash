@@ -12,6 +12,7 @@
 # 20150421 Audioniek    Maximum kernel size adapted to Spark (8M -> 7M).
 # 20160310 Audioniek    Maximum kernel check now automatic.
 # 20170902 Audioniek    Improved root size checking.
+# 20190113 Audioniek    Add batch mode.
 #
 # -----------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 #PAD=$TOOLSDIR/pad
 
 OUTFILE=e2jffs2.img
-OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*

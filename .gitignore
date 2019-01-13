@@ -4,3 +4,4 @@ tmp
 dummy.squash.signed.padded
 config
 USB
+flash_tools/
