@@ -29,7 +29,7 @@
 TMPDUMDIR=$TMPDIR/DUMMY
 MKFSEXT3="mke2fs -t ext3"
 
-OUTZIPFILE="$HOST"_"$_NAME"_"$IMAGE"_"$OUTTYPE"_"$MEDIAFW"_"P$PATCH"_"$GITVERSION".zip
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$OUTTYPE"_"$MEDIAFW"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -54,18 +54,18 @@ dd if=/dev/zero of=$OUTDIR/root.img bs=1M count=256 2> /dev/null
 cd $TMPROOTDIR
 $MKFSEXT3 -q -F -L $IMAGE $OUTDIR/root.img
 # mount the image file
-#sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
-fakeroot mount -o loop $OUTDIR/root.img $TMPDUMDIR
+sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
+#mount -o loop $OUTDIR/root.img $TMPDUMDIR
 # copy the image to it
-#sudo cp -r . $TMPDUMDIR
-fakeroot cp -r . $TMPDUMDIR
+sudo cp -r . $TMPDUMDIR
+#cp -r . $TMPDUMDIR
 #sudo rm -rf lost+found
 if [ -d lost+found ];then
-#  sudo rmdir --ignore-fail-on-non-empty lost+found
-  fakeroot rmdir --ignore-fail-on-non-empty lost+found
+  sudo rmdir --ignore-fail-on-non-empty lost+found
+#  rmdir --ignore-fail-on-non-empty lost+found
 fi
-#sudo umount $TMPDUMDIR
-fakeroot umount $TMPDUMDIR
+sudo umount $TMPDUMDIR
+#umount $TMPDUMDIR
 cd $CURDIR
 echo " done."
 
