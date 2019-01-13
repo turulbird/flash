@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 14-01-2018"
+echo "+ Date   : 13-01-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -148,6 +148,7 @@ if [ "$BATCH_MODE" == "yes" ]; then
 else
   INAME =
 fi
+export INAME
 
 # Determine which image has been built last
 cp $CDKDIR/config $FLASHDIR/config
@@ -165,10 +166,10 @@ export IMAGE
 export IMAGEN
 
 # Determine receiver type
-export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9,length($0)-7)}'`
+export BOXTYPE=`grep -e "BOXTYPE" $FLASHDIR/config | awk '{print substr($0,9)}'`
 
 # Determine media framework
-MFW=`grep -e "MEDIAFW=" ./config | awk '{print substr($0,length($0)-8,length($0))}'`
+MFW=`grep -e "MEDIAFW=" $FLASHDIR/config | awk '{print substr($0,9)}'`
 if [ "$MFW" == "gstreamer" ]; then
   MEDIAFW=gst
 elif [ "$MFW" == "eplayer3" ]; then
@@ -180,6 +181,7 @@ elif [ "$MFW" == "gst-eplayer3-dual" ]; then
 else
   MEDIAFW=builtin
 fi
+export MEDIAFW
 
 # Determine patch level and last part of linux version number
 export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
@@ -572,6 +574,7 @@ unset HOST
 unset GITVERSION
 unset BATCH_MODE
 unset INAME
+unset MEDIAFW
 
 if [ -e dummy.squash.signed.padded ]; then
   rm -f dummy.squash.signed.padded
