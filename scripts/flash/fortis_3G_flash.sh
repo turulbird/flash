@@ -10,13 +10,21 @@
 # " 7.20, 7.26 or 7.27 (HS7819)
 #
 # "Author: Schischu/Audioniek"
-# "Date: 09-14-2014"
+# "Date: 09-14-2014"   Last change 01-14-2019
 #
 # "-----------------------------------------------------------------------"
 # "It is assumed that an image was already built prior to executing this"
 # "script!"
 # "-----------------------------------------------------------------------"
 #
+
+# Set up the variables
+MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
+UBINIZE=$TUFSBOXDIR/host/bin/ubinize
+FUP=$TOOLSDIR/fup
+
+OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ "$BATCH_MODE" == "yes" ]; then
   IMAGE=
@@ -30,21 +38,13 @@ else
   read -p " Select flash target (1-3)? "
   case "$REPLY" in
 #    1) echo > /dev/null;;
-    2) IMAGE="kernel";;
-    3) IMAGE="$IMAGE_only";;
+    2) FIMAGE="kernel";;
+    3) FIMAGE="image";;
 #    *) echo > /dev/null;;
   esac
   echo "-----------------------------------------------------------------------"
   echo
 fi
-
-# Set up the variables
-MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
-UBINIZE=$TUFSBOXDIR/host/bin/ubinize
-FUP=$TOOLSDIR/fup
-
-OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
-OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -75,7 +75,7 @@ else
   echo " OK: $SIZEKD (0x$SIZEKH, max. 0x00300000) bytes."
 fi
 
-if [ ! "$IMAGE" == "kernel" ]; then
+if [ ! "$FIMAGE" == "kernel" ]; then
   echo -n " - Preparing UBIFS root file system..."
   # Logical erase block size is physical erase block size (131072) minus -m parameter => -e 129024
   # Number of erase blocks is partition size / physical eraseblock size: 96Mib / 131072 => -c 768
@@ -129,10 +129,10 @@ fi
 
 echo -n " - Creating .IRD flash file and MD5..."
 cd $TOOLSDIR
-if [ "$IMAGE" == "kernel" ]; then
+if [ "$FIMAGE" == "kernel" ]; then
   $FUP -c $OUTDIR/$OUTFILE \
        -6 $TMPDIR/uImage
-elif [ "$IMAGE" == "image" ]; then
+elif [ "$FIMAGE" == "image" ]; then
   $FUP -c $OUTDIR/$OUTFILE \
        -1 $TMPDIR/mtd_root.ubin
 else

@@ -24,6 +24,7 @@ echo -n " - Creating .MD5 and .ZIP output files..."
 cd $OUTDIR
 md5sum -b uImage | awk -F' ' '{print $1}' > uImage.md5
 md5sum -b Enigma_Installer.tfd | awk -F' ' '{print $1}' > Enigma_Installer.tfd.md5
+md5sum -b rootfs.tar.gz | awk -F' ' '{print $1}' > rootfs.tar.gz.md5
 zip -j $OUTZIPFILE * > /dev/null
 cd - > /dev/null
 echo " done."

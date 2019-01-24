@@ -49,7 +49,7 @@ cp $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
 echo " done."
 
 echo -n " - Preparing root image..."
-dd if=/dev/zero of=$OUTDIR/root.img bs=1M count=256 2> /dev/null
+dd if=/dev/zero of=$OUTDIR/root.img bs=1M count=128 2> /dev/null
 # Create a ext3 partition for the complete root
 cd $TMPROOTDIR
 $MKFSEXT3 -q -F -L $IMAGE $OUTDIR/root.img

@@ -146,7 +146,7 @@ export BATCH_MODE
 if [ "$BATCH_MODE" == "yes" ]; then
   INAME=Audioniek
 else
-  INAME =
+  INAME=
 fi
 export INAME
 
