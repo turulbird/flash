@@ -12,7 +12,7 @@
 # -----------------------------------------------------------------------
 #
 
-OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
+OUTFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -21,7 +21,7 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 case $BOXTYPE in
-  fortis_hdbox|octagon1008)
+  atevio7500|fortis_hdbox|octagon1008)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
@@ -55,7 +55,7 @@ if [ -e $OUTDIR/$OUTFILE.tar.gz ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
 case $BOXTYPE in
-  fortis_hdbox|octagon1008)
+  atevio7500|fortis_hdbox|octagon1008)
     echo " The receiver must be equipped with the TDT maxiboot bootloader or"
     echo " a bootloader with similar capabilities. The bootloader must be able"
     echo " to boot the receiver by reading uImage from the first FAT32 formatted"

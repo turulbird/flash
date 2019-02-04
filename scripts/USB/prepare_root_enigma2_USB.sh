@@ -53,7 +53,7 @@ case $BOXTYPE in
   ufs912|ufs913)
     common
 
-    echo -n "Fill firmware directory..."
+    echo -n " Fill firmware directory..."
     mv $TMPROOTDIR/boot/audio.elf $TMPFWDIR/audio.elf
     mv $TMPROOTDIR/boot/video.elf $TMPFWDIR/video.elf
 

@@ -12,8 +12,8 @@
 # " 6.46 or 6.47 (HS7110),
 # " 6.36 or 6.37 (HS7420, NOT tested),
 # " 6.26 or 6.27 (HS7810A)
-# " 7.46 or 7.47 (HS7119),
-# " 7.36 or 7.37 (HS7429, NOT tested) or
+# " 7.06 or 7.07 (HS7119),
+# " 7.36 or 7.37 (HS7429) or
 # " 7.26 or 7.27 (HS7819)
 #
 # "Author: Schischu/Audioniek"
@@ -29,7 +29,7 @@
 TMPDUMDIR=$TMPDIR/DUMMY
 MKFSEXT3="mke2fs -t ext3"
 
-OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$OUTTYPE"_"$MEDIAFW"_"P$PATCH"_"$GITVERSION".zip
+OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -48,24 +48,32 @@ cp $TMPKERNELDIR/uImage $OUTDIR/uImage
 cp $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
 echo " done."
 
+# remove old MAKEDEV
+if [ -e $TMPROOTDIR/dev/MAKEDEV ]; then
+  rm -f $TMPROOTDIR/dev/MAKEDEV
+fi
+if [ -e $TMPROOTDIR/sbin/MAKEDEV ]; then
+  rm -f $TMPROOTDIR/sbin/MAKEDEV
+fi
+
 echo -n " - Preparing root image..."
 dd if=/dev/zero of=$OUTDIR/root.img bs=1M count=128 2> /dev/null
 # Create a ext3 partition for the complete root
 cd $TMPROOTDIR
 $MKFSEXT3 -q -F -L $IMAGE $OUTDIR/root.img
 # mount the image file
-sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
-#mount -o loop $OUTDIR/root.img $TMPDUMDIR
+#sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
+mount -o loop $OUTDIR/root.img $TMPDUMDIR
 # copy the image to it
-sudo cp -r . $TMPDUMDIR
-#cp -r . $TMPDUMDIR
+#sudo cp -r . $TMPDUMDIR
+cp -r . $TMPDUMDIR
 #sudo rm -rf lost+found
-if [ -d lost+found ];then
-  sudo rmdir --ignore-fail-on-non-empty lost+found
-#  rmdir --ignore-fail-on-non-empty lost+found
+if [ -d $TMPDUMDIR/lost+found ];then
+#  sudo rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
+  rmdir --ignore-fail-on-non-empty lost+found
 fi
-sudo umount $TMPDUMDIR
-#umount $TMPDUMDIR
+#sudo umount $TMPDUMDIR
+umount $TMPDUMDIR
 cd $CURDIR
 echo " done."
 
@@ -89,6 +97,9 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "  - HS7110 : 6.46 or 6.47"
   echo "  - HS7420 : 6.36 or 6.37"
   echo "  - HS7810A: 6.26 or 6.27"
+  echo "  - HS7119 : 7.06 or 7.07"
+  echo "  - HS7429 : 7.36 or 7.37"
+  echo "  - HS7819 : 7.26 or 7.27"
   echo " with unmodified bootargs."
   echo
   echo " To use the stick prepare the receiver to boot from it by doing:"

@@ -5,12 +5,12 @@
 # " - HS7429
 # " - HS7819
 # " with unmodified factory bootloader:
-# " 7.40, 7.46 or 7.47 (HS7119),
-# " 7.30, 7.36 or 7.37 (HS7429, NOT tested) or
+# " 7.00, 7.06 or 7.07 (HS7119),
+# " 7.30, 7.36 or 7.37 (HS7429) or
 # " 7.20, 7.26 or 7.27 (HS7819)
 #
 # "Author: Schischu/Audioniek"
-# "Date: 09-14-2014"   Last change 01-14-2019
+# "Date: 09-14-2014"   Last change 01-26-2019
 #
 # "-----------------------------------------------------------------------"
 # "It is assumed that an image was already built prior to executing this"
@@ -23,8 +23,8 @@ MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
 UBINIZE=$TUFSBOXDIR/host/bin/ubinize
 FUP=$TOOLSDIR/fup
 
-OUTFILE="$BOXTYPE"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
-OUTZIPFILE="$HOST"_"$INAME"_"$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+OUTFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
+OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
 if [ "$BATCH_MODE" == "yes" ]; then
   IMAGE=
@@ -158,7 +158,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
-  echo "  - HS7119: 7.40, 7.46 or 7.47"
+  echo "  - HS7119: 7.00, 7.06 or 7.07"
   echo "  - HS7429: 7.30, 7.36 or 7.37"
   echo "  - HS7819: 7.20, 7.26 or 7.27"
   echo " with unmodified bootargs."

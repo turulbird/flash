@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 13-01-2019"
+echo "+ Date   : 01-02-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -83,8 +83,9 @@ if [ `id -u` != 0 ]; then
   echo
   echo "-- PROBLEM! -----------------------------------------------------------"
   echo
-  echo " You are not running this script with fakeroot."
-  echo " Try it again with \"fakeroot $0\"."
+  echo " You are not running this script with sudo or fakeroot."
+  echo " Try it again with \"sudo $0\" in case of an USB image."
+  echo " For a flash image \"fakeroot $0\" will do fine."
   echo
   echo " Exiting..."
   echo
@@ -130,7 +131,7 @@ elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
 
-# Evaluate -b / --bootmode command line parameter
+# Evaluate -b / --batchmode command line parameter
 set="$@"
 for i in $set;
 do
@@ -145,6 +146,7 @@ export BATCH_MODE
 # Set image name
 if [ "$BATCH_MODE" == "yes" ]; then
   INAME=Audioniek
+  INAME="$INAME"_
 else
   INAME=
 fi
@@ -218,7 +220,7 @@ else
 fi
 
 # Check if the receiver can accept an Enigma2 image in flash
-if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ]; then
+if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
     fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
       echo
@@ -239,7 +241,7 @@ fi
 # Check if there is support for the receiver combined with imagetype
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|spark|spark7162|ufs913)
+    spark|spark7162|ufs913)
       echo
       echo "-- Message ----------------------------------------------------------------"
       echo
@@ -523,11 +525,9 @@ esac
   esac
 else #USB
   case $BOXTYPE in
-    atevio7500)
-      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
-    fortis_hdbox|octagon1008)
+    atevio7500|fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    hs7420|hs7110|hs7810a|hs7429|hs7119|hs7819)
+    hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_23G"_"$OUTTYPE".sh;;
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
