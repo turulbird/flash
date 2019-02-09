@@ -23,13 +23,15 @@
 # ---------------------------------------------------------------------------
 # Changes:
 # 20170920 Audioniek   Fix syntax error in call of mksquashfs4.0.
+# 20190206 Audioniek   Switch to mksquashfs4.2.
+# 20190208 Audioniek   Add cuberevo_min; clarify flashing instructions.
 #
 
 # Set up the variables
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
 SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
-MKSQUASHFS4=$TOOLSDIR/mksquashfs4.0
+MKSQUASHFS4=$TOOLSDIR/mksquashfs4.2
 
 OUTFILE=miniFLASH.img
 OUTZIPFILE="$HOST"_"$IMAGE"_"P$PATCH"_"$GITVERSION"
@@ -49,7 +51,7 @@ case "$BOXTYPE" in
     SIZE_ROOTD=11796480
     SIZE_VARH=0x002E0000
     SIZE_VARD=3014656
-    ERASE_SIZE=0x20000;;
+    ERASE_SIZE=0x10000;;
   fortis_hdbox) echo "Creating $IMAGE flash image for $BOXTYPE..."
     SIZE_KERNEL=0x00200000
     SIZE_ROOTH=0x00C00000
@@ -64,17 +66,17 @@ case "$BOXTYPE" in
     SIZE_VARH=0x011C0000
     SIZE_VARD=18612224
     ERASE_SIZE=0x20000;;
-  cuberevo_mini2) echo "Creating $IMAGE flash image for $BOXTYPE..."
+  cuberevo_mini|cuberevo_mini2) echo "Creating $IMAGE flash image for $BOXTYPE..."
     SIZE_KERNEL=0x00220000
     SIZE_ROOTH=0x01380000
     SIZE_ROOTD=20447232
     SIZE_VARH=0x00A00000
     SIZE_VARD=655360
     ERASE_SIZE=0x20000
-    OUTFILE_OU=mtd234.img
-    OUTFILE=usb_update.img
     HWMODEL=0x00053000
-    HWVERSION=0x00010000;;
+    HWVERSION=0x00010000
+    OUTFILE_OU=mtd234.img
+    OUTFILE=usb_update.img;;
   cuberevo) echo "Creating $IMAGE flash image for $BOXTYPE..."
     SIZE_KERNEL=0x00220000
     SIZE_ROOTH=0x01380000
@@ -94,6 +96,17 @@ case "$BOXTYPE" in
     SIZE_VARD=655360
     ERASE_SIZE=0x20000
     HWMODEL=0x00056000
+    HWVERSION=0x00010000
+    OUTFILE_OU=mtd234.img
+    OUTFILE=usb_update.img;;
+  cuberevo_3000hd) echo "Creating flash image for $BOXTYPE..."
+    SIZE_KERNEL=0x220000
+    SIZE_ROOTH=0x1380000
+    SIZE_ROOTD=20447232
+    SIZE_VARH=0xA00000
+    SIZE_VARD=655360
+    ERASE_SIZE=0x20000
+    HWMODEL=0x00053000
     HWVERSION=0x00010000
     OUTFILE_OU=mtd234.img
     OUTFILE=usb_update.img;;
@@ -132,9 +145,9 @@ echo " OK: $SIZED ($SIZEH, max. $SIZE_KERNEL) bytes."
 fi
 
 # --- ROOT ---
-echo -n " - Create a squashfs 4.0 partition for root..."
+echo -n " - Create a squashfs 4.2 partition for root..."
 #echo -e "\nMKSQUASHFS4 $TMPROOTDIR $CURDIR/mtd_root.bin -noappend -always-use-fragments -b 262144"
-$MKSQUASHFS4 $TMPROOTDIR $TMPDIR/mtd_root.bin -noappend -always-use-fragments -b 262144 > /dev/null
+$MKSQUASHFS4 $TMPROOTDIR $TMPDIR/mtd_root.bin -noappend -comp gzip -always-use-fragments -b 262144 > /dev/null
 #echo -e "\nPAD $SIZE_ROOT $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad.bin"
 $PAD $SIZE_ROOTH $TMPDIR/mtd_root.bin $TMPDIR/mtd_root.pad
 echo " done."
@@ -196,9 +209,7 @@ if [ "$BOXTYPE" == "cuberevo_mini2" -o "$BOXTYPE" == "cuberevo" -o "$BOXTYPE" ==
   cp out_tmp.img $OUTFILE_OU
   md5sum -b $OUTFILE_OU | awk -F' ' '{print $1}' > $OUTFILE_OU.md5
   cat $TOOLSDIR/mtd1.img out_tmp.img > out_tmp1.img
-  $TOOLSDIR/mkdnimg -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b \
-                    -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 \
-                    -erase_size 0x01fc0000 -image_name all_noboot -input out_tmp1.img -output $OUTFILE
+  $TOOLSDIR/mkdnimg -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 -erase_size 0x01fc0000 -image_name all_noboot -input out_tmp1.img -output $OUTFILE
   rm -f out_tmp.img
   rm -f out_tmp1.img
 else
@@ -224,26 +235,37 @@ echo " done."
 if [ -e $OUTFILE ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
-  echo
-  echo " The receiver must be equipped with a TDTmaxiboot boot loader,"
-  echo " or a boot loader with compatible capabilities."
-  echo
   case "$BOXTYPE" in
     ufs910|ufs922)
+      echo
+      echo " The receiver must be equipped with a TDTmaxiboot boot loader,"
+      echo " or a boot loader with compatible capabilities."
+      echo
       echo " To flash the created image copy the file miniFLASH.img"
       echo " to the root (/) of your FAT32 formatted USB stick."
       echo " Insert the USB stick in the/a USB port on the receiver."
       echo
       echo " To start the flashing process press RECORD for 10 sec on your"
       echo " remote control while the receiver is starting.";;
-    cuberevo|cuberevo_mini2|cuberevo_2000hd)
-      echo " To flash the created image copy the file usb_update.img"
+    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd)
+      echo " To flash the created image, copy the file usb_update.img"
       echo " to the root (/) of your FAT32 formatted USB stick."
       echo " Insert the USB stick in the/a USB port on the receiver."
       echo
-      echo " To start the flashing process press POWER for 10 sec on your"
-      echo " receiver front panel while it is starting.";;
+      echo " To start the flashing process switch off the receiver with"
+      echo " the power switch on the back. Press and hold the POWER key"
+      echo " on the frontpanel and switch the receiver back on with the"
+      echo " power switch on the back. Keep holding the POWER key down"
+      echo " and wait until the display shows USB UPGRADE."
+      echo
+      echo " Then release the POWER key; flashing will start."
+      echo " It is finished when the display shows DONE. Press the POWER"
+      echo " key to reboot the receiver and run the software just flashed.";;
     fortis_hdbox|octagon1008)
+      echo
+      echo " The receiver must be equipped with a TDTmaxiboot boot loader,"
+      echo " or a boot loader with compatible capabilities."
+      echo
       echo " You have to flash the file $OUTFILE using the AAF Recovery Tool"
       echo " (ART) program. For further info, see the instructions of ART.";;
   esac

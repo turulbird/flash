@@ -1,10 +1,10 @@
 #!/bin/bash
 # "-----------------------------------------------------------------------"
-# "This script should create flashable enigma2 images for NOR flash"
+# "This script should create flashable enigma2 images for CubeRevo"
 # "receivers."
 #
 # "Author: Audioniek"
-# "Date: 07-03-2014"
+# "Date: 08-02-2019"
 # "-----------------------------------------------------------------------"
 
 echo -e "\033[01;31m"

@@ -35,6 +35,20 @@ case $BOXTYPE in
     cd $CURDIR
     echo " done."
     ;;
+  cuberevo|cuberevo_mini|cuberevo_mini2)
+    cd $OUTDIR
+    echo "-- Creating tar.gz output file ----------------------------------------"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Compressing release image..."
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    # Create MD5 file
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    cd $CURDIR
+    echo " done."
+    ;;
   ufs910|ufs912|ufs922|ufc960)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"

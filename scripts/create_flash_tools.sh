@@ -9,8 +9,9 @@
 #
 # 20180729 Audioniek - Use Archive directory for source code retrieved from
 #                      the internet; squashfs4.0 replaced by squashfs4.2.
-# 20140829 Audioniek - Added mksquashfs3.0 as this version is needed by first
+# 20180829 Audioniek - Added mksquashfs3.0 as this version is needed by first
 #                      generation Fortis receivers.
+# 20190207 Audioniek - Added mkdnimg.
 
 ARCHIVE=~/Archive
 TOOLSDIR=$1
@@ -207,6 +208,26 @@ if [ ! -e $TOOLSDIR/mup ]; then
     clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mup successful."
+  fi
+fi
+
+# Tool program mkdnimg..."
+if [ ! -e $TOOLSDIR/mkdnimg ]; then
+  echo "-----------------------------------------------------------------------"
+  echo " Tool program mkdnimg is missing, trying to compile it..."
+  echo "-----------------------------------------------------------------------"
+  echo
+  cd $TOOLSDIR/mkdnimg.src
+  make
+  mv $TOOLSDIR/mkdnimg.src/mkdnimg $TOOLSDIR/mkdnimg
+  cd $TOOLSDIR
+  if [ ! -e $TOOLSDIR/mkdnimg ]; then
+    echo " Compiling mkdnimg failed! Exiting..."
+    exit 3
+  else
+    clear
+    echo "-----------------------------------------------------------------------"
+    echo " Compiling mkdnimg successful."
   fi
 fi
 

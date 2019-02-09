@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 01-02-2019"
+echo "+ Date   : 08-02-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -46,6 +46,7 @@ echo
 # 20171223 Audioniek   Support for Tvheadend built by buildsystem added.
 # 20180114 Audioniek   Handle tfinstaller built from buildsystem.
 # 20190113 Audioniek   Add batch mode.
+# 20190208 Audioniek   Flash layout changed for Neutrino on CubeRevo's.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -290,8 +291,8 @@ export HOST
 
 # Determine Neutrino GIT version 
 if [ "$IMAGE" == "neutrino" ]; then
-  if [ -d $BASEDIR/source/libstb-hal-next ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-next && git log | grep "^commit" | wc -l`-next
+  if [ -d $BASEDIR/source/libstb-hal-ddt ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-ddt && git log | grep "^commit" | wc -l`-next
   elif [ -d $BASEDIR/source/libstb-hal-cst-next ]; then
     HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-cst-next && git log | grep "^commit" | wc -l`-github
   elif [ -d $BASEDIR/source/libstb-hal-github ]; then
@@ -304,8 +305,8 @@ if [ "$IMAGE" == "neutrino" ]; then
     HAL_REV=_HAL-revXXX
   fi
 
-  if [ -d $BASEDIR/source/neutrino-mp-next ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-next && git log | grep "^commit" | wc -l`-next
+  if [ -d $BASEDIR/source/neutrino-mp-ddt ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-ddt && git log | grep "^commit" | wc -l`-next
   elif [ -d $BASEDIR/source/neutrino-mp-github ]; then
     NMP_REV=_NMP-rev`cd $CURDIR/../../source/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
   elif [ -d $BASEDIR/source/neutrino-mp-martii-github ]; then
@@ -494,7 +495,9 @@ esac
         unset OWNLANG
         unset OWNCOUNTRY
       fi;;
-    cuberevo|cuberevo_mini2|cuberevo_2000hd|ufs910|ufs922)
+    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd|cuberevo_3000hd)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
+    ufs910|ufs922)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
@@ -529,6 +532,8 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_23G"_"$OUTTYPE".sh;;
+    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd|cuberevo_3000hd)
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     *)
