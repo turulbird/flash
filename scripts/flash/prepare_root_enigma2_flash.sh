@@ -99,17 +99,17 @@ case $BOXTYPE in
     echo " done."
 
     echo -n " Creating mini-rcS and inittab..."
-    rm -f $TMPROOTDIR/etc
+    rm -Rf $TMPROOTDIR/etc
     mkdir -p $TMPROOTDIR/etc/init.d
     echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rcS
     echo "mount -n -t proc proc /proc" >> $TMPROOTDIR/etc/init.d/rcS
-    if [ "$HOST" == "cuberevo-mini2" -o "$HOST" == "cuberevo" -o "$HOST" == "cuberevo-2000hd" ]; then
+    if [ "$HOST" == "cuberevo-mini" -o "$HOST" == "cuberevo-mini2" -o "$HOST" == "cuberevo" -o "$HOST" == "cuberevo-2000hd" ]; then
       echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock4 /var" >> $TMPROOTDIR/etc/init.d/rcS
     else
       echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock3 /var" >> $TMPROOTDIR/etc/init.d/rcS
     fi
     echo "mount --bind /var/etc /etc" >> $TMPROOTDIR/etc/init.d/rcS
-    echo "/etc/init.d/rcS &" >> $TMPROOTDIR/etc/init.d/rcS
+    echo "/etc/init.d/rcS" >> $TMPROOTDIR/etc/init.d/rcS
     chmod 755 $TMPROOTDIR/etc/init.d/rcS
     cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
     echo " done."
