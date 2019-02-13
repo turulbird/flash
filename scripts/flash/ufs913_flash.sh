@@ -110,7 +110,7 @@ fi
 # To get the partitions erased we first need to fake an yaffs2 update
 echo -n " - Create output file and MD5..."
 cd $OUTDIR/kathrein/$BOXTYPE
-$MUP c $OUTFILE << EOF
+$MUP -c $OUTFILE << EOF
 3
 0x00000000, 0x800000, 3, foo
 0x00800000, 0x4000000, 3, foo
