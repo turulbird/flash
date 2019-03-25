@@ -13,6 +13,7 @@
 # 20160310 Audioniek    Maximum kernel check now automatic.
 # 20170902 Audioniek    Improved root size checking.
 # 20190113 Audioniek    Add batch mode.
+# 20190325 Audioniek    Correct maximum root size on Spark.
 #
 # -----------------------------------------------------------------------
 
@@ -82,13 +83,8 @@ SIZE=`stat $OUTDIR/enigma2/$OUTFILE -t --format %s`
 SIZEH=`printf "%08X" $SIZE`
 SIZED=`printf "%d" $SIZE`
 SIZEDS=$(expr $SIZED / 16)
-if [[ $BOXTYPE == spark ]]; then
-  SIZEMAX=4194304
-  SIZEMAXH=4000000
-else
-  SIZEMAX=7798784
-  SIZEMAXH=7700000
-fi
+SIZEMAX=7798784
+SIZEMAXH=7700000
 if [[ $SIZEDS > $SIZEMAX ]]; then
   echo
   echo -e "\033[01;31m"
