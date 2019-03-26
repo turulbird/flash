@@ -35,7 +35,7 @@ case $BOXTYPE in
     cd $CURDIR
     echo " done."
     ;;
-  cuberevo|cuberevo_mini|cuberevo_mini2)
+  cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo

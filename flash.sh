@@ -47,6 +47,7 @@ echo
 # 20180114 Audioniek   Handle tfinstaller built from buildsystem.
 # 20190113 Audioniek   Add batch mode.
 # 20190208 Audioniek   Flash layout changed for Neutrino on CubeRevo's.
+# 20190326 Audioniek   All CubeRevo USB changed to make_tar_gz.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -223,7 +224,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -495,7 +496,7 @@ esac
         unset OWNLANG
         unset OWNCOUNTRY
       fi;;
-    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd|cuberevo_3000hd)
+    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
     ufs910|ufs922)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
@@ -532,7 +533,7 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_23G"_"$OUTTYPE".sh;;
-    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd|cuberevo_3000hd)
+    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;

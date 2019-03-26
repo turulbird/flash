@@ -36,7 +36,7 @@ case $BOXTYPE in
   hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)
     common
     ;;
-  cuberevo|cuberevo_mini|cuberevo_mini2)
+  cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     common
     ;;
   spark|spark7162)
