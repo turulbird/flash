@@ -28,9 +28,6 @@ case $BOXTYPE in
     echo
     # Move kernel back to /boot
     mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
-    # Move firmwares back
-    mv $TMPFWDIR/audio.elf $TMPROOTDIR/boot/audio.elf
-    mv $TMPFWDIR/video.elf $TMPROOTDIR/boot/video.elf
     echo -n " Compressing release image..."
     cd $TMPROOTDIR
     tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
@@ -49,6 +46,9 @@ case $BOXTYPE in
     echo
     # Move kernel back to /boot
     mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    # Move firmwares back
+    mv $TMPFWDIR/audio.elf $TMPROOTDIR/boot/audio.elf
+    mv $TMPFWDIR/video.elf $TMPROOTDIR/boot/video.elf
     echo -n " Compressing release image..."
     cd $TMPROOTDIR
     tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
