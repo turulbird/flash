@@ -21,6 +21,7 @@ MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
 
 OUTFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
+OUTZIPFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION.zip"
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -37,8 +38,14 @@ echo " done."
 echo -n " Compressing release image..."
 cd $TMPROOTDIR
 tar -zcf $OUTDIR/$OUTFILE.tar.gz * > /dev/null 2> /dev/null
-cd $CURDIR
 echo " done."
+echo -n " - Creating MD5 checksum..."
+md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+echo " done."
+echo -n " Pack everything in a zip..."
+zip -j $OUTDIR/$OUTFILE.zip *
+echo " done."
+cd $CURDIR
 
 if [ -e $OUTDIR/$OUTFILE.tar.gz ]; then
   echo -e "\033[01;32m"

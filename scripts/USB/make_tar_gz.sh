@@ -13,6 +13,7 @@
 #
 
 OUTFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
+OUTZIPFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION.zip"
 
 if [ -e $OUTDIR ]; then
   rm -f $OUTDIR/*
@@ -27,13 +28,20 @@ case $BOXTYPE in
     echo
     # Move kernel back to /boot
     mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    # Move firmwares back
+    mv $TMPFWDIR/audio.elf $TMPROOTDIR/boot/audio.elf
+    mv $TMPFWDIR/video.elf $TMPROOTDIR/boot/video.elf
     echo -n " Compressing release image..."
     cd $TMPROOTDIR
     tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
     # Create MD5 file
     md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
-    cd $CURDIR
     echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
     ;;
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     cd $OUTDIR
@@ -46,8 +54,12 @@ case $BOXTYPE in
     tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
     # Create MD5 file
     md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
-    cd $CURDIR
     echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
     ;;
   ufs910|ufs912|ufs922|ufc960)
     cd $OUTDIR
@@ -59,8 +71,13 @@ case $BOXTYPE in
     cd $TMPROOTDIR
     tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
     md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j $OUTZIPFILE *
+    echo " done."
     cd $CURDIR
-    echo " done.";;
+    ;;
 esac
 cd $CURDIR
 
