@@ -48,6 +48,7 @@ echo
 # 20190113 Audioniek   Add batch mode.
 # 20190208 Audioniek   Flash layout changed for Neutrino on CubeRevo's.
 # 20190326 Audioniek   All CubeRevo USB changed to make_tar_gz.
+# 20190518 Audioniek   Add vitamin_hd5000.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -520,6 +521,8 @@ esac
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
     ufs912|ufs913)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+#    vitamin_hd5000)
+#      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo
@@ -537,6 +540,8 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
+    vitamin_hd5000)
+      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo

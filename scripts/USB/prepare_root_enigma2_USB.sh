@@ -74,6 +74,9 @@ case $BOXTYPE in
     fi
     echo " done."
     ;;
+  vitamin_hd5000)
+    common
+    ;;
   *)
     echo "Receiver $BOXTYPE not supported."
     echo
