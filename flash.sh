@@ -516,13 +516,13 @@ esac
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
     tf7700)
-      $SCRIPTDIR/$OUTTYPE/"tf7700"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     ufc960)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
     ufs912|ufs913)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
-#    vitamin_hd5000)
-#      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
+    vitamin_hd5000)
+      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo
@@ -541,7 +541,7 @@ else #USB
     ufs910|ufs912|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     vitamin_hd5000)
-      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo

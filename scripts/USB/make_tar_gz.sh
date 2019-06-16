@@ -11,7 +11,13 @@
 # script!"
 # -----------------------------------------------------------------------
 #
+# Date     Who          Description
+# 20190518 Audioniek    Vitamin HD 5000 added.
+#
+# -----------------------------------------------------------------------
 
+# Set up the variables
+MKFSEXT3=$TUFSBOXDIR/host/bin/mkfs.ext3
 OUTFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION"
 OUTZIPFILE="$BOXTYPE"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"$GITVERSION.zip"
 
@@ -75,6 +81,19 @@ case $BOXTYPE in
     cd $OUTDIR
     echo -n " Pack everything in a zip..."
     zip -j -q $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
+    ;;
+  vitamin_hd5000)
+    echo "-- Creating output files -------------------------------------------"
+    echo
+    echo " Process uImage (kernel)"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Creating root image $OUTFILE..."
+    $MKFSEXT3 -r $TMPROOTDIR -o $TMPDIR/$OUTFILE -e 0x20000 -p -n > /dev/null
+    mv $TMPDIR/$OUTFILE $OUTDIR/
     echo " done."
     cd $CURDIR
     ;;
