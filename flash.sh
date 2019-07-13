@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 08-02-2019"
+echo "+ Date   : 30-05-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -49,6 +49,7 @@ echo
 # 20190208 Audioniek   Flash layout changed for Neutrino on CubeRevo's.
 # 20190326 Audioniek   All CubeRevo USB changed to make_tar_gz.
 # 20190518 Audioniek   Add vitamin_hd5000.
+# 20190530 Audioniek   Add adb_box.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -490,6 +491,8 @@ case $BOXTYPE in
 esac
 
   case $BOXTYPE in
+    adb_box)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     atevio7500)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
@@ -532,6 +535,9 @@ esac
   esac
 else #USB
   case $BOXTYPE in
+    adb_box)
+#      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     atevio7500|fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)

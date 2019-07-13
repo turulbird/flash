@@ -27,6 +27,9 @@ common() {
 #echo "-----------------------------------------------------------------------"
 #echo
 case $BOXTYPE in
+  adb_box)
+    common
+    ;;
   atevio7500)
     common
     ;;
