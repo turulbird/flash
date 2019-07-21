@@ -1,12 +1,12 @@
 #!/bin/bash
 # "-----------------------------------------------------------------------"
 # " This script creates flashable images for these receivers:"
-# " - ADB-box ITI-5800S (BSKA and BSLA models) and
-# " - ADB-box ITI-5800SX (BZXB and BZZB models),
-# " with Freebox or compatible bootloader"
+# " - ADB ITI-5800S (BSKA and BSLA models) and
+# " - ADB ITI-5800SX (BXZB and BZZB models),
+# " with Freebox or compatible bootloader set to NAND"
 #
 # "Author: Schischu/Audioniek"
-# "Date: 05-30-2019"   Last change 07-17-2019
+# "Date: 05-30-2019"   Last change 07-21-2019
 #
 # "-----------------------------------------------------------------------"
 # "It is assumed that an image was already built prior to executing this"
@@ -15,6 +15,7 @@
 #
 # Date     Who          Description
 # 20190717 Audioniek    Fix several errors.
+# 20190721 Audioniek    Fix rootsfs size check.
 #
 # -----------------------------------------------------------------------
 
@@ -90,20 +91,9 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   echo -n " - Preparing JFFS root file system..."
   # Create a jffs2 partition for the complete root
   $MKFSJFFS2 -qUfl -e 0x4000 -c 16 -r $TMPROOTDIR -o $TMPDIR/root.bin
+# Pad rootfs upto the next 64 kbyte; this is required to force JFFS2 to find
+# only erased flash blocks on the initial kernel run -> -e 0x10000.
   $SUMTOOL -p -l -e 0x10000 -i $TMPDIR/root.bin -o $TMPDIR/root.sum > /dev/null
-#  # Pad rootfs upto the next 64 kbyte; this is required to force JFFS2 to find
-#  # only erased flash blocks on the initial kernel run.
-#  echo -e "\nSIZE_SUM = $SIZE_SUM"
-#  SIZE_SUMD=`printf "%d" $SIZE_SUM`
-#  echo "SIZE_SUMD = $SIZE_SUMD"
-#  SIZE_SUM_REMAINDER=$(expr $SIZE_SUMD % 65536)
-#  echo "SIZE_SUM_REMAINDER = $SIZE_SUM_REMAINDER"
-#  SIZE_SUM_PAD=$(expr $SIZE_SUMD + $SIZE_SUM_REMAINDER)
-#  echo "SIZE_SUM_PAD = $SIZE_SUM_PAD"
-#  SIZE_SUM_PADH=`printf "%x" $SIZE_SUM_PAD`
-#  echo "SIZE_SUM_PADH = 0x$SIZE_SUM_PADH"
-#  $PAD 0x$SIZE_SUM_PADH $TMPDIR/root.sum $TMPDIR/root.pad
-#  $PAD 0x$SIZE_SUM_PADH $TMPDIR/root.sum $TMPDIR/root.pad
   echo " done."
   echo -n " - Calculating CRC32..."
   ROOTCRC=`$MKCRC32 $TMPDIR/root.sum`
@@ -113,21 +103,24 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   SIZE=`stat $TMPDIR/root.sum -t --format %s`
   SIZEH=`printf "%08X" $SIZE`
   SIZED=`printf "%d" $SIZE`
+  SIZEDS=$(expr $SIZED / 16)
+  SIZEMAX=3932160
+  SIZEMAXH=3C00000
   ROOTSIZE=`printf "%x" $SIZE`
-  if [[ $ROOTSIZE > "62914560" ]]; then
+  if [[ $SIZEDS > $SIZEMAX ]]; then
     echo -e "\033[01;31m"
     echo
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x03C00000 bytes." > /dev/stderr
+    echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXH bytes." > /dev/stderr
     echo " Exiting..."
     echo
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     exit
   else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x03C00000) bytes."
+    echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXH) bytes."
   fi
 fi
 # note: rootfs is not converted to an u-boot image
@@ -292,5 +285,5 @@ rm -f $TMPDIR/uImage
 rm -f $TMPDIR/root.bin
 rm -f $TMPDIR/root.sum
 rm -f $TMPDIR/root.pad
-rm -f $OUTDIR/update.txt
+rm -f $TMPDIR/update.txt
 
