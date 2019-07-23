@@ -92,8 +92,20 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   # Create a jffs2 partition for the complete root
   $MKFSJFFS2 -qUfl -e 0x4000 -c 16 -r $TMPROOTDIR -o $TMPDIR/root.bin
 # Pad rootfs upto the next 64 kbyte; this is required to force JFFS2 to find
-# only erased flash blocks on the initial kernel run -> -e 0x10000.
-  $SUMTOOL -p -l -e 0x10000 -i $TMPDIR/root.bin -o $TMPDIR/root.sum > /dev/null
+# only erased flash blocks on the initial kernel run.
+  $SUMTOOL -p -l -e 0x04000 -i $TMPDIR/root.bin -o $TMPDIR/root.sum > /dev/null
+# Pad rootfs upto the next 64 kbyte; this is required to force JFFS2 to find
+# only erased flash blocks on the initial kernel run.
+#  echo -e "\nSIZE_SUM = $SIZE_SUM"
+#  SIZE_SUMD=`printf "%d" $SIZE_SUM`
+#  echo "SIZE_SUMD = $SIZE_SUMD"
+#  SIZE_SUM_REMAINDER=$(expr $SIZE_SUMD % 65536)
+#  echo "SIZE_SUM_REMAINDER = $SIZE_SUM_REMAINDER"
+#  SIZE_SUM_PAD=$(expr $SIZE_SUMD + $SIZE_SUM_REMAINDER)
+#  echo "SIZE_SUM_PAD = $SIZE_SUM_PAD"
+#  SIZE_SUM_PADH=`printf "%x" $SIZE_SUM_PAD`
+#  echo "SIZE_SUM_PADH = 0x$SIZE_SUM_PADH"
+#  $PAD 0x$SIZE_SUM_PADH $TMPDIR/root.sum $TMPDIR/root.pad
   echo " done."
   echo -n " - Calculating CRC32..."
   ROOTCRC=`$MKCRC32 $TMPDIR/root.sum`
