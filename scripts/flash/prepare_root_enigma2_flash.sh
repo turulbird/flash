@@ -42,8 +42,7 @@ common() {
 
 # Prepare enigma2 root according to box type
 case $BOXTYPE in
-  atevio7500)
-# for loader 6.00
+  adb_box|atevio7500)
     common
     if [[ ! "$OWNLANG" == "all" ]]; then
       echo -n " Stripping root..."

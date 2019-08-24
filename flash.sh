@@ -356,7 +356,8 @@ echo "-- Prepare root -------------------------------------------------------"
 echo
 echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
-if [ "$BOXTYPE" == "atevio7500" ] && [ "$OUTTYPE" == "flash" ] && [ "$IMAGE" == "enigma2" ]; then
+if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "atevio7500" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
+  echo "Stripping languages..."
   # The root will be optionally stripped of all language support except de (German), fr (French)
   # and en (English) because the flash space is rather limited on this receiver.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
