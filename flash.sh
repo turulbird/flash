@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 30-05-2019"
+echo "+ Date   : 28-08-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -50,6 +50,7 @@ echo
 # 20190326 Audioniek   All CubeRevo USB changed to make_tar_gz.
 # 20190518 Audioniek   Add vitamin_hd5000.
 # 20190530 Audioniek   Add adb_box.
+# 20190828 Audioniek   adb_box also strips languages on flash.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -357,9 +358,8 @@ echo
 echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
 if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "atevio7500" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
-  echo "Stripping languages..."
   # The root will be optionally stripped of all language support except de (German), fr (French)
-  # and en (English) because the flash space is rather limited on this receiver.
+  # and en (English) because the flash space is rather limited on these receivers.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
   # two lower case letters). To leave all languages in, specify 'all' here:
   export OWNLANG=nl
