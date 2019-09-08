@@ -6,7 +6,7 @@
 # " with Freebox or compatible bootloader set to NAND"
 #
 # "Author: Schischu/Audioniek"
-# "Date: 05-30-2019"   Last change 09-07-2019
+# "Date: 05-30-2019"   Last change 09-08-2019
 #
 # "-----------------------------------------------------------------------"
 # "It is assumed that an image was already built prior to executing this"
@@ -17,15 +17,13 @@
 # 20190717 Audioniek    Fix several errors.
 # 20190721 Audioniek    Fix rootsfs size check.
 # 20190907 Audioniek    Switch to UBI for rootfs.
+# 20190908 Audioniek    Fix cleaning up.
 #
 # -----------------------------------------------------------------------
 
 #
 
 # Set up the variables
-#MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
-#SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
-#PAD=$TOOLSDIR/pad
 MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
 UBINIZE=$TUFSBOXDIR/host/bin/ubinize
 MKIMAGE=mkimage
@@ -96,7 +94,7 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   echo -n " - Preparing UBIFS root file system..."
   # The ADB ITI5800S(X) is equipped with an STM NAND512W3A NAND flash memory, having the following properties:
   # Page size: 512 bytes -> Minimum I/O size = 512 bytes => -m 512
-  # Subpage size = 256 bytes (may not be supported by STM driver, if so then use page size)
+  # Subpage size = 256 bytes
   # Block size: 16 kbyes or 16384 bytes
   # Total number of blocks = 512 Mbit / 8 / 16384 (blocksize) = 4096
   # Logical erase block size (LEB) is physical erase block size (16384) minus -m parameter => -e 15872
@@ -129,7 +127,7 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   echo -n " - Creating UBI root image..."
   # UBInize the UBI partition of the rootfs
   # Physical eraseblock size is 16384 => -p 16KiB
-  # Subpage size is 256 (or maybe 512) bytes => -s 256
+  # Subpage size is 256 bytes => -s 256
   # UBI version number to put to EC headers = 1 => -x 1
   $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
   echo " done."
@@ -444,10 +442,9 @@ fi
 
 # Clean up
 rm -f $TMPDIR/uImage
-#rm -f $TMPDIR/uImage.pad
-rm -f $TMPDIR/mtd_root.ubi
-rm -f $TMPDIR/mtd_root.ubin
+rm -f $TMPDIR/root.ubi
+rm -f $TMPDIR/root.ubin
 rm -f $TMPDIR/ubi.ini
-#rm -f $TMPDIR/update.txt
-#rm -f $TMPDIR/update2.txt
+rm -f $TMPDIR/update.txt
+rm -f $TMPDIR/update2.txt
 
