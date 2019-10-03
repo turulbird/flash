@@ -18,6 +18,8 @@
 # 20190721 Audioniek    Fix rootsfs size check.
 # 20190907 Audioniek    Switch to UBI for rootfs.
 # 20190908 Audioniek    Fix cleaning up.
+# 20191003 Audioniek    Moved rootfs check forward before running
+#                       ubinize.
 #
 # -----------------------------------------------------------------------
 
@@ -26,7 +28,7 @@
 # Set up the variables
 MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
 UBINIZE=$TUFSBOXDIR/host/bin/ubinize
-MKIMAGE=mkimage
+MKIMAGE=$TUFSBOXDIR/host/bin/mkimage
 MKCRC32=crc32
 OUTFILEK=kernel.img
 OUTFILER=rootfs.img
@@ -107,6 +109,31 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   $MKFSUBIFS -d $TMPROOTDIR -m 512 -e 15872 -c 3840 -x zlib -U -o $TMPDIR/root.ubi 2> /dev/null
   echo " done."
 
+  echo -n " - Checking root size..."
+  SIZE=`stat $TMPDIR/root.ubi -t --format %s`
+  SIZEH=`printf "%08X" $SIZE`
+  SIZED=`printf "%d" $SIZE`
+  SIZEDS=$(expr $SIZED / 16)
+  SIZEMAX=3759680
+  SIZEMAXH=395E40
+  SIZEMAXHH=395E400
+  ROOTSIZE=`printf "%x" $SIZE`
+  if [[ $SIZEDS > $SIZEMAX ]]; then
+    echo -e "\033[01;31m"
+    echo
+    echo -e "\033[01;31m"
+    echo "-- ERROR! -------------------------------------------------------------"
+    echo
+    echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXHH bytes." > /dev/stderr
+    echo " Exiting..."
+    echo
+    echo "-----------------------------------------------------------------------"
+    echo -e "\033[00m"
+    exit
+  else
+    echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXHH) bytes."
+  fi
+fi
   echo -n " - Creating ubinize ini file..."
   # Create ubi.ini
   echo "[ubi-rootfs]" > $TMPDIR/ubi.ini
@@ -129,37 +156,14 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   # Physical eraseblock size is 16384 => -p 16KiB
   # Subpage size is 256 bytes => -s 256
   # UBI version number to put to EC headers = 1 => -x 1
-  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
+#  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
+  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini
   echo " done."
 
   echo -n " - Calculating CRC32..."
   ROOTCRC=`$MKCRC32 $TMPDIR/root.ubin`
   echo " done ($ROOTCRC)."
 
-  echo -n " - Checking root size..."
-  SIZE=`stat $TMPDIR/root.ubin -t --format %s`
-  SIZEH=`printf "%08X" $SIZE`
-  SIZED=`printf "%d" $SIZE`
-  SIZEDS=$(expr $SIZED / 16)
-  SIZEMAX=3932160
-  SIZEMAXH=3C00000
-  ROOTSIZE=`printf "%x" $SIZE`
-  if [[ $SIZEDS > $SIZEMAX ]]; then
-    echo -e "\033[01;31m"
-    echo
-    echo -e "\033[01;31m"
-    echo "-- ERROR! -------------------------------------------------------------"
-    echo
-    echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXH bytes." > /dev/stderr
-    echo " Exiting..."
-    echo
-    echo "-----------------------------------------------------------------------"
-    echo -e "\033[00m"
-    exit
-  else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXH) bytes."
-  fi
-fi
 # note: root.ubin is not converted to an u-boot image
 
 # TODO: integrate uboot
