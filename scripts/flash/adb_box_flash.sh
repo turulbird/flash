@@ -156,8 +156,7 @@ fi
   # Physical eraseblock size is 16384 => -p 16KiB
   # Subpage size is 256 bytes => -s 256
   # UBI version number to put to EC headers = 1 => -x 1
-#  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
-  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini
+  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
   echo " done."
 
   echo -n " - Calculating CRC32..."
