@@ -6,7 +6,7 @@
 # " with Freebox or compatible bootloader set to NAND"
 #
 # "Author: Schischu/Audioniek"
-# "Date: 05-30-2019"   Last change 09-08-2019
+# "Date: 05-30-2019"   Last change 10-05-2019
 #
 # "-----------------------------------------------------------------------"
 # "It is assumed that an image was already built prior to executing this"
@@ -20,6 +20,8 @@
 # 20190908 Audioniek    Fix cleaning up.
 # 20191003 Audioniek    Moved rootfs check forward before running
 #                       ubinize.
+# 20191005 Audioniek    Fix rootfs CRC32, improve update text, remove
+#                       script flow error.
 #
 # -----------------------------------------------------------------------
 
@@ -64,7 +66,6 @@ fi
 
 if [ ! "$FIMAGE" == "image" ]; then
   echo -n " - Preparing kernel file..."
-#  $PAD 0x400000 $TMPKERNELDIR/uImage $TMPDIR/uImage.pad
   cp $TMPKERNELDIR/uImage $TMPDIR
   echo " done."
   echo -n " - Calculating CRC32..."
@@ -94,11 +95,12 @@ fi
 
 if [ ! "$FIMAGE" == "kernel" ]; then
   echo -n " - Preparing UBIFS root file system..."
-  # The ADB ITI5800S(X) is equipped with an STM NAND512W3A NAND flash memory, having the following properties:
-  # Page size: 512 bytes -> Minimum I/O size = 512 bytes => -m 512
-  # Subpage size = 256 bytes
-  # Block size: 16 kbyes or 16384 bytes
-  # Total number of blocks = 512 Mbit / 8 / 16384 (blocksize) = 4096
+  # The ADB ITI5800S(X) is equipped with an STM NAND512W3A NAND flash memory,
+  # having the following properties:
+  # - Page size: 512 bytes -> Minimum I/O size = 512 bytes => -m 512
+  # - Subpage size = 256 bytes
+  # - Block size: 16 kbytes or 16384 bytes
+  # - Total number of blocks = 512 Mbit / 8 / 16384 (blocksize) = 4096
   # Logical erase block size (LEB) is physical erase block size (16384) minus -m parameter => -e 15872
   #
   # Receiver specifics:
@@ -106,34 +108,44 @@ if [ ! "$FIMAGE" == "kernel" ]; then
   # Number of erase blocks is partition size / physical eraseblock size: 60Mib / 16384 => -c 3840
   # The kernel supports a zlib compressed ubifs => -x zlib
   # Enigma2 is run as root => -U (changes ownership of all files to root)
-  $MKFSUBIFS -d $TMPROOTDIR -m 512 -e 15872 -c 3840 -x zlib -U -o $TMPDIR/root.ubi 2> /dev/null
+  $MKFSUBIFS -d $TMPROOTDIR -m 512 -e 15872 -c 3840 -x zlib -U -o $TMPDIR/root.ubi
   echo " done."
 
-  echo -n " - Checking root size..."
-  SIZE=`stat $TMPDIR/root.ubi -t --format %s`
-  SIZEH=`printf "%08X" $SIZE`
-  SIZED=`printf "%d" $SIZE`
-  SIZEDS=$(expr $SIZED / 16)
-  SIZEMAX=3759680
-  SIZEMAXH=395E40
-  SIZEMAXHH=395E400
-  ROOTSIZE=`printf "%x" $SIZE`
-  if [[ $SIZEDS > $SIZEMAX ]]; then
-    echo -e "\033[01;31m"
-    echo
+  if [ -e $TMPDIR/root.ubi ]; then
+    echo -n " - Checking root size..."
+    SIZE=`stat $TMPDIR/root.ubi -t --format %s`
+    SIZEH=`printf "%08X" $SIZE`
+    SIZED=`printf "%d" $SIZE`
+    SIZEDS=$(expr $SIZED / 16)
+    SIZEMAX=3759680  # 60154880 / 16 (see below)
+    SIZEMAXH=395E400  # 60154880 in hex (see below)
+    ROOTSIZE=`printf "%x" $SIZE`
+    if [[ $SIZEDS > $SIZEMAX ]]; then
+      echo
+      echo -e "\033[01;31m"
+      echo "-- ERROR! -------------------------------------------------------------"
+      echo
+      echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXH bytes." > /dev/stderr
+      echo " Exiting..."
+      echo
+      echo "-----------------------------------------------------------------------"
+      echo -e "\033[00m"
+      exit
+    else
+      echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXH) bytes."
+    fi
+  else
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo " ROOTFS TOO BIG: 0x$SIZEH instead of max. 0x0$SIZEMAXHH bytes." > /dev/stderr
+    echo " mkfs.ubifs failed: root.ubi not created." > /dev/stderr
     echo " Exiting..."
     echo
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     exit
-  else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXHH) bytes."
   fi
-fi
+
   echo -n " - Creating ubinize ini file..."
   # Create ubi.ini
   echo "[ubi-rootfs]" > $TMPDIR/ubi.ini
@@ -156,111 +168,126 @@ fi
   # Physical eraseblock size is 16384 => -p 16KiB
   # Subpage size is 256 bytes => -s 256
   # UBI version number to put to EC headers = 1 => -x 1
-  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini 2> /dev/null
+  $UBINIZE -o $TMPDIR/root.ubin -p 16KiB -m 512 -s 256 -x 1 $TMPDIR/ubi.ini
+  if [ ! -e $TMPDIR/root.ubin ]; then
+      echo -e "\033[01;31m"
+      echo "-- ERROR! -------------------------------------------------------------"
+      echo
+      echo " ubinize failed: root.ubin not created." > /dev/stderr
+      echo " Exiting..."
+      echo
+      echo "-----------------------------------------------------------------------"
+      echo -e "\033[00m"
+      exit
+  fi
   echo " done."
 
   echo -n " - Calculating CRC32..."
   ROOTCRC=`$MKCRC32 $TMPDIR/root.ubin`
   echo " done ($ROOTCRC)."
-
 # note: root.ubin is not converted to an u-boot image
+
+  # get root.ubin file length to use in update script building
+  USIZE=`stat $TMPDIR/root.ubin -t --format %s`
+  USIZEH=`printf "%08x" $USIZE`  # get length of root.ubin in hex
+fi
 
 # TODO: integrate uboot
 echo -n " - Creating update.img file..."
 cd $TMPDIR
 echo "if crc32; then" > update.txt
-echo >> update.txt
-if [ -e uImage ]; then
-  echo "vfd L--1" >> update.txt
   echo >> update.txt
-  echo "if fatload usb 0:1 84010000 kernel.img; then" >> update.txt
-  echo -e "\techo checking CRC32" >> update.txt
-  echo -e "\tvfd C--1" >> update.txt
-  echo -e "\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update.txt
-  echo -e "\t\tvfd S--1" >> update.txt
-  echo -e "\t\tnand unlock 3c00000 400000" >> update.txt
-  echo -e "\t\tnand erase 3c00000 400000" >> update.txt
-  echo -e "\t\tnand write.i 84010000 3c00000 $KERNELSIZE" >> update.txt
-  echo -e "\t\techo checking CRC32" >> update.txt
-  echo -e "\t\tvfd C--1" >> update.txt
-  echo -e "\t\tnand read.i 84010000 3c00000 $KERNELSIZE" >> update.txt
-  echo -e "\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update.txt
-  echo -e "\t\t\techo CRC32 OK" >> update.txt
-  echo -e "\t\telse" >> update.txt
-  echo -e "\t\t\tvfd CS-1" >> update.txt
-  echo -e "\t\t\tstop" >> update.txt
-  echo -e "\t\tfi" >> update.txt
-  echo -e "\telse" >> update.txt
-  echo -e "\t\tvfd CR-1" >> update.txt
-  echo -e "\t\tstop" >> update.txt
-  echo -e "\tfi" >> update.txt
-  echo -e "else" >> update.txt
-  echo -e "\tvfd LE-1" >> update.txt
-  echo -e "\tstop" >> update.txt
-  echo "fi" >> update.txt
+  if [ -e uImage ]; then
+    echo "vfd L--1" >> update.txt
+    echo >> update.txt
+    echo "if fatload usb 0:1 84010000 kernel.img; then" >> update.txt
+    echo -e "\techo checking CRC32" >> update.txt
+    echo -e "\tvfd C--1" >> update.txt
+    echo -e "\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update.txt
+    echo -e "\t\tvfd S--1" >> update.txt
+    echo -e "\t\tnand unlock 3c00000 400000" >> update.txt
+    echo -e "\t\tnand erase 3c00000 400000" >> update.txt
+    echo -e "\t\tnand write.i 84010000 3c00000 $KERNELSIZE" >> update.txt
+    echo -e "\t\techo checking CRC32" >> update.txt
+    echo -e "\t\tvfd C--1" >> update.txt
+    echo -e "\t\tnand read.i 84010000 3c00000 $KERNELSIZE" >> update.txt
+    echo -e "\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update.txt
+    echo -e "\t\t\techo CRC32 OK" >> update.txt
+    echo -e "\t\telse" >> update.txt
+    echo -e "\t\t\tvfd CS-1" >> update.txt
+    echo -e "\t\t\tstop" >> update.txt
+    echo -e "\t\tfi" >> update.txt
+    echo -e "\telse" >> update.txt
+    echo -e "\t\tvfd CR-1" >> update.txt
+    echo -e "\t\tstop" >> update.txt
+    echo -e "\tfi" >> update.txt
+    echo -e "else" >> update.txt
+    echo -e "\tvfd LE-1" >> update.txt
+    echo -e "\tstop" >> update.txt
+    echo "fi" >> update.txt
+    echo >> update.txt
+  fi
+  if [ -e root.ubin ]; then
+    echo "vfd L--2" >> update.txt
+    echo "if fatload usb 0:1 84010000 rootfs.img; then" >> update.txt
+    echo -e "\techo checking CRC32" >> update.txt
+    echo -e "\tvfd C--2" >> update.txt
+    echo -e "\tif crc32 -v 84010000 $USIZEH $ROOTCRC,; then" >> update.txt
+    echo -e "\t\tvfd S--2" >> update.txt
+    echo -e "\t\techo CRC32 OK" >> update.txt
+    echo -e "\t\tnand unlock 0 3c00000" >> update.txt
+    echo -e "\t\tnand erase 0 3c00000" >> update.txt
+    echo -e "\t\tnand write.jffs2 84010000 0 $USIZEH" >> update.txt
+    echo -e "\techo checking CRC32" >> update.txt
+    echo -e "\t\tvfd C--2" >> update.txt
+    echo -e "\t\tnand read.jffs2 84010000 0 $USIZEH" >> update.txt
+    echo -e "\t\tif crc32 -v 84010000 $USIZEH $ROOTCRC,; then" >> update.txt
+    echo -e "\t\t\techo CRC32 OK" >> update.txt
+    echo -e "\t\telse" >> update.txt
+    echo -e "\t\t\tvfd CS-2" >> update.txt
+    echo -e "\t\t\tstop" >> update.txt
+    echo -e "\t\tfi" >> update.txt
+    echo -e "\telse" >> update.txt
+    echo -e "\t\tvfd CR-2" >> update.txt
+    echo -e "\t\tstop" >> update.txt
+    echo -e "\tfi" >> update.txt
+    echo "else" >> update.txt
+    echo -e "\tvfd LE-2" >> update.txt
+    echo -e "\tstop" >> update.txt
+    echo "fi" >> update.txt
+    echo >> update.txt
+  fi
   echo >> update.txt
-fi
-if [ -e root.ubin ]; then
-  echo "vfd L--2" >> update.txt
-  echo "if fatload usb 0:1 84010000 rootfs.img; then" >> update.txt
-  echo -e "\techo checking CRC32" >> update.txt
-  echo -e "\tvfd C--2" >> update.txt
-  echo -e "\tif crc32 -v 84010000 $ROOTSIZE $ROOTCRC,; then" >> update.txt
-  echo -e "\t\tvfd S--2" >> update.txt
-  echo -e "\t\techo CRC32 OK" >> update.txt
-  echo -e "\t\tnand unlock 0 3c00000" >> update.txt
-  echo -e "\t\tnand erase 0 3c00000" >> update.txt
-  echo -e "\t\tnand write.jffs2 84010000 0 $ROOTSIZE" >> update.txt
-  echo -e "\techo checking CRC32" >> update.txt
-  echo -e "\t\tvfd C--2" >> update.txt
-  echo -e "\t\tnand read.jffs2 84010000 0 $ROOTSIZE" >> update.txt
-  echo -e "\t\tif crc32 -v 84010000 $ROOTSIZE $ROOTCRC,; then" >> update.txt
-  echo -e "\t\t\techo CRC32 OK" >> update.txt
-  echo -e "\t\telse" >> update.txt
-  echo -e "\t\t\tvfd CS-2" >> update.txt
-  echo -e "\t\t\tstop" >> update.txt
-  echo -e "\t\tfi" >> update.txt
-  echo -e "\telse" >> update.txt
-  echo -e "\t\tvfd CR-2" >> update.txt
-  echo -e "\t\tstop" >> update.txt
-  echo -e "\tfi" >> update.txt
   echo "else" >> update.txt
-  echo -e "\tvfd LE-2" >> update.txt
-  echo -e "\tstop" >> update.txt
-  echo "fi" >> update.txt
   echo >> update.txt
-fi
-echo >> update.txt
-echo "else" >> update.txt
-echo >> update.txt
-echo 'echo "Loader has no crc32 option; do not check CRC32"' >> update.txt
-echo >> update.txt
-if [ -e uImage ]; then
-  echo "vfd L--1" >> update.txt
-  echo "if fatload usb 0:1 84010000 kernel.img; then" >> update.txt
-  echo -e "\tvfd S--1" >> update.txt
-  echo -e "\tnand unlock 3c00000 400000" >> update.txt
-  echo -e "\tnand erase 3c00000 400000" >> update.txt
-  echo -e "\tnand write.i 84010000 3c00000 $KERNELSIZE" >> update.txt
-  echo "else" >> update.txt
-  echo -e "\tvfd LE-1" >> update.txt
-  echo -e "\tstop" >> update.txt
-  echo "fi" >> update.txt
+  echo 'echo "Loader has no crc32 option; do not check CRC32"' >> update.txt
   echo >> update.txt
-fi
-if [ -e root.sum ]; then
-  echo "vfd L--2" >> update.txt
-  echo "if fatload usb 0:1 84010000 rootfs.img; then" >> update.txt
-  echo -e "\tvfd S--2" >> update.txt
-  echo -e "\tnand unlock 0 3c00000" >> update.txt
-  echo -e "\tnand erase 0 3c00000" >> update.txt
-  echo -e "\tnand write.jffs2 84010000 0 $ROOTSIZE" >> update.txt
-  echo "else" >> update.txt
-  echo -e "\tvfd LE-2" >> update.txt
-  echo -e "\tstop" >> update.txt
-  echo "fi" >> update.txt
-  echo >> update.txt
-fi
+  if [ -e uImage ]; then
+    echo "vfd L--1" >> update.txt
+    echo "if fatload usb 0:1 84010000 kernel.img; then" >> update.txt
+    echo -e "\tvfd S--1" >> update.txt
+    echo -e "\tnand unlock 3c00000 400000" >> update.txt
+    echo -e "\tnand erase 3c00000 400000" >> update.txt
+    echo -e "\tnand write.i 84010000 3c00000 $KERNELSIZE" >> update.txt
+    echo "else" >> update.txt
+    echo -e "\tvfd LE-1" >> update.txt
+    echo -e "\tstop" >> update.txt
+    echo "fi" >> update.txt
+    echo >> update.txt
+  fi
+  if [ -e root.ubin ]; then
+    echo "vfd L--2" >> update.txt
+    echo "if fatload usb 0:1 84010000 rootfs.img; then" >> update.txt
+    echo -e "\tvfd S--2" >> update.txt
+    echo -e "\tnand unlock 0 3c00000" >> update.txt
+    echo -e "\tnand erase 0 3c00000" >> update.txt
+    echo -e "\tnand write.jffs2 84010000 0 $USIZEH" >> update.txt
+    echo "else" >> update.txt
+    echo -e "\tvfd LE-2" >> update.txt
+    echo -e "\tstop" >> update.txt
+    echo "fi" >> update.txt
+    echo >> update.txt
+  fi
 echo "fi" >> update.txt
 echo "vfd -OK-" >> update.txt
 echo 'echo "Rebooting in 5 seconds..."' >> update.txt
@@ -271,96 +298,97 @@ echo " done."
 
 echo -n " - Creating update file..."
 echo "if crc32 1000 1010; then" > update2.txt
-echo >> update2.txt
-if [ -e uImage ]; then
-  echo -e '\tdisplay "READ kernel" U1-L;' >> update2.txt
-  echo -e '\tif fatload usb 0:1 84010000 kernel.img; then' >> update2.txt
-  echo -e "\t\techo checking CRC32;" >> update2.txt
-  echo -e '\t\tdisplay "CHECK CRC32" U1-C;' >> update2.txt
-  echo -e "\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update2.txt
-  echo -e '\t\t\tdisplay "ERASE Flash" U1-E;' >> update2.txt
-  echo -e '\t\t\tnand unlock 3c00000 400000;' >> update2.txt
-  echo -e '\t\t\tnand erase 3c00000 400000;' >> update2.txt
-  echo -e '\t\t\tdisplay "FLASH kernel" U1-F;' >> update2.txt
-  echo -e "\t\t\tnand write.i 84010000 3c00000 $KERNELSIZE;" >> update2.txt
-  echo -e "\t\t\techo checking CRC32;" >> update2.txt
-  echo -e '\t\t\tdisplay "CHECK kernel" U1-C;' >> update2.txt
-  echo -e "\t\t\tnand read.jffs2 84010000 0 $KERNELSIZE;" >> update2.txt
-  echo -e "\t\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update2.txt
-  echo -e "\t\t\t\techo CRC32 OK;" >> update2.txt
-  echo -e "\t\t\telse" >> update2.txt
-  echo -e '\t\t\t\tdisplay "CRC32 error" U1Er;' >> update2.txt
-  echo -e "\t\t\t\texit;" >> update2.txt
-  echo -e "\t\t\tfi;" >> update2.txt
-  echo -e "\t\telse" >> update2.txt
-  echo -e '\t\t\tdisplay "CRC32 error" U1Er;' >> update2.txt
-  echo -e "\t\t\texit;" >> update2.txt
-  echo -e "\t\tfi;" >> update2.txt
-  echo -e '\telse' >> update2.txt
-  echo -e '\t\tdisplay "ERROR kernel" U1Er;' >> update2.txt
-  echo -e '\t\texit;' >> update2.txt
-  echo -e '\tfi;' >> update2.txt
-fi
-if [ -e root.ubin ]; then
-  echo -e '\tdisplay "READ rootfs" U2-L;' >> update2.txt
-  echo -e '\tif fatload usb 0:1 84010000 rootfs.img; then' >> update2.txt
-  echo -e "\t\techo checking CRC32;" >> update2.txt
-  echo -e '\t\tdisplay "CHECK CRC32" U2-C;' >> update2.txt
-  echo -e "\t\tif crc32 -v 84010000 $ROOTSIZE $ROOTCRC,; then" >> update2.txt
-  echo -e '\t\t\tdisplay "ERASE Flash" U2-E;' >> update2.txt
-  echo -e "\t\t\tnand unlock 0 3c00000;" >> update2.txt
-  echo -e "\t\t\tnand erase 0 3c00000;" >> update2.txt
-  echo -e '\t\t\tdisplay "FLASH rootfs" U2-F;' >> update2.txt
-  echo -e '\t\t\tnand write.jffs2 84010000 0 $filesize;' >> update2.txt
-  echo -e "\t\t\techo checking CRC32;" >> update2.txt
-  echo -e '\t\t\tdisplay "CHECK rootfs" U2-C;' >> update2.txt
-  echo -e "\t\t\tnand read.jffs2 84010000 0 $ROOTSIZE;" >> update2.txt
-  echo -e "\t\t\tif crc32 -v 84010000 $ROOTSIZE $ROOTCRC,; then" >> update2.txt
-  echo -e "\t\t\t\techo CRC32 OK;" >> update2.txt
-  echo -e "\t\t\telse" >> update2.txt
-  echo -e '\t\t\t\tdisplay "CRC32 error" U2Er;' >> update2.txt
-  echo -e "\t\t\t\texit;" >> update2.txt
-  echo -e "\t\t\tfi;" >> update2.txt
-  echo -e "\t\telse" >> update2.txt
-  echo -e '\t\t\tdisplay "CRC32 error" U2Er;' >> update2.txt
-  echo -e "\t\t\texit;" >> update2.txt
-  echo -e "\t\tfi;" >> update2.txt
-  echo -e "\telse" >> update2.txt
-  echo -e '\t\tdisplay "ERROR rootfs" U2Er;' >> update2.txt
-  echo -e '\t\texit;' >> update2.txt
-  echo -e "\tfi;" >> update2.txt
-fi
-echo >> update2.txt
+  echo >> update2.txt
+  if [ -e uImage ]; then
+    echo -e '\tdisplay "READ kernel" U1-L;' >> update2.txt
+    echo -e '\tif fatload usb 0:1 84010000 kernel.img; then' >> update2.txt
+    echo -e "\t\techo checking CRC32;" >> update2.txt
+    echo -e '\t\tdisplay "CHECK CRC32" U1-C;' >> update2.txt
+    echo -e "\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update2.txt
+    echo -e "\t\t\techo CRC32 OK" >> update2.txt
+    echo -e '\t\t\tdisplay "ERASE Flash" U1-E;' >> update2.txt
+    echo -e '\t\t\tnand unlock 3c00000 400000;' >> update2.txt
+    echo -e '\t\t\tnand erase 3c00000 400000;' >> update2.txt
+    echo -e '\t\t\tdisplay "FLASH kernel" U1-F;' >> update2.txt
+    echo -e "\t\t\tnand write.i 84010000 3c00000 $KERNELSIZE;" >> update2.txt
+    echo -e "\t\t\techo checking CRC32;" >> update2.txt
+    echo -e '\t\t\tdisplay "CHECK kernel" U1-C;' >> update2.txt
+    echo -e "\t\t\tnand read.jffs2 84010000 3c00000 $KERNELSIZE;" >> update2.txt
+    echo -e "\t\t\tif crc32 -v 84010000 $KERNELSIZE $KERNELCRC,; then" >> update2.txt
+    echo -e "\t\t\t\techo CRC32 OK;" >> update2.txt
+    echo -e "\t\t\telse" >> update2.txt
+    echo -e '\t\t\t\tdisplay "CRC32 error" U1Er;' >> update2.txt
+    echo -e "\t\t\t\texit;" >> update2.txt
+    echo -e "\t\t\tfi;" >> update2.txt
+    echo -e "\t\telse" >> update2.txt
+    echo -e '\t\t\tdisplay "CRC32 error" U1Er;' >> update2.txt
+    echo -e "\t\t\texit;" >> update2.txt
+    echo -e "\t\tfi;" >> update2.txt
+    echo -e '\telse' >> update2.txt
+    echo -e '\t\tdisplay "ERROR kernel" U1Er;' >> update2.txt
+    echo -e '\t\texit;' >> update2.txt
+    echo -e '\tfi;' >> update2.txt
+  fi
+  if [ -e root.ubin ]; then
+    echo -e '\tdisplay "READ rootfs" U2-L;' >> update2.txt
+    echo -e '\tif fatload usb 0:1 84010000 rootfs.img; then' >> update2.txt
+    echo -e "\t\techo checking CRC32;" >> update2.txt
+    echo -e '\t\tdisplay "CHECK CRC32" U2-C;' >> update2.txt
+    echo -e "\t\tif crc32 -v 84010000 $USIZEH $ROOTCRC,; then" >> update2.txt
+    echo -e '\t\t\tdisplay "ERASE Flash" U2-E;' >> update2.txt
+    echo -e "\t\t\tnand unlock 0 3c00000;" >> update2.txt
+    echo -e "\t\t\tnand erase 0 3c00000;" >> update2.txt
+    echo -e '\t\t\tdisplay "FLASH rootfs" U2-F;' >> update2.txt
+    echo -e "\t\t\tnand write.jffs2 84010000 0 $USIZEH" >> update2.txt
+    echo -e "\t\t\techo checking CRC32;" >> update2.txt
+    echo -e '\t\t\tdisplay "CHECK rootfs" U2-C;' >> update2.txt
+    echo -e "\t\t\tnand read.jffs2 84010000 0 $USIZEH" >> update2.txt
+    echo -e "\t\t\tif crc32 -v 84010000 $USIZEH $ROOTCRC,; then" >> update2.txt
+    echo -e "\t\t\t\techo CRC32 OK;" >> update2.txt
+    echo -e "\t\t\telse" >> update2.txt
+    echo -e '\t\t\t\tdisplay "CRC32 error" U2Er;' >> update2.txt
+    echo -e "\t\t\t\texit;" >> update2.txt
+    echo -e "\t\t\tfi;" >> update2.txt
+    echo -e "\t\telse" >> update2.txt
+    echo -e '\t\t\tdisplay "CRC32 error" U2Er;' >> update2.txt
+    echo -e "\t\t\texit;" >> update2.txt
+    echo -e "\t\tfi;" >> update2.txt
+    echo -e "\telse" >> update2.txt
+    echo -e '\t\tdisplay "ERROR rootfs" U2Er;' >> update2.txt
+    echo -e '\t\texit;' >> update2.txt
+    echo -e "\tfi;" >> update2.txt
+  fi
+  echo >> update2.txt
 echo "else" >> update2.txt
-echo >> update2.txt
-echo -e '\techo "No crc32 option found; do not check CRC32"' >> update2.txt
-echo >> update2.txt
-if [ -e uImage ]; then
-  echo -e '\tdisplay "READ kernel" U1-L;' >> update2.txt
-  echo -e "\tif fatload usb 0:1 84010000 kernel.img; then" >> update2.txt
-  echo -e '\t\tdisplay "ERASE Flash" U1-C;' >> update2.txt
-  echo -e "\t\tnand unlock 3c00000 400000;" >> update2.txt
-  echo -e "\t\tnand erase 3c00000 400000;" >> update2.txt
-  echo -e '\t\tdisplay "FLASH kernel" U1-F;' >> update2.txt
-  echo -e '\t\tnand write.i 84010000 3c00000 $filesize;' >> update2.txt
-  echo -e "\telse" >> update2.txt
-  echo -e '\t\tdisplay "ERROR uImage" U1-E;' >> update2.txt
-  echo -e "\t\texit;" >> update2.txt
-  echo -e "\tfi;" >> update2.txt
-fi
-if [ -e root.ubin ]; then
-  echo -e '\tdisplay "READ rootfs" U2-L;' >> update2.txt
-  echo -e "\tif fatload usb 0:1 84010000 rootfs.img; then" >> update2.txt
-  echo -e '\t\tdisplay "ERASE Flash" U2-C;' >> update2.txt
-  echo -e "\t\tnand unlock 0 3c00000;" >> update2.txt
-  echo -e "\t\tnand erase 0 3c00000;" >> update2.txt
-  echo -e '\t\tdisplay "FLASH rootfs" U2-F;' >> update2.txt
-  echo -e '\t\tnand write.jffs2 84010000 0 $filesize;' >> update2.txt
-  echo -e "\telse" >> update2.txt
-  echo -e '\t\tdisplay "ERROR rootfs.img" U2-E;' >> update2.txt
-  echo -e "\t\texit;" >> update2.txt
-  echo -e "\tfi;" >> update2.txt
-fi
+  echo >> update2.txt
+  echo -e '\techo "No crc32 option found; do not check CRC32"' >> update2.txt
+  echo >> update2.txt
+  if [ -e uImage ]; then
+    echo -e '\tdisplay "READ kernel" U1-L;' >> update2.txt
+    echo -e "\tif fatload usb 0:1 84010000 kernel.img; then" >> update2.txt
+    echo -e '\t\tdisplay "ERASE Flash" U1-C;' >> update2.txt
+    echo -e "\t\tnand unlock 3c00000 400000;" >> update2.txt
+    echo -e "\t\tnand erase 3c00000 400000;" >> update2.txt
+    echo -e '\t\tdisplay "FLASH kernel" U1-F;' >> update2.txt
+    echo -e '\t\tnand write.i 84010000 3c00000 $filesize;' >> update2.txt
+    echo -e "\telse" >> update2.txt
+    echo -e '\t\tdisplay "ERROR uImage" U1-E;' >> update2.txt
+    echo -e "\t\texit;" >> update2.txt
+    echo -e "\tfi;" >> update2.txt
+  fi
+  if [ -e root.ubin ]; then
+    echo -e '\tdisplay "READ rootfs" U2-L;' >> update2.txt
+    echo -e "\tif fatload usb 0:1 84010000 rootfs.img; then" >> update2.txt
+    echo -e '\t\tdisplay "ERASE Flash" U2-C;' >> update2.txt
+    echo -e "\t\tnand unlock 0 3c00000;" >> update2.txt
+    echo -e "\t\tnand erase 0 3c00000;" >> update2.txt
+    echo -e '\t\tdisplay "FLASH rootfs" U2-F;' >> update2.txt
+    echo -e '\t\tnand write.jffs2 84010000 0 $filesize;' >> update2.txt
+    echo -e "\telse" >> update2.txt
+    echo -e '\t\tdisplay "ERROR rootfs.img" U2-E;' >> update2.txt
+    echo -e "\t\texit;" >> update2.txt
+    echo -e "\tfi;" >> update2.txt
+  fi
 echo "fi;" >> update2.txt
 echo 'display "Update OK" -OK-;' >> update2.txt
 echo 'echo "Rebooting in 5 seconds..."' >> update2.txt
@@ -417,7 +445,7 @@ if [ -e $OUTDIR/$OUTZIPFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " The receiver must be equipped with a Freebox or Freebox compatible"
-  echo " bootloader that can boot from NAND flash mtd0."
+  echo " bootloader (B4T, MAGUS) that can boot from NAND flash mtd0."
   echo
   echo " To flash the created image copy these three or four files:"
   echo " - kernel.img (absent if image only)"
@@ -429,16 +457,17 @@ if [ -e $OUTDIR/$OUTZIPFILE ]; then
   echo " Insert the USB stick in the box's USB port on the back."
   echo
   echo " If the receiver is equipped with the Freebox loader (signon is"
-  echo " 'boot' or 'uboot...', switch on the receiver by inserting the DC"
-  echo " power plug while pressing and holding the power key on the"
+  echo " 'boot' or 'uboot...'), switch on the receiver by inserting the"
+  echo " DC power plug while pressing and holding the power key on the"
   echo " frontpanel. Release the button when the display shows PROG."
   echo " Flashing the image will then begin."
   echo
   echo " If the receiver is equipped with the B4T loader (signon is"
-  echo " 'nBox', switch on the receiver by inserting the DC"
+  echo " 'nBox'), switch on the receiver by inserting the DC"
   echo " power plug while pressing and holding the arrow up key on the"
-  echo " frontpanel. Use the arrow up and down keys to select the option"
-  echo " UPDT and press the OK button on the front panel."
+  echo " frontpanel. Wait 5 seconds, then use the arrow up and down keys"
+  echo " to select the option UPDT and press the OK button on the"
+  echo " front panel."
   echo " Flashing the image will then begin."
   echo -e "\033[00m"
 fi
