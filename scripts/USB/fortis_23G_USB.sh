@@ -70,7 +70,7 @@ cp -r . $TMPDUMDIR
 #sudo rm -rf lost+found
 if [ -d $TMPDUMDIR/lost+found ];then
 #  sudo rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
-  rmdir --ignore-fail-on-non-empty lost+found
+  rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
 fi
 #sudo umount $TMPDUMDIR
 umount $TMPDUMDIR

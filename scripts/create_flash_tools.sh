@@ -119,9 +119,9 @@ if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
   tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
   tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
   cd ./squashfs4.2/squashfs-tools
-#  if [ -e $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch ]; then
-#    echo "patch -p1 < $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch"
-#    patch -p1 < $BASEDIR/Patches/squashfs-tools-4.0-lzma.patch > /dev/null
+#  if [ -e $BASEDIR/patches/squashfs-tools-4.0-lzma.patch ]; then
+#    echo "patch -p1 < $BASEDIR/patches/squashfs-tools-4.0-lzma.patch"
+#    patch -p1 < $BASEDIR/patches/squashfs-tools-4.0-lzma.patch > /dev/null
 #  fi
   make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
   mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
