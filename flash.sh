@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 28-08-2019"
+echo "+ Date   : 03-11-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -51,6 +51,7 @@ echo
 # 20190518 Audioniek   Add vitamin_hd5000.
 # 20190530 Audioniek   Add adb_box.
 # 20190828 Audioniek   adb_box also strips languages on flash.
+# 20191103 Audioniek   Rename Patches directory to patches.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -194,9 +195,9 @@ export MEDIAFW
 export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
 if [ "$IMAGE" == "tvheadend" ]; then
-  cd $CDKDIR/Patches/build-neutrino
+  cd $CDKDIR/patches/build-neutrino
 else
-  cd $CDKDIR/Patches/build-$IMAGE
+  cd $CDKDIR/patches/build-$IMAGE
 fi
 ls linux-sh4-2.6.32.??_$FNAME.config > $FLASHDIR/lastconfig
 cd $CURDIR
