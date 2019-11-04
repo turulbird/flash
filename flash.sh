@@ -296,30 +296,34 @@ export HOST
 
 # Determine Neutrino GIT version 
 if [ "$IMAGE" == "neutrino" ]; then
-  if [ -d $BASEDIR/source/libstb-hal-ddt ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-ddt && git log | grep "^commit" | wc -l`-next
-  elif [ -d $BASEDIR/source/libstb-hal-cst-next ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-cst-next && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/source/libstb-hal-github ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-github && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/source/libstb-hal-martii-github ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal-martii-github && git log | grep "^commit" | wc -l`-martii-github
-  elif [ -d $BASEDIR/source/libstb-hal ]; then
-    HAL_REV=_HAL-rev`cd $BASEDIR/source/libstb-hal && git log | grep "^commit" | wc -l`
+  if [ -d $BASEDIR/build_source/libstb-hal-ddt ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/build_source/libstb-hal-ddt && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/libstb-hal-github ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/build_source/libstb-hal-github && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/libstb-hal-martii-github ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/build_source/libstb-hal-martii-github && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/libstb-hal-tangos ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/build_source/libstb-hal-tangos && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/libstb-hal ]; then
+    HAL_REV=_HAL-rev`cd $BASEDIR/build_source/libstb-hal && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/neutrino-hd2.git ]; then
+    HAL_REV=
   else
     HAL_REV=_HAL-revXXX
   fi
 
-  if [ -d $BASEDIR/source/neutrino-mp-ddt ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-ddt && git log | grep "^commit" | wc -l`-next
-  elif [ -d $BASEDIR/source/neutrino-mp-github ]; then
-    NMP_REV=_NMP-rev`cd $CURDIR/../../source/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/source/neutrino-mp-martii-github ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
-  elif [ -d $BASEDIR/source/neutrino-mp-tangos ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
-  elif [ -d $BASEDIR/source/neutrino-mp ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/source/neutrino-mp && git log | grep "^commit" | wc -l`
+  if [ -d $BASEDIR/build_source/neutrino-mp-ddt ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-ddt && git log | grep "^commit" | wc -l`-ddt
+  elif [ -d $BASEDIR/build_source/neutrino-mp-github ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
+  elif [ -d $BASEDIR/build_source/neutrino-mp-martii-github ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  elif [ -d $BASEDIR/build_source/neutrino-mp-tangos ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
+  elif [ -d $BASEDIR/build_source/neutrino-mp ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp && git log | grep "^commit" | wc -l`
+  elif [ -d $BASEDIR/build_source/neutrino-hd2.git ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-hd2.git && git log | grep "^commit" | wc -l`-hd2
   else
     NMP_REV=_NMP-revXXX
   fi
