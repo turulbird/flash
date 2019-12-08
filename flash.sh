@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 03-11-2019"
+echo "+ Date   : 08-12-2019"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -52,6 +52,7 @@ echo
 # 20190530 Audioniek   Add adb_box.
 # 20190828 Audioniek   adb_box also strips languages on flash.
 # 20191103 Audioniek   Rename Patches directory to patches.
+# 20191208 Audioniek   Add Fortis DP2010.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -435,7 +436,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp7000|dp6010|dp7001|epp8000)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp6010|dp7001|epp8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -466,10 +467,14 @@ case $BOXTYPE in
         hs7819)
           RESELLERID=270220A0
           FORTISBOX="Octagon SF1008G SE+ HD Intelligence";;
+        dp2010)
+          RESELLERID=29090300
+          FORTISBOX="Forever HD3434PVR Cardiff";;
         dp6010)
           RESELLERID=29060000
           FORTISBOX="Rebox RE-2220HD S-PVR";;
-        dp7000|dp7001)
+#        dp7000|dp7001)
+        dp7001)
           RESELLERID=29060100
           FORTISBOX="Rebox RE-4220HD S-PVR";;
         epp8000)
@@ -519,7 +524,7 @@ esac
     hs7429|hs7119|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
       unset RESELLERID;;
-    dp6010|dp7000|dp7001|epp8000)
+    dp2010|dp6010|dp7000|dp7001|epp8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_4G"_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)

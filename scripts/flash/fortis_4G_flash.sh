@@ -1,23 +1,30 @@
 #!/bin/bash
-# "-----------------------------------------------------------------------"
-# " This script creates flashable images for these Fortis receivers:"
-# " - DP6010
-# " - DP7000
-# " - DP7001
-# " - EPP8000
-# " with unmodified factory bootloader:
-# " 8.05 (DP6010),
-# " ?.?? (DP7000, NOT tested),
-# " 8.05 (DP7001) or
-# " 8.35 or 8.37 (EPP8000)
+# -----------------------------------------------------------------------
+#  This script creates flashable images for these Fortis receivers:
+#  - DP2010
+#  - DP6010
+#  - DP7000
+#  - DP7001
+#  - EPP8000
+#  with unmodified factory bootloader:
+#  8.14 (DP2010),
+#  8.05 (DP6010),
+#  ?.?? (DP7000, NOT tested),
+#  8.05 (DP7001) or
+#  8.35 or 8.37 (EPP8000)
 #
-# "Author: Schischu/Audioniek"
-# "Date: 10-15-2014"
+# Author: Schischu/Audioniek
+# Date: 08-12-2019
 #
-# "-----------------------------------------------------------------------"
-# "It is assumed that an image was already built prior to executing this"
-# "script!"
-# "-----------------------------------------------------------------------"
+# ---------------------------------------------------------------------------
+# Changes:
+# 20140726 Audioniek   Initial version for DP6010, DP7000, DP7001 & EPP8000
+# 20191208 Audioniek   DP2010 added.
+#
+# -----------------------------------------------------------------------"
+# It is assumed that an image was already built prior to executing this"
+# script!"
+# -----------------------------------------------------------------------"
 #
 
 if [ "$BATCH_MODE" == "yes" ]; then
@@ -162,6 +169,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
+  echo "  - DP2010: 8.14 or 8.15"
   echo "  - DP6010: 8.05"
 # echo "  - DP7000: ?.??"
   echo "  - DP7001: 8.05"
