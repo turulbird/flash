@@ -53,6 +53,7 @@ echo
 # 20190828 Audioniek   adb_box also strips languages on flash.
 # 20191103 Audioniek   Rename Patches directory to patches.
 # 20191208 Audioniek   Add Fortis DP2010.
+# 20191214 Audioniek   Fix Linux version display.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -200,9 +201,9 @@ if [ "$IMAGE" == "tvheadend" ]; then
 else
   cd $CDKDIR/patches/build-$IMAGE
 fi
-ls linux-sh4-2.6.32.??_$FNAME.config > $FLASHDIR/lastconfig
+ls $CDKDIR/build_tmp > $FLASHDIR/lastconfig
 cd $CURDIR
-export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print substr($0,length($0)-(length("'$BOXTYPE'")+14),2)}'`
+export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print substr($0,length($0)-12,2)}'`
 rm $FLASHDIR/lastconfig
 
 # Determine/ask for output type (USB or flash)
@@ -349,7 +350,7 @@ if [ ! "$BATCH_MODE" == "yes" ]; then
   if [ $BOXTYPE == "tf7700" ]; then
     echo "+  Topfield installer : $TFINSTALL"
   fi
-  echo "+  Linux version      : linux-sh4-2.6.32-$SUBVERS"
+  echo "+  Linux version      : linux-sh4-2.6.32.$SUBVERS"
   echo "+  Kernel patch level : P0$PATCH"
   echo "+  Image              : $IMAGEN"
   echo "+  Will run in/on     : $OUTTYPE"
@@ -436,7 +437,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp6010|dp7001|epp8000)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -469,7 +470,7 @@ case $BOXTYPE in
           FORTISBOX="Octagon SF1008G SE+ HD Intelligence";;
         dp2010)
           RESELLERID=29090300
-          FORTISBOX="Forever HD3434PVR Cardiff";;
+          FORTISBOX="Forever HD 3434 PVR Cardiff";;
         dp6010)
           RESELLERID=29060000
           FORTISBOX="Rebox RE-2220HD S-PVR";;
