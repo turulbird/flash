@@ -54,6 +54,8 @@ echo
 # 20191103 Audioniek   Rename Patches directory to patches.
 # 20191208 Audioniek   Add Fortis DP2010.
 # 20191214 Audioniek   Fix Linux version display.
+# 20191214 Audioniek   More precise companion file checking.
+# 20191222 Audioniek   STAPI companion files moved to /root/modules.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -379,39 +381,83 @@ echo
 echo " Root preparation completed."
 echo
 
-# Check .elf file sizes
-if [ $IMAGEN == "Enigma2" ]; then
-  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
-  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
-elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
-  AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
-  VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
-fi
-if [ "$AUDIOELFSIZE" == "" ] || [ "$VIDEOELFSIZE" == "" ] || [ "$AUDIOELFSIZE" == "0" ] || [ "$VIDEOELFSIZE" == "0" ]; then
-echo -e "\033[01;31m"
-echo "-- ERROR! -------------------------------------------------------------"
-echo
-  if [ "$AUDIOELFSIZE" == "" ]; then
-    echo " !!! ERROR: File audio.elf is missing !!!"
-  fi
-  if [ "$AUDIOELFSIZE" == "0" ]; then
-    echo " !!! ERROR: File size of audio.elf is zero !!!"
-  fi
-  if [ "$VIDEOELFSIZE" == "" ]; then
-    echo " !!! ERROR: File video.elf is missing !!!"
-  fi
-  if [ "$VIDEOELFSIZE" == "0" ]; then
-    echo " !!! ERROR: File size of video.elf is zero !!!"
-  fi
+# Check .elf/.bin companion file sizes
+if [ $BOXTYPE=="dp2010" -o $BOXTYPE=="dp6010" -o $BOXTYPE=="dp7000" -o $BOXTYPE=="dp7001" -o $BOXTYPE=="dp7050" -o $BOXTYPE=="ep8000" -o $BOXTYPE=="epp8000" -o $BOXTYPE=="gpv8000" ]; then
+#  if [ $IMAGEN == "Enigma2" ]; then
+    AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_audio.bin`
+    VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Ax.bin`
+    VIDEOBINSIZEB=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Bx.bin`
+#  elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
+#    AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_audio.bin`
+#    VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_video_Ax.bin`
+#    VIDEOBINSIZEB=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_video_Ax.bin`
+#  fi
+  if [ "$AUDIOBINSIZE" == "" ] || [ "$VIDEOBINSIZEA" == "" ] || [ "$VIDEOBINSIZEB" == "" ] || [ "$AUDIOBINSIZE" == "0" ] || [ "$VIDEOBINSIZEA" == "0" ] || [ "$VIDEOBINSIZEB" == "0" ]; then
+  echo -e "\033[01;31m"
+  echo "-- ERROR! -------------------------------------------------------------"
   echo
-  echo " Make sure that you use the correct .elf files in the"
-  echo " directory $CDKDIR/root/boot."
-  echo
-  echo " Exiting..."
-  echo "-----------------------------------------------------------------------"
-  echo -e "\033[00m"
-  export ERROR="yes"
-  exit 2
+    if [ "$AUDIOBINSIZE" == "" ]; then
+      echo " !!! ERROR: File companion_h205_audio.bin is missing !!!"
+    fi
+    if [ "$AUDIOBINSIZE" == "0" ]; then
+      echo " !!! ERROR: File size of companion_h205_audio.bin is zero !!!"
+    fi
+    if [ "$VIDEOBINSIZEA" == "" ]; then
+      echo " !!! ERROR: File companion_h205_video_Ax.bin is missing !!!"
+    fi
+    if [ "$VIDEOBINSIZEA" == "0" ]; then
+      echo " !!! ERROR: File size of companion_h205_video_Ax.bin is zero !!!"
+    fi
+    if [ "$VIDEOBINSIZEB" == "" ]; then
+      echo " !!! ERROR: File companion_h205_video_Bx.bin is missing !!!"
+    fi
+    if [ "$VIDEOBINSIZEB" == "0" ]; then
+      echo " !!! ERROR: File size of companion_h205_video_Bx.bin is zero !!!"
+    fi
+    echo
+    echo " Make sure that you use the correct .bin files in the"
+    echo " directory $CDKDIR/root/boot."
+    echo
+    echo " Exiting..."
+    echo "-----------------------------------------------------------------------"
+    echo -e "\033[00m"
+    export ERROR="yes"
+    exit 2
+  fi
+else
+  if [ $IMAGEN == "Enigma2" ]; then
+    AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
+    VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
+  elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
+    AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
+    VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
+  fi
+  if [ "$AUDIOELFSIZE" == "" ] || [ "$VIDEOELFSIZE" == "" ] || [ "$AUDIOELFSIZE" == "0" ] || [ "$VIDEOELFSIZE" == "0" ]; then
+    echo -e "\033[01;31m"
+    echo "-- ERROR! -------------------------------------------------------------"
+    echo
+      if [ "$AUDIOELFSIZE" == "" ]; then
+        echo " !!! ERROR: File audio.elf is missing !!!"
+      fi
+      if [ "$AUDIOELFSIZE" == "0" ]; then
+        echo " !!! ERROR: File size of audio.elf is zero !!!"
+      fi
+    if [ "$VIDEOELFSIZE" == "" ]; then
+      echo " !!! ERROR: File video.elf is missing !!!"
+    fi
+    if [ "$VIDEOELFSIZE" == "0" ]; then
+      echo " !!! ERROR: File size of video.elf is zero !!!"
+    fi
+    echo
+    echo " Make sure that you use the correct .elf files in the"
+    echo " directory $CDKDIR/root/boot."
+    echo
+    echo " Exiting..."
+    echo "-----------------------------------------------------------------------"
+    echo -e "\033[00m"
+    export ERROR="yes"
+    exit 2
+  fi
 fi
 
 # Check if the devs have been made
