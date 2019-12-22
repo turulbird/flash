@@ -13,6 +13,8 @@
 # 20140914: Audioniek   Retain all languages option added on atevio7500.
 # 20141015: Audioniek   Fortis 4th generation receivers added.
 # 20170310: Audioniek   Setting TMPFWDIR moved to flash.sh.
+# 20191214: Audioniek   Fixed potential problem in making devs.
+# 20191214: Audioniek   Add fortis dp2010.
 #
 # ---------------------------------------------------------------------------
 
@@ -26,6 +28,8 @@ common() {
   if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
     echo -n " Creating devices..."
     cd $TMPROOTDIR/dev/
+    TARGET=$BOXTYPE
+    export TARGET
     if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
       $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
     else
@@ -84,7 +88,7 @@ case $BOXTYPE in
     find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
     echo " done."
     ;;
-  hs7110|hs7119|hs7810a|hs7819|dp6010|dp7000|dp7001|epp8000)
+  hs7110|hs7119|hs7810a|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
 # for loader 6.XX/7.XX/8.XX
     common;;
   spark|spark7162)
