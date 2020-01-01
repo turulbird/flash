@@ -382,7 +382,8 @@ echo " Root preparation completed."
 echo
 
 # Check .elf/.bin companion file sizes
-if [ $BOXTYPE=="dp2010" -o $BOXTYPE=="dp6010" -o $BOXTYPE=="dp7000" -o $BOXTYPE=="dp7001" -o $BOXTYPE=="dp7050" -o $BOXTYPE=="ep8000" -o $BOXTYPE=="epp8000" -o $BOXTYPE=="gpv8000" ]; then
+if [ $BOXTYPE == "dp2010" -o $BOXTYPE == "dp6010" -o $BOXTYPE == "dp7000" -o $BOXTYPE == "dp7001" -o $BOXTYPE == "dp7050" -o $BOXTYPE == "ep8000" -o $BOXTYPE == "epp8000" -o $BOXTYPE == "gpv8000" ]; then
+echo "Check bin..."
 #  if [ $IMAGEN == "Enigma2" ]; then
     AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_audio.bin`
     VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Ax.bin`
