@@ -254,6 +254,12 @@ $MKSQUASHFS $TMPDUMDIR $TMPDIR/mtd_fakedev.bin -nopad -le > /dev/null
 $FUP -s $TMPDIR/mtd_fakedev.bin > /dev/null
 echo " done."
 
+echo -n " - Generating dummy squashfs file..."
+cd $TOOLSDIR
+$FUP -d
+cd ..
+echo " done."
+
 if [ "$IMAGE" == "kernel" ]; then
   echo -n " - Creating dummy root..."
   cat $TMPDIR/mtd_fakedev.bin.signed > $TMPDIR/mtd_root.1.signed
@@ -364,4 +370,7 @@ rm -f $TMPDIR/mtd_root.1.bin
 rm -f $TMPDIR/mtd_root.1.signed
 rm -f $TMPDIR/mtd_config.bin
 rm -f $TMPDIR/mtd_user.bin
+if [ -e $TOOLSDIR/dummy.squash.signed.padded ]; then
+  rm $TOOLSDIR/dummy.squash.signed.padded
+fi
 
