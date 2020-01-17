@@ -176,7 +176,7 @@ if [ ! -e $TOOLSDIR/fup ]; then
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/fup.src
-  $TOOLSDIR/fup.src/compile.sh USE_ZLIB
+  $TOOLSDIR/fup.src/compile.sh
   mv $TOOLSDIR/fup.src/fup $TOOLSDIR/fup
   cd $TOOLSDIR
   if [ ! -e $TOOLSDIR/fup ]; then
