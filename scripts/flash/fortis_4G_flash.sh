@@ -5,21 +5,35 @@
 #  - DP6010
 #  - DP7000
 #  - DP7001
+#  - DP7050
+#  - EP8000
 #  - EPP8000
+#  - GPV8000
 #  with unmodified factory bootloader:
-#  8.14 (DP2010),
-#  8.05 (DP6010),
-#  ?.?? (DP7000, NOT tested),
-#  8.05 (DP7001) or
-#  8.35 or 8.37 (EPP8000)
+#  8.14, 8.15 or 4.00 (DP2010),
+#  8.05 or 1.00 (DP6010),
+#  8.14, 8.15 or 4.00 (DP7000, NOT tested),
+#  8.05 or 1.00 (DP7001),
+#  8.25 or 3.00 (DP7050, NOT tested),
+#  8.35, 8.37 or 2.00 (EP8000 and EPP8000) or
+#  8.14, 8.15 or 4.00 (GPV8000, NOT tested)
+#  or with modified factory bootloader:
+#  4.01 (DP2010),
+#  1.01 (DP6010),
+#  4.01 (DP7000, NOT tested),
+#  1.01 (DP7001),
+#  3.01 (DP7050, NOT tested),
+#  2.01 (EP8000 and EPP8000) or
+#  4.01 (GPV8000, NOT tested)
 #
 # Author: Schischu/Audioniek
-# Date: 08-12-2019
+# Date: 01-16-2020
 #
 # ---------------------------------------------------------------------------
 # Changes:
 # 20140726 Audioniek   Initial version for DP6010, DP7000, DP7001 & EPP8000
 # 20191208 Audioniek   DP2010 added.
+# 20200116 Audioniek   USB capable boot loader versions added.
 #
 # -----------------------------------------------------------------------"
 # It is assumed that an image was already built prior to executing this"
@@ -169,11 +183,21 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
-  echo "  - DP2010: 8.14 or 8.15"
-  echo "  - DP6010: 8.05"
-# echo "  - DP7000: ?.??"
-  echo "  - DP7001: 8.05"
-  echo "  - EPP8000: 8.35 or 8.37"
+  echo "  - DP2010: 8.14, 8.15 or 4.00"
+  echo "  - DP6010: 8.05 or 1.00"
+# echo "  - DP7000: 8.14, 8.15 or 4.00"
+  echo "  - DP7001: 8.05 or 1.00"
+# echo "  - DP7050: 8.24, 8.25 or 3.00"
+  echo "  - EPP8000: 8.35, 8.37 or 2.00"
+# echo "  - GPV8000: 8.14, 8.15 or 4.00"
+  echo " or a modified USB bootloader:"
+  echo "  - DP2010: 4.01"
+  echo "  - DP6010: 1.01"
+# echo "  - DP7000: 4.01"
+  echo "  - DP7001: 1.01"
+# echo "  - DP7050: 3.01"
+  echo "  - EPP8000: 2.01"
+# echo "  - GPV8000: 4.01"
   echo " with unmodified bootargs."
   echo
   echo " To flash the created image copy the .ird file to the root directory"
