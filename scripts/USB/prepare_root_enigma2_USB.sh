@@ -5,6 +5,11 @@
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
 # Date: 08-07-2014"
+#
+# ---------------------------------------------------------------------------
+# Changes:
+# 20140708 Audioniek   Initial version
+# 20200116 Audioniek   Added Fortis 4G receivers
 
 RELEASEDIR=$1
 
@@ -37,6 +42,9 @@ case $BOXTYPE in
     common
     ;;
   hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)
+    common
+    ;;
+  dp2010|dp6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
     common
     ;;
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)

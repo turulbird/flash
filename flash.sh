@@ -56,6 +56,7 @@ echo
 # 20191214 Audioniek   Fix Linux version display.
 # 20191214 Audioniek   More precise companion file checking.
 # 20191222 Audioniek   STAPI companion files moved to /root/modules.
+# 20200116 Audioniek   Add Fortis DP7000 and Fortis 4G USB.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -521,7 +522,9 @@ case $BOXTYPE in
         dp6010)
           RESELLERID=29060000
           FORTISBOX="Rebox RE-2220HD S-PVR";;
-#        dp7000|dp7001)
+        dp7000)
+          RESELLERID=29090200
+          FORTISBOX="Forever HD 9898 PVR Cardiff";;
         dp7001)
           RESELLERID=29060100
           FORTISBOX="Rebox RE-4220HD S-PVR";;
@@ -599,8 +602,8 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     atevio7500|fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819)
-      $SCRIPTDIR/$OUTTYPE/"fortis_23G"_"$OUTTYPE".sh;;
+    hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
+      $SCRIPTDIR/$OUTTYPE/"fortis_234G"_"$OUTTYPE".sh;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     ufs910|ufs912|ufs922|ufc960)
