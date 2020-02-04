@@ -8,4 +8,4 @@ if [  -e fup.exe ]; then
   rm fup.exe
 fi
 
-g++ -o fup fup.c crc16.c crc32.cpp -lz
+g++ -o fup fup.c crc16.c crc32.c -lz
