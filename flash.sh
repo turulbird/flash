@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 08-12-2019"
+echo "+ Date   : 02-04-2020"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -57,6 +57,7 @@ echo
 # 20191214 Audioniek   More precise companion file checking.
 # 20191222 Audioniek   STAPI companion files moved to /root/modules.
 # 20200116 Audioniek   Add Fortis DP7000 and Fortis 4G USB.
+# 20200402 Audioniek   Update neutrino: remove -mp.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -317,16 +318,16 @@ if [ "$IMAGE" == "neutrino" ]; then
     HAL_REV=_HAL-revXXX
   fi
 
-  if [ -d $BASEDIR/build_source/neutrino-mp-ddt ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-ddt && git log | grep "^commit" | wc -l`-ddt
-  elif [ -d $BASEDIR/build_source/neutrino-mp-github ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-github && git log | grep "^commit" | wc -l`-github
-  elif [ -d $BASEDIR/build_source/neutrino-mp-martii-github ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-martii-github && git log | grep "^commit" | wc -l`-martii-github
-  elif [ -d $BASEDIR/build_source/neutrino-mp-tangos ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp-tangos && git log | grep "^commit" | wc -l`-tangos
-  elif [ -d $BASEDIR/build_source/neutrino-mp ]; then
-    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-mp && git log | grep "^commit" | wc -l`
+  if [ -d $BASEDIR/build_source/neutrino-ddt ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-ddt && git log | grep "^commit" | wc -l`-ddt
+  elif [ -d $BASEDIR/build_source/neutrino-github ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-github && git log | grep "^commit" | wc -l`-github
+  elif [ -d $BASEDIR/build_source/neutrino-martii-github ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-martii-github && git log | grep "^commit" | wc -l`-martii-github
+  elif [ -d $BASEDIR/build_source/neutrino-tangos ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-tangos && git log | grep "^commit" | wc -l`-tangos
+  elif [ -d $BASEDIR/build_source/neutrino ]; then
+    NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino && git log | grep "^commit" | wc -l`
   elif [ -d $BASEDIR/build_source/neutrino-hd2.git ]; then
     NMP_REV=_NMP-rev`cd $BASEDIR/build_source/neutrino-hd2.git && git log | grep "^commit" | wc -l`-hd2
   else

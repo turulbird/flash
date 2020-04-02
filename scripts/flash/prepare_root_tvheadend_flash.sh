@@ -8,6 +8,7 @@
 # ---------------------------------------------------------------------------
 # Changes:
 #
+# 20200402 Audioniek   Add missing Fortis receivers.
 # ---------------------------------------------------------------------------
 
 RELEASEDIR=$1
@@ -36,7 +37,7 @@ common() {
 
 # Prepare Tvheadend root according to box type
 case $BOXTYPE in
-  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819|dp6010|dp7000|dp7001|epp8000)
+  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
     common;;
   spark|spark7162)
     common;;
