@@ -58,6 +58,7 @@ echo
 # 20191222 Audioniek   STAPI companion files moved to /root/modules.
 # 20200116 Audioniek   Add Fortis DP7000 and Fortis 4G USB.
 # 20200402 Audioniek   Update neutrino: remove -mp.
+# 20200609 Audioniek   dp6010 -> fx6010.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -384,7 +385,7 @@ echo " Root preparation completed."
 echo
 
 # Check .elf/.bin companion file sizes
-if [ $BOXTYPE == "dp2010" -o $BOXTYPE == "dp6010" -o $BOXTYPE == "dp7000" -o $BOXTYPE == "dp7001" -o $BOXTYPE == "dp7050" -o $BOXTYPE == "ep8000" -o $BOXTYPE == "epp8000" -o $BOXTYPE == "gpv8000" ]; then
+if [ $BOXTYPE == "dp2010" -o $BOXTYPE == "fx6010" -o $BOXTYPE == "dp7000" -o $BOXTYPE == "dp7001" -o $BOXTYPE == "dp7050" -o $BOXTYPE == "ep8000" -o $BOXTYPE == "epp8000" -o $BOXTYPE == "gpv8000" ]; then
 echo "Check bin..."
 #  if [ $IMAGEN == "Enigma2" ]; then
     AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_audio.bin`
@@ -486,7 +487,7 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
+  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
@@ -520,18 +521,27 @@ case $BOXTYPE in
         dp2010)
           RESELLERID=29090300
           FORTISBOX="Forever HD 3434 PVR Cardiff";;
-        dp6010)
-          RESELLERID=29060000
-          FORTISBOX="Rebox RE-2220HD S-PVR";;
         dp7000)
           RESELLERID=29090200
           FORTISBOX="Forever HD 9898 PVR Cardiff";;
         dp7001)
-          RESELLERID=29060100
+          RESELLERID=29061000
           FORTISBOX="Rebox RE-4220HD S-PVR";;
+        dp7050)
+          RESELLERID=29091000
+          FORTISBOX="Forever HD 2424 PVR Cardiff";;
+        ep8000)
+          RESELLERID=2A010100
+          FORTISBOX="XCruiser XDSR420HD Avant";;
         epp8000)
           RESELLERID=2A020000
           FORTISBOX="Rebox RE-8220HD S-PVR";;
+        fx6010)
+          RESELLERID=29060000
+          FORTISBOX="Rebox RE-2220HD S-PVR";;
+        gpv8000)
+          RESELLERID=29032000
+          FORTISBOX="Openbox SX9 HD Combo";;
       esac
       echo " No resellerID specified, using default $RESELLERID"
       echo " (equals $FORTISBOX)."
@@ -576,7 +586,7 @@ esac
     hs7429|hs7119|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
       unset RESELLERID;;
-    dp2010|dp6010|dp7000|dp7001|epp8000)
+    dp2010|fx6010|dp7000|dp7001|epp8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_4G"_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)
@@ -603,7 +613,7 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     atevio7500|fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
+    hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_234G"_"$OUTTYPE".sh;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;

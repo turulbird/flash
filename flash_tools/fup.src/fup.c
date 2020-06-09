@@ -215,7 +215,7 @@ int32_t getGeneration(int32_t resellerId)
 			generation = 3;  // loader 7.XX
 			break;
 		}
-		case 0x29:  // DP2010, DP6010, DP7000, DP7001, DP7050, GPV8000
+		case 0x29:  // DP2010, FX6010, DP7000, DP7001, DP7050, GPV8000
 		case 0x2a:  // EP8000, EPP8000
 		{
 			generation = 4;  // loader 8.XX or X.0.X

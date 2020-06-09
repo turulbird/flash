@@ -10,6 +10,7 @@
 # Changes:
 # 20141015: Audioniek   Fortis 4th generation receivers added.
 # 20190208: Audioniek   Cuberevo Mini added.
+# 20200609: Audioniek   dp6010 -> fx6010.
 #
 # ---------------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ common() {
 
 # Prepare neutrino root according to box type
 case $BOXTYPE in
-  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819|dp6010|dp7000|dp7001|epp8000)
+  fortis_hdbox|octagon1008|atevio7500|hs7110|hs7810a|hs7119|hs7819|dp2010|dp7000|dp7001|dp7050|ep8000|epp8000|fx6010|gpv8000)
     common;;
   spark|spark7162)
     common;;

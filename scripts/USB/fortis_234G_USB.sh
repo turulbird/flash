@@ -1,41 +1,47 @@
 #!/bin/bash
-# "-----------------------------------------------------------------------"
-# " This script creates the files needed to run Enigma2/Neutrino off an
-# " USB stick for Fortis receivers:"
-# " - HS7110
-# " - HS7420
-# " - HS7810A
-# " - HS7119
-# " - HS7429
-# " - HS7819
-# " - DP2010
-# " - DP6010
-# " - DP7000
-# " - DP7001
-# " - DP7050
-# " - EP8000
-# " - EPP8000
-# " - GPV8000
-# " with unmodified factory bootloader:
-# " 6.46 or 6.47 (HS7110),
-# " 6.36 or 6.37 (HS7420, NOT tested),
-# " 6.26 or 6.27 (HS7810A)
-# " 7.06 or 7.07 (HS7119),
-# " 7.36 or 7.37 (HS7429) or
-# " 7.26 or 7.27 (HS7819)
-# " or with modified factory bootloader:
-# " 1.0.1 (DP6010, DP7001)
-# " 2.0.1 (EP8000, EPP8000)
-# " 3.0.1 (DP7050)
-# " 4.0.1 (DP2010, DP7000, GPV8000)
+# -----------------------------------------------------------------------
+#  This script creates the files needed to run Enigma2/Neutrino off an
+#  USB stick for these Fortis receivers:"
+#  - HS7110
+#  - HS7420
+#  - HS7810A
+#  - HS7119
+#  - HS7429
+#  - HS7819
+#  - DP2010
+#  - DP7000
+#  - DP7001
+#  - DP7050
+#  - EP8000
+#  - EPP8000
+#  - FX6010
+#  - GPV8000
+#  with unmodified factory bootloader:
+#  6.46 or 6.47 (HS7110),
+#  6.36 or 6.37 (HS7420, NOT tested),
+#  6.26 or 6.27 (HS7810A)
+#  7.06 or 7.07 (HS7119),
+#  7.36 or 7.37 (HS7429) or
+#  7.26 or 7.27 (HS7819)
+#  or with modified factory bootloader:
+#  1.0.1 (FX6010, DP7001)
+#  2.0.1 (EP8000, EPP8000)
+#  3.0.1 (DP7050)
+#  4.0.1 (DP2010, DP7000, GPV8000)
 #
-# "Author: Schischu/Audioniek"
-# "Date: 16-01-2020"
+# Author: Schischu/Audioniek"
+# Date: 16-01-2020"
 #
-# "-----------------------------------------------------------------------"
-# "It is assumed that an image was already built prior to executing this  "
-# " script!"
-# "-----------------------------------------------------------------------"
+# ---------------------------------------------------------------------------
+# Changes:
+#
+# 20200609 Audioniek   dp6010 -> fx6010.
+# -----------------------------------------------------------------------
+
+# -----------------------------------------------------------------------
+# It is assumed that an image was already built prior to executing this
+#  script!"
+# -----------------------------------------------------------------------
 #
 
 # Set up the variables
@@ -117,7 +123,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo " or, the receiver must be equipped with a modified Fortis bootloader that"
   echo " is capable of booting linux off an USB stick:"
   echo "  - DP2010, DP7000 or GPV8000 : 4.0.1"
-  echo "  - DP6010 or DP7001 : 1.0.1"
+  echo "  - FX6010 or DP7001 : 1.0.1"
   echo "  - DP7050 : 3.0.1"
   echo "  - EP8000 or EPP8000 : 2.0.1"
   echo " with unmodified bootargs,"

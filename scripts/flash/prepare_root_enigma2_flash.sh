@@ -15,6 +15,7 @@
 # 20170310: Audioniek   Setting TMPFWDIR moved to flash.sh.
 # 20191214: Audioniek   Fixed potential problem in making devs.
 # 20191214: Audioniek   Add fortis dp2010.
+# 20200609: Audioniek   dp6010 -> fx6010.
 #
 # ---------------------------------------------------------------------------
 
@@ -88,7 +89,7 @@ case $BOXTYPE in
     find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
     echo " done."
     ;;
-  hs7110|hs7119|hs7810a|hs7819|dp2010|dp6010|dp7000|dp7001|epp8000)
+  hs7110|hs7119|hs7810a|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
 # for loader 6.XX/7.XX/8.XX
     common;;
   spark|spark7162)
