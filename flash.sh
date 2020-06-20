@@ -59,6 +59,7 @@ echo
 # 20200116 Audioniek   Add Fortis DP7000 and Fortis 4G USB.
 # 20200402 Audioniek   Update neutrino: remove -mp.
 # 20200609 Audioniek   dp6010 -> fx6010.
+# 20200620 Audioniek   Fix error with default resellerID for dp7001.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -525,7 +526,7 @@ case $BOXTYPE in
           RESELLERID=29090200
           FORTISBOX="Forever HD 9898 PVR Cardiff";;
         dp7001)
-          RESELLERID=29061000
+          RESELLERID=29060100
           FORTISBOX="Rebox RE-4220HD S-PVR";;
         dp7050)
           RESELLERID=29091000
