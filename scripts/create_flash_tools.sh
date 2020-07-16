@@ -12,7 +12,8 @@
 # 20180829 Audioniek - Added mksquashfs3.0 as this version is needed by first
 #                      generation Fortis receivers.
 # 20190207 Audioniek - Added mkdnimg.
-
+# 20200716 Audioniek - Fix URL for squashfs4.2.tar.gz download.
+#
 ARCHIVE=~/Archive
 TOOLSDIR=$1
 cd $TOOLSDIR
@@ -111,7 +112,7 @@ if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
     rm -rf ./squashfs4.2
   fi
   if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
-    wget "https://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz/download" -P $ARCHIVE
+     wget "http://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz" -P $ARCHIVE
   fi
   if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
     wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
