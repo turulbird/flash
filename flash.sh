@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 02-04-2020"
+echo "+ Date   : 29-06-2020"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -60,6 +60,7 @@ echo
 # 20200402 Audioniek   Update neutrino: remove -mp.
 # 20200609 Audioniek   dp6010 -> fx6010.
 # 20200620 Audioniek   Fix error with default resellerID for dp7001.
+# 20200620 Audioniek   Add Edision Argus VIP1 and VIP2 USB.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -236,7 +237,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
+    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hdhl101|vip1_v2|vip2_v1)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -272,7 +273,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960|ufs910)
+    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960|ufs910|vip1_v2|vip2_v1)
       ;;
     *)
       echo
@@ -619,6 +620,8 @@ else #USB
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     ufs910|ufs912|ufs922|ufc960)
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
+    hl101|vip1_v2|vip2_v1)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     vitamin_hd5000)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;

@@ -10,6 +10,7 @@
 # Changes:
 # 20140708 Audioniek   Initial version
 # 20200116 Audioniek   Added Fortis 4G receivers
+# 20200629 Audioniek   Added Edision Argus VIP1/VIP2
 
 RELEASEDIR=$1
 
@@ -50,6 +51,9 @@ case $BOXTYPE in
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     common
     ;;
+  hl101)
+    common
+    ;;
   spark|spark7162)
     common
     ;;
@@ -84,6 +88,9 @@ case $BOXTYPE in
        #echo "/dev/mtdblock10	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
     fi
     echo " done."
+    ;;
+  vip1_v2|vip2_v1)
+    common
     ;;
   vitamin_hd5000)
     common

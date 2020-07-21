@@ -14,6 +14,8 @@
 # Date     Who          Description
 # 20190518 Audioniek    Vitamin HD 5000 added.
 # 20190713 Audioniek    adb_box added.
+# 20200629 Audioniek    Added Edision Argus VIP1/VIP2
+# 20200711 Audioniek    Added Spiderbox HD HL-101
 #
 # -----------------------------------------------------------------------
 
@@ -103,6 +105,24 @@ case $BOXTYPE in
     echo " done."
     cd $CURDIR
     ;;
+  hl101|vip1_v2|vip2_v1)
+    cd $OUTDIR
+    echo "-- Creating tar.gz output file ----------------------------------------"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Compressing release image..."
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    # Create MD5 file
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j -q $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
+    ;;
   vitamin_hd5000)
     echo "-- Creating output files -------------------------------------------"
     echo
@@ -141,7 +161,28 @@ case $BOXTYPE in
     echo " option needs to be done only once."
     echo
     echo " Insert the thus prepared USB stick in the box's USB port,"
-    echo " and switching on the receiver by insertying the DC power plug."
+    echo " and switch on the receiver by insertying the DC power plug."
+    ;;
+  cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
+    echo " The receiver must be equipped with the original bootloader."
+    echo
+    echo " Format a USB stick with an ext2 file system, and unpack the .tar.gz"
+    echo " output file in its root directory, so that the entire rootfs of the"
+    echo " image resides in the sticks root directory."
+    echo
+    echo " Insert the thus prepared USB stick in the box's USB port,"
+    echo " and switch on the receiver."
+    ;;
+  hl101|vip1_v2|vip2_v1)
+    echo " The receiver must be equipped with a modified bootloader capable"
+    echo " starting the file /boot/uImage off a USB stick."
+    echo
+    echo " Format a USB stick with an ext2 file system, and unpack the .tar.gz"
+    echo " output file in its root directory, so that the entire rootfs of the"
+    echo " image resides in the sticks root directory."
+    echo
+    echo " Insert the thus prepared USB stick in the box's USB port,"
+    echo " and switch on the receiver."
     ;;
   atevio7500|fortis_hdbox|octagon1008)
     echo " The receiver must be equipped with the TDT maxiboot bootloader or"
