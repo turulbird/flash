@@ -27,7 +27,7 @@
 #  4.01 (GPV8000, NOT tested)
 #
 # Author: Schischu/Audioniek
-# Date: 01-16-2020
+# Date: 08-12-2020
 #
 # ---------------------------------------------------------------------------
 # Changes:
@@ -35,6 +35,7 @@
 # 20191208 Audioniek   DP2010 added.
 # 20200116 Audioniek   USB capable boot loader versions added.
 # 20200609 Audioniek   dp6010 -> fx6010.
+# 20200812 Audioniek   Automatic adding of boot picture added.
 #
 # -----------------------------------------------------------------------"
 # It is assumed that an image was already built prior to executing this"
@@ -153,19 +154,25 @@ if [ ! "$IMAGE" == "kernel" ]; then
   fi
 fi
 
+# Create command line arguments for fup
+if [ "$IMAGE" == "kernel" ]; then
+  FUPARGS="-c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage"
+elif [ "$IMAGE" == "image" ]; then
+  FUPARGS="-c $OUTDIR/$OUTFILE -1 $TMPDIR/mtd_root.ubin"
+else
+  FUPARGS="-c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -1 $TMPDIR/mtd_root.ubin"
+fi
+
+# Check if a bootscreen picture for the bootloader exists
+if [ -e $CURDIR/../cdk/root/bootscreen/bootscreen.gz ]; then
+  echo " - Bootscreen picture for the loader found, adding it."
+  FUPARGS=$FUPARGS" -9 $CURDIR/../root/bootscreen/bootscreen.gz"
+fi
+
 echo -n " - Creating .IRD flash file and MD5..."
 cd $TOOLSDIR
-if [ "$IMAGE" == "kernel" ]; then
-  $FUP -c $OUTDIR/$OUTFILE \
-       -6 $TMPDIR/uImage
-elif [ "$IMAGE" == "image" ]; then
-  $FUP -c $OUTDIR/$OUTFILE \
-       -1 $TMPDIR/mtd_root.ubin
-else
-  $FUP -c $OUTDIR/$OUTFILE \
-       -6 $TMPDIR/uImage \
-       -1 $TMPDIR/mtd_root.ubin
-fi
+$FUP $FUPARGS
+
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
 cd $CURDIR
