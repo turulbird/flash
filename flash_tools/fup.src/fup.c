@@ -22,6 +22,9 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.7b:
+ * + Fix error in -i with generation 2
+ *
  * Changes in Version 1.9.7a:
  * + Fix error in -i with ird file containing loader
  * + Fix error in -x (wrong output file names)
@@ -129,12 +132,12 @@
 
 #include "fup.h"
 #include "crc16.h"
-#include "crc32.h"
+//#include "crc32.h"  // part of zlib.h
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.7a"
-#define DATE "12.08.2020"
+#define VERSION "1.9.7b"
+#define DATE "23.08.2020"
 
 // Global variables
 uint8_t verbose = 1;
@@ -936,6 +939,7 @@ int32_t main(int32_t argc, char* argv[])
 //		j = extract_2Bytes(dataBuffer, 0) >> 1;
 //		printf("  File size          : %d (Calculated from # of blocks)\n", ((i << 18) + j));
 //#endif
+		generation = getGeneration(resellerId);
 		fseek(irdFile, 0, SEEK_SET);
 		partcount = 0;
 		loaderFound = 0;
