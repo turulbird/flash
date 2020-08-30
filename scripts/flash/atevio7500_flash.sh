@@ -41,6 +41,7 @@ SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
+FUP1=$TOOLSDIR/fup183
 
 OUTFILE="$BOXTYPE"_L600_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
@@ -320,13 +321,17 @@ fi
 
 echo -n " - Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
-  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP   c $OUTDIR/$OUTFILE    -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP1 -c $OUTDIR/$OUTFILE"d" -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
 else
   $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
+  $FUP1 -c $OUTDIR/$OUTFILE"d" -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
-# Create MD5 file
+$FUP1 -r $OUTDIR/$OUTFILE"d" $RESELLERID
+$FUP1 -n $OUTDIR/$OUTFILE"d" 10000
+## Create MD5 file
 md5sum -b $OUTDIR/$OUTFILE  | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 

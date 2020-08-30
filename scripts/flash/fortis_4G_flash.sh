@@ -4,7 +4,7 @@
 #  - DP2010
 #  - DP7000
 #  - DP7001
-#  - DP7050
+#  - DP7050 -> TODO: add reduced memory sizes
 #  - EP8000
 #  - EPP8000
 #  - FX6010
