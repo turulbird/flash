@@ -105,7 +105,7 @@ case $BOXTYPE in
     echo " done."
     cd $CURDIR
     ;;
-  hl101|vip1_v2|vip2_v1)
+  hl101|vip1_v1|vip1_v2|vip2)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
@@ -173,7 +173,7 @@ case $BOXTYPE in
     echo " Insert the thus prepared USB stick in the box's USB port,"
     echo " and switch on the receiver."
     ;;
-  hl101|vip1_v2|vip2_v1)
+  hl101|vip1_v1|vip1_v2|vip2)
     echo " The receiver must be equipped with a modified bootloader capable"
     echo " starting the file /boot/uImage off a USB stick."
     echo

@@ -8,9 +8,10 @@
 #
 # ---------------------------------------------------------------------------
 # Changes:
-# 20140708 Audioniek   Initial version
-# 20200116 Audioniek   Added Fortis 4G receivers
-# 20200629 Audioniek   Added Edision Argus VIP1/VIP2
+# 20140708 Audioniek   Initial version.
+# 20200116 Audioniek   Added Fortis 4G receivers.
+# 20200629 Audioniek   Added Edision argus VIP1/VIP2.
+# 20200828 Audioniek   Added Edision argus VIP1 V1.
 
 RELEASEDIR=$1
 
@@ -89,7 +90,7 @@ case $BOXTYPE in
     fi
     echo " done."
     ;;
-  vip1_v2|vip2_v1)
+  vip1_v1|vip1_v2|vip2)
     common
     ;;
   vitamin_hd5000)
