@@ -27,7 +27,7 @@
 #  4.01 (GPV8000, NOT tested)
 #
 # Author: Schischu/Audioniek
-# Date: 08-12-2020
+# Date: 09-16-2020
 #
 # ---------------------------------------------------------------------------
 # Changes:
@@ -36,6 +36,7 @@
 # 20200116 Audioniek   USB capable boot loader versions added.
 # 20200609 Audioniek   dp6010 -> fx6010.
 # 20200812 Audioniek   Automatic adding of boot picture added.
+# 20200916 Audioniek   Fix automatic adding of boot picture.
 #
 # -----------------------------------------------------------------------"
 # It is assumed that an image was already built prior to executing this"
@@ -164,7 +165,7 @@ else
 fi
 
 # Check if a bootscreen picture for the bootloader exists
-if [ -e $CURDIR/../cdk/root/bootscreen/bootscreen.gz ]; then
+if [ -e $CURDIR/../root/bootscreen/bootscreen.gz ]; then
   echo " - Bootscreen picture for the loader found, adding it."
   FUPARGS=$FUPARGS" -9 $CURDIR/../root/bootscreen/bootscreen.gz"
 fi
