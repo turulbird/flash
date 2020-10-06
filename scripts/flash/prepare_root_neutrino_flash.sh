@@ -98,7 +98,7 @@ case $BOXTYPE in
     rm -fr $TMPROOTDIR/boot
 
     echo -n " Moving firmwares..."
-    mv $TMPROOTDIR/lib/firmware/* $TMPVARDIR
+    mv $TMPROOTDIR/lib/firmware/* $TMPFWDIR
     echo " done."
 
     if [ -e $TMPROOTDIR/var/etc/fstab ]; then
