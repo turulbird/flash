@@ -10,6 +10,7 @@
 # Date     Who          Description
 # 20201003 Audioniek    Add file ufs913.software.V1.00.B00.data and
 #                       change output file structure accordingly.
+# 20201008 Audioniek    Fix typos.
 #
 # -----------------------------------------------------------------------
 
@@ -54,7 +55,6 @@ if [[ $SIZEH > "$SIZE_KERNEL" ]]; then
   echo " Press ENTER to exit..."
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
-  read
   exit
 else
   echo " OK: $SIZED ($SIZEH, max. $SIZE_KERNEL) bytes."
@@ -105,7 +105,7 @@ if [[ $SIZEH > "$SIZE_ROOT" ]]; then
   echo " Exiting..."
   echo "-----------------------------------------------------------------------"
   echo -e "\033[00m"
-#  exit
+  exit
 else
 echo " OK: $SIZED ($SIZEH, max. $SIZE_ROOT) bytes."
 fi
