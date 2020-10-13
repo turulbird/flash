@@ -270,6 +270,11 @@ else
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=384 2> /dev/null
   # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x2C0000,
   # real root starts at 0x2E0000)
+  if [ ! -e $TOOLSDIR/dummy.squash.signed.padded ]; then
+    cd $TOOLSDIR
+    $TOOLSDIR/fup -d
+    cd $FLASHDIR
+  fi
   cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.1.signed
   cat $TMPDIR/mtd_root.1.bin >> $TMPDIR/mtd_root.1.signed
   # Add some bytes to enforce flashing (will expand the file to 0x1840000 bytes when flashed)
