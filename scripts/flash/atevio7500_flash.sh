@@ -11,9 +11,8 @@
 # "-----------------------------------------------------------------------"
 #
 # If only the kernel is to be reflashed, the partitions 8, 7 and 1 are
-# also reflashed (requirement of loader 6.XX).
-# Partition 1 is flashed as the squashfs dummy only, leaving
-# the enigma2 part of it untouched.
+# also reflashed (requirement of loader 6.XX). Partition 1 is flashed as
+# the squashfs dummy only, leaving the enigma2 part of it untouched.
 #
 
 if [ "$BATCH_MODE" == "yes" ]; then
@@ -41,7 +40,7 @@ SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
-FUP1=$TOOLSDIR/fup183
+#FUP1=$TOOLSDIR/fup183
 
 OUTFILE="$BOXTYPE"_L600_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
@@ -59,62 +58,62 @@ elif [ ! -d $OUTDIR ]; then
 fi
 
 # mtd-layout after flashing:
-#	 .name   = "Boot_firmware", //mtd0
-#	 .size   = 0x00060000,  //384k
-#	 .offset = 0x00000000,
+#	.name   = "Boot_firmware",  //mtd0
+#	.size   = 0x00060000,       //384k
+#	.offset = 0x00000000
 #
-#	 .name   = "kernel",    //mtd1
-#	 .size   = 0x000320000, //3.125M
-#	 .offset = 0x000060000, //384k (0.375M)
+#	.name   = "kernel",         //mtd1
+#	.size   = 0x00320000,       //3.125M
+#	.offset = 0x00060000        //384k (0.375M)
 #
-#	 .name   = "ROOT_FS",   //mtd2
-#	 .size   = 0x00020000,  //128k (dummy)
-#	 .offset = 0x00380000,  //3.5M
+#	.name   = "ROOT_FS",        //mtd2
+#	.size   = 0x00020000,       //128k (dummy)
+#	.offset = 0x00380000        //3.5M
 #
-#	 .name   = "Device",    //mtd3
-#	 .size   = 0x00020000,  //128k (dummy)
-#	 .offset = 0x003A0000,  //3.625M
+#	.name   = "Device",         //mtd3
+#	.size   = 0x00020000,       //128k (dummy)
+#	.offset = 0x003A0000        //3.625M
 #
-#	 .name   = "APP",       //mtd4
-#	 .size   = 0x00020000,	//128k (dummy)
-#	 .offset = 0x003C0000,  //3.75M
+#	.name   = "APP",            //mtd4
+#	.size   = 0x00020000,       //128k (dummy)
+#	.offset = 0x003C0000        //3.75M
 #
-#	 .name   = "Real_ROOT", //mtd5
-#	 .size   = 0x01D00000,	//29Mbyte, 128k hole at 0x20E0000 is used for force flash
-#	 .offset = 0x003E0000,	//3.875M
+#	.name   = "Real_ROOT",      //mtd5
+#	.size   = 0x01D00000,       //29Mbyte, 128k hole at 0x20E0000 is used for force flash
+#	.offset = 0x003E0000        //3.875M
 #
-#	 .name   = "Config",    //mtd6
-#	 .size   = 0x00100000,  //1M
-#	 .offset = 0x02100000,
+#	.name   = "Config",         //mtd6
+#	.size   = 0x00100000,       //  1M
+#	.offset = 0x02100000
 #
-#	 .name   = "User",      //mtd7
-#	 .size   = 0x01E00000,  //30M
-#	 .offset = 0x02200000,
+#	.name   = "User",           //mtd7
+#	.size   = 0x01E00000,       // 30M
+#	.offset = 0x02200000
 #
-# mtd-layout after partition concatenating:
-#	 .name   = "Boot_firmware", //mtd0
-#	 .size   = 0x00060000,	//384k (0.375M)
-#	 .offset = 0x00000000,
+# mtd-layout after boot and partition concatenating:
+#	.name   = "Boot_firmware",  //mtd0
+#	.size   = 0x00060000,       //384k (0.375M)
+#	.offset = 0x00000000
 #
-#	 .name   = "Kernel",    //mtd1
-#	 .size   = 0x00320000,	//3.125M
-#	 .offset = 0x00060000,  //0.375M
+#	.name   = "Kernel",         //mtd1
+#	.size   = 0x00320000,       //3.125M
+#	.offset = 0x00060000        //0.375M
 #
-#	 .name   = "Fake_ROOT", //mdt2
-#	 .size   = 0x0001FFFE,	//128k (dummy) minus 1 word to force read only mount
-#	 .offset = 0x00380000,  //4M - 128k force flash hole - 128k Fake_APP - 128k Fake_DEV - 128k own size
+#	.name   = "Fake_ROOT",      //mdt2
+#	.size   = 0x0001FFFE,       //128k (dummy) minus 1 word to force read only mount
+#	.offset = 0x00380000        //  4M - 128k force flash hole - 128k Fake_APP - 128k Fake_DEV - 128k own size
 #
-#	 .name   = "Fake_DEV",  //mtd3
-#	 .size   = 0x0001FFFE,	//128k (dummy) minus 1 word to force read only mount
-#	 .offset = 0x003A0000,  //4M - 128k force flash hole - 128k Fake_APP - 128k own size
+#	.name   = "Fake_DEV",       //mtd3
+#	.size   = 0x0001FFFE,       //128k (dummy) minus 1 word to force read only mount
+#	.offset = 0x003A0000        //  4M - 128k force flash hole - 128k Fake_APP - 128k own size
 #
-#	 .name   = "Fake_APP",  //mtd4
-#	 .size   = 0x0001FFFE,	//128k (dummy) minus 1 word to force read only mount
-#	 .offset = 0x003C0000,  //4M - 128k force flash hole - 128k own size
+#	.name   = "Fake_APP",       //mtd4
+#	.size   = 0x0001FFFE,       //128k (squashfs dummy) minus 1 word to force read only mount
+#	.offset = 0x003C0000        //  4M - 128k force flash hole - 128k own size
 #
-#	 .name   = "Real_ROOT", //mtd5
-#	 .size   = 0x03C00000,	//60M
-#	 .offset = 0x003E0000,  //4M - 128k force flash hole
+#	.name   = "Real_ROOT",      //mtd5
+#	.size   = 0x03C00000,       // 60M
+#	.offset = 0x003E0000        //  4M - 128k force flash hole
 
 echo -n " - Preparing kernel file..."
 # Note: padding the kernel to set start offset of type 8 (root) does not work;
@@ -131,6 +130,7 @@ SIZEK=`stat $TMPDIR/uImage -t --format %s`
 SIZEKD=`printf "%d" $SIZEK`
 SIZEKH=`printf "%08X" $SIZEK`
 if [[ $SIZEKD < "1048577" ]]; then
+  echo
   echo "-- REMARK -------------------------------------------------------------"
   echo
   echo -e "\033[01;31m"
@@ -144,10 +144,11 @@ if [[ $SIZEKD < "1048577" ]]; then
   exit
 fi
 if [[ $SIZEKD > "3276799" ]]; then
+  echo
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
-  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x0031FFFF bytes" > /dev/stderr
+  echo " KERNEL TOO BIG: 0x$SIZEKH instead of max. 0x0031FFFF bytes." > /dev/stderr
   echo " Exiting..."
   echo
   echo "-----------------------------------------------------------------------"
@@ -230,11 +231,11 @@ if [[ "$FAKESIZE" == "999" ]]; then
   echo -e "\033[00m"
   export ERROR="yes"
   exit
-else
-  echo " done."
 fi
+echo " done."
 
 if [ ! -e $TOOLSDIR/seedfile ]; then
+  echo
   echo -n " - Generating seedfile..."
   dd if=/dev/urandom count=3538943 bs=1 of=$TOOLSDIR/seedfile bs=1 skip=0 2> /dev/null
   echo " done."
@@ -248,17 +249,11 @@ echo " done."
 
 echo -n " - Creating dummy dev squashfs 3.3 partition (Fake_DEV)..."
 echo "#!/bin/bash" > $TMPDUMDIR/dummy
-echo "exit" >> $TMPDUMDIR/dummy
+echo "This is a dummy DEV squashfs partition." >> $TMPDUMDIR/dummy
 chmod 755 $TMPDUMDIR/dummy > /dev/null
 $MKSQUASHFS $TMPDUMDIR $TMPDIR/mtd_fakedev.bin -nopad -le > /dev/null
 # Sign partition
 $FUP -s $TMPDIR/mtd_fakedev.bin > /dev/null
-echo " done."
-
-echo -n " - Generating dummy squashfs file..."
-cd $TOOLSDIR
-$FUP -d
-cd ..
 echo " done."
 
 if [ "$IMAGE" == "kernel" ]; then
@@ -285,35 +280,42 @@ else
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo "ROOT TOO BIG: 0x$SIZEH instead of 0x03C00000 bytes" > /dev/stderr
+    echo " ROOT TOO BIG: 0x$SIZEH instead of 0x03C00000 bytes." > /dev/stderr
     echo
-    echo "Exiting..."
+    echo " Exiting..."
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     export ERROR="yes"
     exit
   else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes"
+    echo " OK: $SIZED (0x$SIZEH, max. 0x3C00000) bytes."
   fi
 
-  echo " - Splitting root into flash parts"
-  echo -n "   + Part one: app partition..."
+  if [ ! -e $TOOLSDIR/dummy.squash.signed.padded ]; then
+    echo -n " - Generating dummy squashfs file...  "
+    cd $TOOLSDIR
+    $TOOLSDIR/fup -d
+    cd $FLASHDIR
+    echo " done."
+  fi
+  echo " - Split root into flash parts"
   # Root part one size is 0x1D00000, partition type 1 (Fake_APP, extending into Real_ROOT)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=464 2> /dev/null
   # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x3C0000,
   # real root starts at 0x3E0000)
+  echo -n "   + Part one: app partition...       "
   cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.1.signed
   cat $TMPDIR/mtd_root.1.bin >> $TMPDIR/mtd_root.1.signed
-   # Add some bytes to enforce flashing (will expand the file to 0x1D40000 bytes when flashed)
+  # Add some bytes to enforce flashing (will expand the file to 0x1D40000 bytes when flashed)
   echo "Added to force flashing this partition." >> $TMPDIR/mtd_root.1.signed
   echo " done."
 
-  echo -n "   + Part two: config partition..."
+  echo -n "   + Part two: config partition...    "
   # Root part two, size 0x100000, partition type 2 (Config 0)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_config.bin bs=65536 skip=464 count=16 2> /dev/null
   echo " done."
 
-  echo -n "   + Part three: user partition..."
+  echo -n "   + Part three: user partition...    "
   # Root part three, max. size 0x1E00000, partition type 9 (User)
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_user.bin bs=65536 skip=480 count=480 2> /dev/null
   echo " done."
@@ -321,21 +323,40 @@ fi
 
 echo -n " - Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
-  $FUP   c $OUTDIR/$OUTFILE    -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
-  $FUP1 -c $OUTDIR/$OUTFILE"d" -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed
+  $FUP -c $OUTDIR/$OUTFILE \
+       -6 $TMPDIR/uImage \
+       -8 $TMPDIR/mtd_fakeroot.bin.signed \
+       -7 $TMPDIR/mtd_fakedev.bin.signed \
+       -1 $TMPDIR/mtd_root.1.signed
+  $FUP1 -c $OUTDIR/$OUTFILE"d" \
+        -6 $TMPDIR/uImage \
+        -8 $TMPDIR/mtd_fakeroot.bin.signed \
+        -7 $TMPDIR/mtd_fakedev.bin.signed \
+        -1 $TMPDIR/mtd_root.1.signed
 else
-  $FUP -c $OUTDIR/$OUTFILE -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
-  $FUP1 -c $OUTDIR/$OUTFILE"d" -6 $TMPDIR/uImage -8 $TMPDIR/mtd_fakeroot.bin.signed -7 $TMPDIR/mtd_fakedev.bin.signed -1 $TMPDIR/mtd_root.1.signed -2 $TMPDIR/mtd_config.bin -9 $TMPDIR/mtd_user.bin
+  $FUP -c $OUTDIR/$OUTFILE \
+       -6 $TMPDIR/uImage \
+       -8 $TMPDIR/mtd_fakeroot.bin.signed \
+       -7 $TMPDIR/mtd_fakedev.bin.signed \
+       -1 $TMPDIR/mtd_root.1.signed \
+       -2 $TMPDIR/mtd_config.bin \
+       -9 $TMPDIR/mtd_user.bin
+  $FUP1 -c $OUTDIR/$OUTFILE"d" \
+        -6 $TMPDIR/uImage \
+        -8 $TMPDIR/mtd_fakeroot.bin.signed \
+        -7 $TMPDIR/mtd_fakedev.bin.signed \
+        -1 $TMPDIR/mtd_root.1.signed \
+        -2 $TMPDIR/mtd_config.bin \
+        -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
-$FUP1 -r $OUTDIR/$OUTFILE"d" $RESELLERID
-$FUP1 -n $OUTDIR/$OUTFILE"d" 10000
-## Create MD5 file
-md5sum -b $OUTDIR/$OUTFILE  | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+#$FUP1 -r $OUTDIR/$OUTFILE"d" $RESELLERID
+# Create MD5 file
+md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
-echo -n " - Creating .ZIP output file..."
+echo -n " - Creating .ZIP output file...       "
 cd $OUTDIR
 zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
@@ -378,4 +399,3 @@ rm -f $TMPDIR/mtd_user.bin
 if [ -e $TOOLSDIR/dummy.squash.signed.padded ]; then
   rm $TOOLSDIR/dummy.squash.signed.padded
 fi
-

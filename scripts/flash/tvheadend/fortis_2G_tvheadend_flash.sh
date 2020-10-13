@@ -19,7 +19,7 @@
 #
 # If only the kernel is to be reflashed, the partitions 8, 7 and 1 are
 # also reflashed (requirement of loader 6.XX). Partition 1 is flashed as
-# the squashfs dummy only, leaving the enigma2 part of it untouched.
+# the squashfs dummy only, leaving the Tvheadend part of it untouched.
 #
 
 echo "-- Output selection ---------------------------------------------------"
@@ -70,54 +70,54 @@ fi
 #
 #	.name   = "ROOT_FS",        //mtd2
 #	.size   = 0x00020000,       //128k (squashfs dummy, size varies depending on the kernel size)
-#	.offset = 0x00280000,       //2.5M Note: this address is in reality dependent on the kernel size
+#	.offset = 0x00280000        //2.5M Note: this address is in reality dependent on the kernel size
 #
 #	.name   = "Device",         //mtd3
 #	.size   = 0x00020000,       //128k (squashfs dummy)
-#	.offset = 0x002A0000,       //2.625M Note: always flashed at this address
+#	.offset = 0x002A0000        //2.625M Note: always flashed at this address
 #
 #	.name   = "APP",            //mtd4
 #	.size   = 0x00020000,       //128k (squashfs dummy)
-#	.offset = 0x002C0000,       //2.75M Note: always flashed at this address, together with Real_ROOT
+#	.offset = 0x002C0000        //2.75M Note: always flashed at this address, together with Real_ROOT
 #
 #	.name   = "Real_ROOT",      //mtd5
 #	.size   = 0x01800000,       // 24Mbyte, 128k hole at 0x1AE0000 is used for force flash
-#	.offset = 0x002E0000,       //2.875M
+#	.offset = 0x002E0000        //2.875M
 #
 #	.name   = "Config",         //mtd6
 #	.size   = 0x00100000,       //  1M
-#	.offset = 0x01B00000,
+#	.offset = 0x01B00000
 #
 #	.name   = "User",           //mtd7
 #	.size   = 0x00400000,       //  4M
-#	.offset = 0x01C00000,       // 28M
+#	.offset = 0x01C00000        // 28M
 #
 # mtd-layout after boot and partition concatenating:
 #	.name   = "Boot_firmware",  //mtd0
 #	.size   = 0x00060000,       //384k (0.375M)
-#	.offset = 0x00000000,
+#	.offset = 0x00000000
 #
 #	.name   = "Kernel",         //mtd1
 #	.size   = 0x00220000,       //2.125M
-#	.offset = 0x00060000,       //0.375M
+#	.offset = 0x00060000        //0.375M
 #
 #	.name   = "Fake_ROOT",      //mdt2
 #	.size   = 0x0001FFFE,       //128k (squashfs dummy) size is 1 word too small to force read only mount
-#	.offset = 0x00280000,       //  3M - 128k force flash hole - 128k Fake_APP - 128k Fake_DEV - 128k own size
+#	.offset = 0x00280000        //  3M - 128k force flash hole - 128k Fake_APP - 128k Fake_DEV - 128k own size
 #
 #	.name   = "Fake_DEV",       //mtd3
 #	.size   = 0x0001FFFE,       //128k (squashfs dummy) size is 1 word too small to force read only mount
-#	.offset = 0x002A0000,       //  3M - 128k force flash hole - 128k Fake_APP - 128k own size
+#	.offset = 0x002A0000        //  3M - 128k force flash hole - 128k Fake_APP - 128k own size
 #
 #	.name   = "Fake_APP",       //mtd4
 #	.size   = 0x0001FFFE,       //128k (squashfs dummy) size is 1 word too small to force read only mount
-#	.offset = 0x002C0000,       //  3M - 128k force flash hole - 128k own size
+#	.offset = 0x002C0000        //  3M - 128k force flash hole - 128k own size
 #
 #	.name   = "Real_ROOT",      //mtd5
 #	.size   = 0x01C00000,       // 29M
-#	.offset = 0x002E0000,       //  3M - 128k force flash hole
+#	.offset = 0x002E0000        //  3M - 128k force flash hole
 
-echo -n " - Prepare kernel file..."
+echo -n " - Preparing kernel file..."
 # Note: padding the kernel to set start offset of type 8 (root) does not work;
 # boot loader always uses the actual kernel size (at offset 0x0c?) to find/check
 # the root.
@@ -270,6 +270,13 @@ else
   dd if=$TMPDIR/mtd_root.pad of=$TMPDIR/mtd_root.1.bin bs=65536 skip=0 count=384 2> /dev/null
   # Sign partition by preceding it with a squashfs dummy (will be flashed at 0x2C0000,
   # real root starts at 0x2E0000)
+  if [ ! -e $TOOLSDIR/dummy.squash.signed.padded ]; then
+    echo -n " - Generating dummy squashfs file...  "
+    cd $TOOLSDIR
+    $TOOLSDIR/fup -d
+    cd $FLASHDIR
+    echo " done."
+  fi
   cat $TOOLSDIR/dummy.squash.signed.padded > $TMPDIR/mtd_root.1.signed
   cat $TMPDIR/mtd_root.1.bin >> $TMPDIR/mtd_root.1.signed
   # Add some bytes to enforce flashing (will expand the file to 0x1840000 bytes when flashed)
@@ -290,7 +297,6 @@ else
 fi
 
 echo -n " - Creating .IRD flash file and MD5..."
-cd $TOOLSDIR
 if [ "$IMAGE" == "kernel" ]; then
   $FUP -c $OUTDIR/$OUTFILE \
        -6 $TMPDIR/uImage \
@@ -308,7 +314,6 @@ else
 fi
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
-cd $CURDIR
 # Create MD5 file
 md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
@@ -325,7 +330,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo
   echo " The receiver must be equipped with a standard Fortis bootloader:"
   echo "  - HS7110 : 6.40, 6.46 or 6.47"
-#  echo "  - HS7420 : 6.30, 6.36 or 6.37"
+  echo "  - HS7420 : 6.30, 6.36 or 6.37"
   echo "  - HS7810A: 6.20, 6.26 or 6.27"
   echo " with unmodified bootargs."
   echo
@@ -354,4 +359,6 @@ rm -f $TMPDIR/mtd_root.1.bin
 rm -f $TMPDIR/mtd_root.1.signed
 rm -f $TMPDIR/mtd_config.bin
 rm -f $TMPDIR/mtd_user.bin
-
+if [ -e $TOOLSDIR/dummy.squash.signed.padded ]; then
+  rm $TOOLSDIR/dummy.squash.signed.padded
+fi
