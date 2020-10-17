@@ -32,10 +32,11 @@
 # Author: Schischu/Audioniek"
 # Date: 16-01-2020"
 #
-# ---------------------------------------------------------------------------
+# -----------------------------------------------------------------------
 # Changes:
 #
 # 20200609 Audioniek   dp6010 -> fx6010.
+# 20201017 Audioniek   Changed creation of root.img to sudo.
 # -----------------------------------------------------------------------
 
 # -----------------------------------------------------------------------
@@ -81,18 +82,14 @@ dd if=/dev/zero of=$OUTDIR/root.img bs=1M count=256 2> /dev/null
 cd $TMPROOTDIR
 $MKFSEXT3 -q -F -L $IMAGE $OUTDIR/root.img
 # mount the image file
-#sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
-mount -o loop $OUTDIR/root.img $TMPDUMDIR
+sudo mount -o loop $OUTDIR/root.img $TMPDUMDIR
 # copy the image to it
-#sudo cp -r . $TMPDUMDIR
-cp -r . $TMPDUMDIR
-#sudo rm -rf lost+found
+sudo cp -r . $TMPDUMDIR
+sudo rm -rf lost+found
 if [ -d $TMPDUMDIR/lost+found ];then
-#  sudo rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
-  rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
+  sudo rmdir --ignore-fail-on-non-empty $TMPDUMDIR/lost+found
 fi
-#sudo umount $TMPDUMDIR
-umount $TMPDUMDIR
+sudo umount $TMPDUMDIR
 cd $CURDIR
 echo " done."
 
