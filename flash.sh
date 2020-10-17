@@ -62,6 +62,9 @@ echo
 # 20200620 Audioniek   Fix error with default resellerID for dp7001.
 # 20200620 Audioniek   Add Edision argus VIP1 and VIP2 USB.
 # 20200620 Audioniek   Add Edision argus VIP1 V1.
+# 20200915 Audioniek   Add Fortis DP7050, EP8000 and GPV8000.
+# 20201017 Audioniek   Force output type to USB if buildsystem config
+#                      contains DESTINATION=USB.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -223,16 +226,20 @@ if [ "$BATCH_MODE" == "yes" ]; then
   fi
   rm $FLASHDIR/config
 else
-  echo "-- Output destination -------------------------------------------------"
-  echo
-  echo " Where would you like your $IMAGEN image to run?"
-  echo "   1) on a USB stick"
-  echo "   2) in the receivers flash memory (*)"
-  read -p " Select target (1-2)? "
-  case "$REPLY" in
-    1) export OUTTYPE="USB";;
-    *) export OUTTYPE="flash";;
-  esac
+  if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
+    export OUTTYPE="USB"
+  else
+    echo "-- Output destination -------------------------------------------------"
+    echo
+    echo " Where would you like your $IMAGEN image to run?"
+    echo "   1) on a USB stick"
+    echo "   2) in the receivers flash memory (*)"
+    read -p " Select target (1-2)? "
+    case "$REPLY" in
+      1) export OUTTYPE="USB";;
+      *) export OUTTYPE="flash";;
+    esac
+  fi
 fi
 
 # Check if the receiver can accept an Enigma2 image in flash
@@ -274,7 +281,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7119|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2)
+    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2)
       ;;
     *)
       echo
@@ -578,8 +585,6 @@ esac
       fi;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
-    ufs910|ufs922)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
     fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
@@ -589,7 +594,7 @@ esac
     hs7429|hs7119|hs7819)
       $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
       unset RESELLERID;;
-    dp2010|fx6010|dp7000|dp7001|epp8000)
+    dp2010|fx6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_4G"_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)
@@ -598,6 +603,10 @@ esac
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     ufc960)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
+    ufs910|ufs922)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+#    ufs910)
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs910_enigma2_flash.sh
     ufs912|ufs913)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     vitamin_hd5000)

@@ -43,28 +43,23 @@ case $BOXTYPE in
     ;;
   fortis_hdbox|octagon1008)
     common
-    # Move kernel back
-    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     ;;
   hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)
     common
-    # Move kernel back
-    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     ;;
   dp2010|dp6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
     common
-    # Move kernel back
-    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
     ;;
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     common
-     # Move kernel back
-    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    ;;
+  hl101)
+    common
     ;;
   spark|spark7162)
     common
     ;;
-  ufc960|ufs910)
+  ufc960|ufs910|ufs922)
     find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
 
     if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
@@ -116,7 +111,7 @@ case $BOXTYPE in
     fi
     echo " done."
     ;;
-  vip1_v2|vip2_v1)
+  vip1_v1|vip1_v2|vip2)
     common
     ;;
   vitamin_hd5000)
