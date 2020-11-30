@@ -65,6 +65,7 @@ echo
 # 20200915 Audioniek   Add Fortis DP7050, EP8000 and GPV8000.
 # 20201017 Audioniek   Force output type to USB if buildsystem config
 #                      contains DESTINATION=USB.
+# 20201201 Audioniek   Add Opticum HD 9600 (TS).
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -245,14 +246,20 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2)
+    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
       echo " Sorry, Enigma2 requires more flash memory than available on your"
       echo " $BOXTYPE receiver."
       echo
-      echo " Consider running Enigma2 from a USB stick or building Neutrino."
+      case "$BOXTYPE" in
+        fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
+          echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
+#        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
+        *)
+          echo " Consider running Enigma2 from a USB stick.";;
+      esac
       echo
       echo " Exiting..."      
       echo "-----------------------------------------------------------------------"
@@ -281,7 +288,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2)
+    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
       ;;
     *)
       echo
@@ -634,6 +641,8 @@ else #USB
     hl101|vip1_v1|vip1_v2|vip2)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     vitamin_hd5000)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+    opt9600)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."

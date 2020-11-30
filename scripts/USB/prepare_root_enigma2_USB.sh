@@ -12,6 +12,7 @@
 # 20200116 Audioniek   Added Fortis 4G receivers.
 # 20200629 Audioniek   Added Edision argus VIP1/VIP2.
 # 20200828 Audioniek   Added Edision argus VIP1 V1.
+# 20201201 Audioniek   Added Opticum/Orton HD 9600 (TS).
 
 RELEASEDIR=$1
 
@@ -94,6 +95,9 @@ case $BOXTYPE in
     common
     ;;
   vitamin_hd5000)
+    common
+    ;;
+  opt9600)
     common
     ;;
   *)
