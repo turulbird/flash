@@ -3,5 +3,13 @@ out
 tmp
 dummy.squash.signed.padded
 config
-USB
-flash_tools/
+flash_tools/fup
+flash_tools/mup
+flash_tools/pad
+flash_tools/mksquashfs3.0
+flash_tools/mksquashfs3.3
+flash_tools/mksquashfs4.2
+flash_tools/unsquashfs3.0
+flash_tools/unsquashfs3.3
+flash_tools/unsquashfs4.2
+
