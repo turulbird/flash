@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 29-06-2020"
+echo "+ Date   : 26-02-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -66,6 +66,7 @@ echo
 # 20201017 Audioniek   Force output type to USB if buildsystem config
 #                      contains DESTINATION=USB.
 # 20201201 Audioniek   Add Opticum HD 9600 (TS).
+# 20210226 Audioniek   Remove Tvheadend support.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -180,9 +181,6 @@ if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
 elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
   IMAGE=neutrino
   IMAGEN="Neutrino"
-elif [ `grep -e "IMAGE=tvheadend" $FLASHDIR/config` ]; then
-  IMAGE=tvheadend
-  IMAGEN="Tvheadend"
 fi
 export IMAGE
 export IMAGEN
@@ -208,11 +206,7 @@ export MEDIAFW
 # Determine patch level and last part of linux version number
 export PATCH=`grep -e "KERNEL_STM=p0" ./config | awk '{print substr($0,length($0)-2,length($0))}'`
 FNAME="0$PATCH"_"$BOXTYPE"
-if [ "$IMAGE" == "tvheadend" ]; then
-  cd $CDKDIR/patches/build-neutrino
-else
-  cd $CDKDIR/patches/build-$IMAGE
-fi
+cd $CDKDIR/patches/build-$IMAGE
 ls $CDKDIR/build_tmp > $FLASHDIR/lastconfig
 cd $CURDIR
 export SUBVERS=`grep -e "linux-sh4-2.6.32." $FLASHDIR/lastconfig | awk '{print substr($0,length($0)-12,2)}'`
@@ -408,7 +402,7 @@ echo "Check bin..."
     AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_audio.bin`
     VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Ax.bin`
     VIDEOBINSIZEB=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Bx.bin`
-#  elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
+#  elif [ $IMAGEN == "Neutrino" ]; then
 #    AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_audio.bin`
 #    VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_video_Ax.bin`
 #    VIDEOBINSIZEB=`stat -c %s $TUFSBOXDIR/release/lib/firmware/companion_h205_video_Ax.bin`
@@ -449,7 +443,7 @@ else
   if [ $IMAGEN == "Enigma2" ]; then
     AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
     VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
-  elif [ $IMAGEN == "Neutrino" ] || [ $IMAGEN == "Tvheadend" ]; then
+  elif [ $IMAGEN == "Neutrino" ]; then
     AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/audio.elf`
     VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/lib/firmware/video.elf`
   fi
