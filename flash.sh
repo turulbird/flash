@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 26-02-2021"
+echo "+ Date   : 16-03-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -67,6 +67,7 @@ echo
 #                      contains DESTINATION=USB.
 # 20201201 Audioniek   Add Opticum HD 9600 (TS).
 # 20210226 Audioniek   Remove Tvheadend support.
+# 20210316 Audioniek   Fix small problem with cuberevo_mini2.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -240,7 +241,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -248,7 +249,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       echo " $BOXTYPE receiver."
       echo
       case "$BOXTYPE" in
-        fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
+        fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
           echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
 #        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
         *)
@@ -397,7 +398,7 @@ echo
 
 # Check .elf/.bin companion file sizes
 if [ $BOXTYPE == "dp2010" -o $BOXTYPE == "fx6010" -o $BOXTYPE == "dp7000" -o $BOXTYPE == "dp7001" -o $BOXTYPE == "dp7050" -o $BOXTYPE == "ep8000" -o $BOXTYPE == "epp8000" -o $BOXTYPE == "gpv8000" ]; then
-echo "Check bin..."
+  echo "Check bin..."
 #  if [ $IMAGEN == "Enigma2" ]; then
     AUDIOBINSIZE=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_audio.bin`
     VIDEOBINSIZEA=`stat -c %s $TUFSBOXDIR/release/root/modules/companion_h205_video_Ax.bin`
@@ -686,4 +687,3 @@ unset MEDIAFW
 if [ -e dummy.squash.signed.padded ]; then
   rm -f dummy.squash.signed.padded
 fi
-

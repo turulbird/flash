@@ -1,7 +1,7 @@
 #!/bin/bash
 # "This script creates flashable images for Kathrein UFS913 receivers."
 # "Author: Audioniek, based on previous work by Schischu"
-# "Date: 01-31-2011, Last Change: 10-04-2020"
+# "Date: 01-31-2011, Last Change: 16-03-2021"
 #
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
@@ -11,6 +11,7 @@
 # 20201003 Audioniek    Add file ufs913.software.V1.00.B00.data and
 #                       change output file structure accordingly.
 # 20201008 Audioniek    Fix typos.
+# 20210316 Audioniek    Remove comment lines and fix some typos.
 #
 # -----------------------------------------------------------------------
 
@@ -110,26 +111,6 @@ else
 echo " OK: $SIZED ($SIZEH, max. $SIZE_ROOT) bytes."
 fi
 
-# Create a Kathrein update file
-# To get the partitions erased we first need to fake an yaffs2 update
-#echo -n " - Create output file and MD5..."
-#cd $OUTDIR/kathrein/$BOXTYPE
-#$MUP -c $OUTFILE << EOF
-#3
-#0x00000000, 0x800000, 3, foo
-#0x00800000, 0x4000000, 3, foo
-#0x00400000, 0x0, 0, $TMPDIR/uImage
-#0x00000000, 0x0, 1, $TMPDIR/mtd_fw.sum.bin
-#0x00800000, 0x0, 1, $TMPDIR/mtd_root.sum.bin
-#;
-#EOF
-# REMARK:
-#  SUMTOOL destroys the padding added by MKFSJFFS2, so the intended padding in effect was absent.
-#  This has been corrected by removing the MKFSJFFS2 padding altogether and adding and extra call to PAD.
-#  To revert back to padded files, replace .sum (2x) by .pad in the lines directly above.
-
-#cp $SCRIPTDIR/flash/"$BOXTYPE"_updatescript.sh updatescript.sh
-
 #Create update file structure
 cp $SCRIPTDIR/flash/ufs913.software.V1.00.B00.data $OUTDIR/kathrein/$BOXTYPE
 mv $TMPDIR/uImage $OUTDIR/kathrein/$BOXTYPE/uImage.bin
@@ -169,8 +150,8 @@ if [ -e $OUTDIR/kathrein/$BOXTYPE/$OUTFILE ]; then
   echo " front panel and switch the receiver on."
   echo
   echo " Release the TV/R key when the display shows 'Emergency Upgrade'."
-  echo " Flashing the image will now begin. During the uflashing process"
-  echo " the receiver will restart twice. The update is finshed after the"
+  echo " Flashing the image will now begin. During the flashing process"
+  echo " the receiver will restart twice. The update is finished after the"
   echo " receiver has displayed the text 'UPDATE UMAGE' and has restarted"
   echo " for the last time. The flashed image will then start."
   echo -e "\033[00m"
