@@ -362,7 +362,7 @@ struct model_name
 	{ 0x29120000, "Drake 7500HD Mini" },
 	{ 0x29130000, "HD Box 4500 plus" },
 	{ 0x29140000, "Star Track Grand HD" },
-//	{ 0x29??0000, "Octagon SF928 GX" },
+	{ 0x29240000, "Octagon SF928 GX" },
 	{ 0x29000100, "Fortis DS260" },
 	{ 0x29060100, "Rebox RE-4220HD S-PVR" },
 	{ 0x29130100, "HD Box 6500 plus" },

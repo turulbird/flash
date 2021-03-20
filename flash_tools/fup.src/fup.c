@@ -22,6 +22,9 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.7d:
+ * + Add Octagon SF928 GX name info
+ *
  * Changes in Version 1.9.7c:
  * + Fix formatting error in help text
  * + Small corrections in model names
@@ -140,8 +143,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.7c"
-#define DATE "30.08.2020"
+#define VERSION "1.9.7d"
+#define DATE "20.03.2021"
 
 // Global variables
 uint8_t verbose = 1;
