@@ -40,7 +40,6 @@ SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
 FUP=$TOOLSDIR/fup
-#FUP1=$TOOLSDIR/fup183
 
 OUTFILE="$BOXTYPE"_L600_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_R$RESELLERID.ird
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
@@ -328,11 +327,6 @@ if [ "$IMAGE" == "kernel" ]; then
        -8 $TMPDIR/mtd_fakeroot.bin.signed \
        -7 $TMPDIR/mtd_fakedev.bin.signed \
        -1 $TMPDIR/mtd_root.1.signed
-  $FUP1 -c $OUTDIR/$OUTFILE"d" \
-        -6 $TMPDIR/uImage \
-        -8 $TMPDIR/mtd_fakeroot.bin.signed \
-        -7 $TMPDIR/mtd_fakedev.bin.signed \
-        -1 $TMPDIR/mtd_root.1.signed
 else
   $FUP -c $OUTDIR/$OUTFILE \
        -6 $TMPDIR/uImage \
@@ -341,13 +335,6 @@ else
        -1 $TMPDIR/mtd_root.1.signed \
        -2 $TMPDIR/mtd_config.bin \
        -9 $TMPDIR/mtd_user.bin
-  $FUP1 -c $OUTDIR/$OUTFILE"d" \
-        -6 $TMPDIR/uImage \
-        -8 $TMPDIR/mtd_fakeroot.bin.signed \
-        -7 $TMPDIR/mtd_fakedev.bin.signed \
-        -1 $TMPDIR/mtd_root.1.signed \
-        -2 $TMPDIR/mtd_config.bin \
-        -9 $TMPDIR/mtd_user.bin
 fi
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID

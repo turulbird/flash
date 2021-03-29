@@ -15,7 +15,7 @@
 #define VER_Xfd               0x0001
 #endif
 
-#define DATA_BUFFER_SIZE      0x2000
+#define DATA_BUFFER_SIZE      10000       // size of one block; do NOT change, CRC calculations will be wrong!
 #define DATA_BLOCK_SIZE       0x8000 - 6  // default block size (0x8000 - compressed length - block CRC16 - partition type)
 #define ERASE_SIZE            0x20000     // for 2nd generation with loader 6.XX
 
