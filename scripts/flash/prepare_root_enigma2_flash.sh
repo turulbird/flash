@@ -141,6 +141,45 @@ case $BOXTYPE in
     ;;
   ufs912|ufs913)
     common
+    if [[ ! "$OWNLANG" == "all" && "$BOXTYPE" == "ufs913" ]]; then
+      echo -n " Stripping root..."
+      # Language support: remove everything but English, French, German and own language
+      mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
+      mkdir $TMPROOTDIR/usr/local/share/enigma2/po
+      for i in en de fr $OWNLANG
+      do
+        cp -r $TMPROOTDIR/usr/local/share/enigma2/po.old/$i $TMPROOTDIR/usr/local/share/enigma2/po
+      done
+      rm -rf $TMPROOTDIR/usr/local/share/enigma2/po.old
+
+      mv $TMPROOTDIR/usr/local/share/enigma2/countries $TMPROOTDIR/usr/local/share/enigma2/countries.old
+      mkdir $TMPROOTDIR/usr/local/share/enigma2/countries
+      cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/missing.* $TMPROOTDIR/usr/local/share/enigma2/countries
+      for i in en de fr $OWNLANG
+      do
+        cp -r $TMPROOTDIR/usr/local/share/enigma2/countries.old/$i.* $TMPROOTDIR/usr/local/share/enigma2/countries
+      done
+      rm -rf $TMPROOTDIR/usr/local/share/enigma2/countries.old
+      # Update /usr/lib/enigma2/python/Components/Language.py
+      # First remove all language lines from it
+      sed -i -e '/\t\tself.addLanguage(/d' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      # Add en, fr and ge
+      sed -i "s/country!/&\n\t\tself.addLanguage(\"Deutsch\",     \"de\", \"DE\", \"ISO-8859-15\")\n\t\tself.addLanguage(\"Français\",     \"fr\", \"FR\", \"ISO-8859-15\")\n\t\tself.addLanguage(\"English\",     \"en\", \"EN\", \"ISO-8859-15\")/g" $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      # Add own language if given
+      if [[ ! "$OWNLANG" == "" ]]; then
+        sed -i 's/("English",     "en", "EN", \"ISO-8859-15\")/&\n\t\tself.addLanguage(\"Your own\",    \"'$OWNLANG'", \"'$OWNCOUNTRY'\", \"ISO-8859-15\")/g' $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+      fi
+
+      rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
+      # Compile Language.py
+      python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
+
+#      #remove all .py-files
+#      find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
+#      find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;
+#      find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
+      echo " done."
+    fi
 
     echo -n " Moving firmwares..."
     if [ -e $TMPFWDIR ]; then

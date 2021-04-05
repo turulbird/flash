@@ -20,9 +20,10 @@ MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
 SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
 
-SIZE_KERNEL=0x00260000
-SIZE_ROOT=0x03f80000  # allow for 4 bad blocks
-SIZE_FW=0x00800000
+SIZE_KERNEL=0x00260000 # mtd6
+#SIZE_ROOT=0x07700000  # mdt9, 120Mbyte -  8 * 0x20000 (allow for 8 bad blocks)
+SIZE_ROOT=0x03f80000  # mdt9, 64Mbyte -  4 * 0x20000 (allow for 4 bad blocks)
+SIZE_FW=0x00800000 # mtd8
 
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
 
@@ -97,7 +98,11 @@ echo -n " - Checking root size..."
 SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
 SIZED=`printf "%d" $SIZE`
 SIZEH=`printf "0x%08X" $SIZE`
-if [[ $SIZEH > "$SIZE_ROOT" ]]; then
+SIZEDS=$(expr $SIZED / 16)
+SIZEMAX=3899392
+#SIZEMAX=7798784
+#SIZEMAXH=7700000
+if [[ $SIZEDS > $SIZEMAX ]]; then
   echo -e "\033[01;31m"
   echo "-- ERROR! -------------------------------------------------------------"
   echo
@@ -149,7 +154,7 @@ if [ -e $OUTDIR/kathrein/$BOXTYPE/$OUTFILE ]; then
   echo " To start the flashing process, press and hold the key TV/R on the"
   echo " front panel and switch the receiver on."
   echo
-  echo " Release the TV/R key when the display shows 'Emergency Upgrade'."
+  echo " Release the TV/R key when the display shows 'Emergency Update'."
   echo " Flashing the image will now begin. During the flashing process"
   echo " the receiver will restart twice. The update is finished after the"
   echo " receiver has displayed the text 'UPDATE UMAGE' and has restarted"

@@ -68,6 +68,7 @@ echo
 # 20201201 Audioniek   Add Opticum HD 9600 (TS).
 # 20210226 Audioniek   Remove Tvheadend support.
 # 20210316 Audioniek   Fix small problem with cuberevo_mini2.
+# 20210405 Audioniek   Strip languages on UFS913 added.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -381,7 +382,7 @@ echo "-- Prepare root -------------------------------------------------------"
 echo
 echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
-if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "atevio7500" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
+if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "atevio7500" || "$BOXTYPE" == "ufs913" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
   # The root will be optionally stripped of all language support except de (German), fr (French)
   # and en (English) because the flash space is rather limited on these receivers.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
