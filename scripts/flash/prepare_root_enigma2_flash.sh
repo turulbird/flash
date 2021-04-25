@@ -9,8 +9,8 @@
 # Changes:
 # 20140726: Audioniek   Removed: if gstreamer found, /usr/lib/libav* was
 #                       deleted.
-# 20140726: Audioniek   French added as third fixed language on atevio7500.
-# 20140914: Audioniek   Retain all languages option added on atevio7500.
+# 20140726: Audioniek   French added as third fixed language on hs8200.
+# 20140914: Audioniek   Retain all languages option added on hs8200.
 # 20141015: Audioniek   Fortis 4th generation receivers added.
 # 20170310: Audioniek   Setting TMPFWDIR moved to flash.sh.
 # 20191214: Audioniek   Fixed potential problem in making devs.
@@ -47,7 +47,7 @@ common() {
 
 # Prepare enigma2 root according to box type
 case $BOXTYPE in
-  adb_box|atevio7500)
+  adb_box|hs8200)
     common
     if [[ ! "$OWNLANG" == "all" ]]; then
       echo -n " Stripping root..."

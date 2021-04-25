@@ -38,7 +38,7 @@ case $BOXTYPE in
   adb_box)
     common
     ;;
-  atevio7500)
+  hs8200)
     common
     ;;
   fortis_hdbox|octagon1008)

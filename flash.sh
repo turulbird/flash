@@ -10,22 +10,22 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 16-03-2021"
+echo "+ Date   : 23-04-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
 # ---------------------------------------------------------------------------
 # Changes:
-# 20140726 Audioniek   Setting own language on atevio7500 did not work; moved
+# 20140726 Audioniek   Setting own language on hs8200 did not work; moved
 #                      upward.
-# 20140726 Audioniek   French added as third fixed language on atevio7500.
+# 20140726 Audioniek   French added as third fixed language on hs8200.
 # 20140831 Audioniek   Neutrino flash for Fortis 1st generation receivers
 #                      added (requires latest fup).
 # 20140906 Audioniek   Tangos neutrino added.
 # 20140907 Audioniek   Neutrino flash for HS7110 & HS7810A receivers added.
 # 20140912 Audioniek   Flash for HS7119 & HS7819 receivers added.
 # 20140914 Audioniek   Corrected some typos, add all languages option for
-#                      atevio7500.
+#                      hs8200.
 # 20141015 Audioniek   Fortis 4th generation receivers added.
 # 20141208 Audioniek   Bug fixed with Fortis dp6010.
 # 20150806 Audioniek   Tvheadend added.
@@ -69,6 +69,7 @@ echo
 # 20210226 Audioniek   Remove Tvheadend support.
 # 20210316 Audioniek   Fix small problem with cuberevo_mini2.
 # 20210405 Audioniek   Strip languages on UFS913 added.
+# 20210423 Audioniek   atevio7500 -> hs8200.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -284,7 +285,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    atevio7500|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
+    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
       ;;
     *)
       echo
@@ -382,7 +383,7 @@ echo "-- Prepare root -------------------------------------------------------"
 echo
 echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
-if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "atevio7500" || "$BOXTYPE" == "ufs913" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
+if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "hs8200" || "$BOXTYPE" == "ufs913" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
   # The root will be optionally stripped of all language support except de (German), fr (French)
   # and en (English) because the flash space is rather limited on these receivers.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
@@ -500,11 +501,11 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  atevio7500|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
+  hs8200|fortis_hdbox|octagon1008|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
-        atevio7500)
+        hs8200)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
         fortis_hdbox)
@@ -579,7 +580,7 @@ esac
   case $BOXTYPE in
     adb_box)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
-    atevio7500)
+    hs8200)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
       if [ "$IMAGE" == "enigma2" ]; then
@@ -626,7 +627,7 @@ else #USB
     adb_box)
 #      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    atevio7500|fortis_hdbox|octagon1008)
+    hs8200|fortis_hdbox|octagon1008)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_234G"_"$OUTTYPE".sh;;
