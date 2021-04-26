@@ -12,7 +12,7 @@
 # "Supported receivers (autoselection) are:"
 # " - Kathrein UFS910 (ufs910)"
 # " - Kathrein UFS922 (ufs922)"
-# " - Fortis HS9510 (octagon1008)"
+# " - Fortis HS9510 (hs9510)"
 # " - Fortis FS9000/9200 (fortis_hdbox)"
 # " - Cuberevo MINI2 (cuberevo_mini2)"
 # " - Cuberevo (cuberevo)"
@@ -24,7 +24,7 @@
 # Changes:
 # 20170920 Audioniek   Fix syntax error in call of mksquashfs4.0.
 # 20190206 Audioniek   Switch to mksquashfs4.2.
-# 20190208 Audioniek   Add cuberevo_min; clarify flashing instructions.
+# 20190208 Audioniek   Add cuberevo_mini; clarify flashing instructions.
 #
 
 # Set up the variables
@@ -59,7 +59,7 @@ case "$BOXTYPE" in
     SIZE_VARH=0x011C0000
     SIZE_VARD=18612224
     ERASE_SIZE=0x20000;;
-  octagon1008) echo "Creating $IMAGE flash image for $BOXTYPE..."
+  hs9510) echo "Creating $IMAGE flash image for $BOXTYPE..."
     SIZE_KERNEL=0x00200000
     SIZE_ROOTH=0x00C00000
     SIZE_ROOTD=12582912
@@ -261,7 +261,7 @@ if [ -e $OUTFILE ]; then
       echo " Then release the POWER key; flashing will start."
       echo " It is finished when the display shows DONE. Press the POWER"
       echo " key to reboot the receiver and run the software just flashed.";;
-    fortis_hdbox|octagon1008)
+    fortis_hdbox|hs9510)
       echo
       echo " The receiver must be equipped with a TDTmaxiboot boot loader,"
       echo " or a boot loader with compatible capabilities."

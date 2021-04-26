@@ -41,7 +41,7 @@ case $BOXTYPE in
   hs8200)
     common
     ;;
-  fortis_hdbox|octagon1008)
+  fortis_hdbox|hs9510)
     common
     ;;
   hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)

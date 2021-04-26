@@ -94,7 +94,7 @@ case $BOXTYPE in
     common;;
   spark|spark7162)
     common;;
-  fortis_hdbox|octagon1008|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+  fortis_hdbox|hs9510|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
 # Fortis needs TDT maxiboot or similar loader
     common
 
