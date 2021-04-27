@@ -89,12 +89,12 @@ case $BOXTYPE in
     find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
     echo " done."
     ;;
-  hs7110|hs7119|hs7810a|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
+  hs7110|hs7119|hs7810a|hs7819|dp2010|dp7000|dp7001|dp7050|ep8000|epp8000|fx6010|gpv8000)
 # for loader 6.XX/7.XX/8.XX
     common;;
   spark|spark7162)
     common;;
-  fortis_hdbox|hs9510|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+  fs9000|hs9510|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
 # Fortis needs TDT maxiboot or similar loader
     common
 

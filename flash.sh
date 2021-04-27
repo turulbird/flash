@@ -244,7 +244,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fortis_hdbox|hs9510|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -252,7 +252,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       echo " $BOXTYPE receiver."
       echo
       case "$BOXTYPE" in
-        fortis_hdbox|hs9510|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
+        fs9000|hs9510|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
           echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
 #        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
         *)
@@ -286,7 +286,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fortis_hdbox|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
+    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
       ;;
     *)
       echo
@@ -502,14 +502,14 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  hs8200|fortis_hdbox|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
+  hs8200|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
         hs8200)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
-        fortis_hdbox)
+        fs9000)
           RESELLERID=20020000
           FORTISBOX="Octagon SF1018P HD Alliance";;
         hs9510)
@@ -590,7 +590,7 @@ esac
       fi;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
-    fortis_hdbox|hs9510)
+    fs9000|hs9510)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
     hs7420|hs7110|hs7810a)
@@ -628,7 +628,7 @@ else #USB
     adb_box)
 #      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    hs8200|fortis_hdbox|hs9510)
+    hs8200|fs9000|hs9510)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
       $SCRIPTDIR/$OUTTYPE/"fortis_234G"_"$OUTTYPE".sh;;

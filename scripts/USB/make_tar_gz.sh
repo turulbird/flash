@@ -49,7 +49,7 @@ case $BOXTYPE in
     echo " done."
     cd $CURDIR
     ;;
-  hs8200|fortis_hdbox|hs9510)
+  hs8200|fs9000|hs9510)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
@@ -184,7 +184,7 @@ case $BOXTYPE in
     echo " Insert the thus prepared USB stick in the box's USB port,"
     echo " and switch on the receiver."
     ;;
-  hs8200|fortis_hdbox|hs9510)
+  hs8200|fs9000|hs9510)
     echo " The receiver must be equipped with the TDT maxiboot bootloader or"
     echo " a bootloader with similar capabilities. The bootloader must be able"
     echo " to boot the receiver by reading uImage from the first FAT32 formatted"
