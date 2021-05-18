@@ -2,9 +2,11 @@
 # "-----------------------------------------------------------------------"
 # "This script creates flashable images for Cuberevo receivers."
 # "Author: Schischu, Oxygen-1, BPanther, TangoCash, Grabber66, Audioniek"
-# "Last Change: 08-02-2019"
+# "Last Change: 18-05-2021"
 #
 # "Supported receivers (autoselection) are:"
+# " - Cuberevo Mini FTA / 200HD (cuberevo_mini_fta, untested)"
+# " - Cuberevo 250HD (cuberevo_250hd)"
 # " - Cuberevo Mini (cuberevo_mini, untested)"
 # " - Cuberevo Mini II (cuberevo_mini2)"
 # " - Cuberevo (cuberevo, untested)"
@@ -67,6 +69,13 @@ case "$BOXTYPE" in
     SIZE_ROOTD=30932992
     ERASE_SIZE=0x20000
     HWMODEL=0x00053000
+    HWVERSION=0x00010000;;
+  cuberevo_mini_fta|cuberevo_250hd) echo "Creating $IMAGE flash image for $BOXTYPE..."
+    SIZE_KERNEL=0x00220000
+    SIZE_ROOTH=0x01D80000
+    SIZE_ROOTD=30932992
+    ERASE_SIZE=0x20000
+    HWMODEL=0x00055000
     HWVERSION=0x00010000;;
   *) echo "Unsupported receiver $BOXTYPE, assuming cuberevo_mini2..."
     SIZE_KERNEL=0x00220000
