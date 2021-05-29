@@ -11,6 +11,7 @@
 # 20141015: Audioniek   Fortis 4th generation receivers added.
 # 20190208: Audioniek   Cuberevo Mini added.
 # 20200609: Audioniek   dp6010 -> fx6010.
+# 20210523: Audioniek   Remove special handling for CubeRevos.
 #
 # ---------------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ case $BOXTYPE in
   spark|spark7162)
     common;;
 #  ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd)
-  ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_2000hd)
+  ufs910|ufs922)
     common
 
     echo -n " Moving var directory..."
