@@ -71,6 +71,7 @@ echo
 # 20210405 Audioniek   Strip languages on UFS913 added.
 # 20210423 Audioniek   atevio7500 -> hs8200.
 # 20210426 Audioniek   octagon1008 -> hs9510.
+# 20210601 Audioniek   Corrected two Octagon resellerID's.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -525,13 +526,13 @@ case $BOXTYPE in
           RESELLERID=250200A0
           FORTISBOX="Octagon SF1008 SE+ HD Intelligence";;
         hs7119)
-          RESELLERID=270200A0
+          RESELLERID=270100A0
           FORTISBOX="Octagon SF918G SE+ HD Difference";;
         hs7429)
           RESELLERID=270130A0
           FORTISBOX="Octagon SF1008G+ SE+ HD Intelligence";;
         hs7819)
-          RESELLERID=270220A0
+          RESELLERID=270120A0
           FORTISBOX="Octagon SF1008G SE+ HD Intelligence";;
         dp2010)
           RESELLERID=29090300
