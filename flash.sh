@@ -73,6 +73,7 @@ echo
 # 20210426 Audioniek   octagon1008 -> hs9510.
 # 20210523 Audioniek   Add cuberevo_mini_fta.
 # 20210601 Audioniek   Corrected two Octagon resellerID's.
+# 20210604 Audioniek   Strip languages on UFS912 added.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -386,7 +387,7 @@ echo "-- Prepare root -------------------------------------------------------"
 echo
 echo " Prepare $IMAGEN root for $BOXTYPE."
 echo
-if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "hs8200" || "$BOXTYPE" == "ufs913" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
+if [[ ( "$BOXTYPE" == "adb_box" || "$BOXTYPE" == "hs8200" || "$BOXTYPE" == "ufs912" || "$BOXTYPE" == "ufs913" ) && "$OUTTYPE" == "flash" && "$IMAGE" == "enigma2" ]]; then
   # The root will be optionally stripped of all language support except de (German), fr (French)
   # and en (English) because the flash space is rather limited on these receivers.
   # A fourth language can be specified here in ISO code (suggestion is your own language,
@@ -582,7 +583,11 @@ esac
 
   case $BOXTYPE in
     adb_box)
-      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
+      if [ "$IMAGE" == "enigma2" ]; then
+        unset OWNLANG
+        unset OWNCOUNTRY
+      fi;;
     hs8200)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
@@ -615,7 +620,11 @@ esac
 #    ufs910)
 #      $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs910_enigma2_flash.sh
     ufs912|ufs913)
-      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
+      if [ "$IMAGE" == "enigma2" ]; then
+        unset OWNLANG
+        unset OWNCOUNTRY
+      fi;;
     vitamin_hd5000)
       $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
     *)
