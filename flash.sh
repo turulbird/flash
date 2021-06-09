@@ -74,6 +74,7 @@ echo
 # 20210523 Audioniek   Add cuberevo_mini_fta.
 # 20210601 Audioniek   Corrected two Octagon resellerID's.
 # 20210604 Audioniek   Strip languages on UFS912 added.
+# 20210609 Audioniek   Add UFS913 USB.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -247,7 +248,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -255,7 +256,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       echo " $BOXTYPE receiver."
       echo
       case "$BOXTYPE" in
-        fs9000|hs9510|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
+        fs9000|hs9510|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
           echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
 #        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
         *)
@@ -272,7 +273,7 @@ fi
 # Check if there is support for the receiver combined with imagetype
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    spark|spark7162|ufs913)
+    spark|spark7162)
       echo
       echo "-- Message ----------------------------------------------------------------"
       echo
@@ -289,7 +290,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
+    hs8200|cuberevo|cuberevo-mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
       ;;
     *)
       echo
@@ -595,7 +596,7 @@ esac
         unset OWNLANG
         unset OWNCOUNTRY
       fi;;
-    cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
+    cuberevo|cuberevo-mini|cuberevo-mini2|cuberevo-250hd|cuberevo-mini-fta|cuberevo-2000hd|cuberevo-3000hd|cuberevo-9500hd)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
     fs9000|hs9510)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
