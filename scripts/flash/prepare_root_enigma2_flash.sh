@@ -4,6 +4,7 @@
 # processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
+#
 # Date: 07-06-2014"
 # ---------------------------------------------------------------------------
 # Changes:
@@ -94,7 +95,7 @@ case $BOXTYPE in
     common;;
   spark|spark7162)
     common;;
-  fs9000|hs9510|ufs910|ufs922|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+  fs9000|hs9510|ufs910|cuberevo|cuberevo_mini2|cuberevo_2000hd)
 # Fortis needs TDT maxiboot or similar loader
     common
 
@@ -117,6 +118,10 @@ case $BOXTYPE in
     chmod 755 $TMPROOTDIR/etc/init.d/rcS
     cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
     echo " done."
+    ;;
+  ufs922)
+    common
+   echo " done."
     ;;
   ufc960)
     common

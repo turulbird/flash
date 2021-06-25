@@ -248,7 +248,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -256,7 +256,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       echo " $BOXTYPE receiver."
       echo
       case "$BOXTYPE" in
-        fs9000|hs9510|hs7110|hs7420|hs7810a|ufs922|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
+        fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo-mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
           echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
 #        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
         *)
@@ -361,6 +361,10 @@ TFINSTALL="present"
 if [ $BOXTYPE == "tf7700" ]; then
     TFINSTALL="built"
 fi
+UFSINSTALL="present"
+if [ $BOXTYPE == "ufs922" ]; then
+    UFSINSTALL="built"
+fi
 
 # All is OK so far, display summary
 if [ ! "$BATCH_MODE" == "yes" ]; then
@@ -373,6 +377,9 @@ if [ ! "$BATCH_MODE" == "yes" ]; then
   echo "+  Receiver           : $BOXTYPE"
   if [ $BOXTYPE == "tf7700" ]; then
     echo "+  Topfield installer : $TFINSTALL"
+  fi
+  if [ $BOXTYPE == "ufs922" ]; then
+    echo "+  UFS installer      : $UFSINSTALL"
   fi
   echo "+  Linux version      : linux-sh4-2.6.32.$SUBVERS"
   echo "+  Kernel patch level : P0$PATCH"
@@ -617,7 +624,8 @@ esac
     ufc960)
       $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
     ufs910|ufs922)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/ufs910_ufs922_"$OUTTYPE".sh;;
 #    ufs910)
 #      $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs910_enigma2_flash.sh
     ufs912|ufs913)

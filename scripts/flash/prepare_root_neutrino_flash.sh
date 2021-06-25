@@ -1,5 +1,5 @@
 #!/bin/bash
-# ----------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # This script prepares the root of a neutrino image pending further
 # processing.
 #
@@ -47,7 +47,7 @@ case $BOXTYPE in
   spark|spark7162)
     common;;
 #  ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd)
-  ufs910|ufs922)
+  ufs910)
     common
 
     echo -n " Moving var directory..."
@@ -60,17 +60,16 @@ case $BOXTYPE in
     echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rc
     echo "mount -n -t proc proc /proc" >> $TMPROOTDIR/etc/init.d/rc
     echo "mount -n -t sys sys /sys" >> $TMPROOTDIR/etc/init.d/rc
-#    if [ "$HOST" == "cuberevo_mini" -o "$HOST" == "cuberevo_mini2" -o "$HOST" == "cuberevo" -o "$HOST" == "cuberevo_2000hd" ]; then
-    if [ "$HOST" == "cuberevo_mini" -o "$HOST" == "cuberevo" -o "$HOST" == "cuberevo_2000hd" ]; then
-      echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock4 /var" >> $TMPROOTDIR/etc/init.d/rcS
-    else # Kathrein
-      echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock3 /var" >> $TMPROOTDIR/etc/init.d/rcS
-    fi
-    echo "mount --bind /var/etc /etc" >> $TMPROOTDIR/etc/init.d/rcS
-    echo "/etc/init.d/rcS" >> $TMPROOTDIR/etc/init.d/rcS
-    chmod 755 $TMPROOTDIR/etc/init.d/rcS
+#    echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock3 /var" >> $TMPROOTDIR/etc/init.d/rcS
+#    echo "mount --bind /var/etc /etc" >> $TMPROOTDIR/etc/init.d/rcS
+#    echo "/etc/init.d/rcS" >> $TMPROOTDIR/etc/init.d/rcS
+#    chmod 755 $TMPROOTDIR/etc/init.d/rcS
     cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
     echo " done."
+    ;;
+  ufs922)
+    common
+   echo " done."
     ;;
   ufc960)
     common
