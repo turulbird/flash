@@ -270,7 +270,7 @@ cp out_tmp.img $OUTFILE_OU
 md5sum -b $OUTFILE_OU | awk -F' ' '{print $1}' > $OUTFILE_OU.md5
 # add default bootargs
 cat $TOOLSDIR/mtd1.img out_tmp.img > out_tmp1.img
-$TOOLSDIR/mkdnimg -debug -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 -erase_size $ERASE_SZ -image_name all_noboot -input out_tmp1.img -output $OUTFILE  > /dev/null
+$TOOLSDIR/mkdnimg -debug -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 -erase_size $ERASE_SZ -image_name all_noboot -input out_tmp1.img -output $OUTFILE  2> /dev/null
 rm -f out_tmp.img
 rm -f out_tmp1.img
 echo " done."
