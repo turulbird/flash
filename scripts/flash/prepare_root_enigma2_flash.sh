@@ -17,6 +17,8 @@
 # 20191214: Audioniek   Fixed potential problem in making devs.
 # 20191214: Audioniek   Add fortis dp2010.
 # 20200609: Audioniek   dp6010 -> fx6010.
+# 20210701: Audioniek   ufs922 only does common part.
+# 20210714: Audioniek   ufs910 only does common part.
 #
 # ---------------------------------------------------------------------------
 
@@ -95,7 +97,7 @@ case $BOXTYPE in
     common;;
   spark|spark7162)
     common;;
-  fs9000|hs9510|ufs910|cuberevo|cuberevo_mini2|cuberevo_2000hd)
+  fs9000|hs9510|cuberevo|cuberevo_mini2|cuberevo_2000hd)
 # Fortis needs TDT maxiboot or similar loader
     common
 
@@ -119,7 +121,7 @@ case $BOXTYPE in
     cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
     echo " done."
     ;;
-  ufs922)
+  ufs910|ufs922)
     common
    echo " done."
     ;;
