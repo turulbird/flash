@@ -13,6 +13,7 @@
 # 20200629 Audioniek   Added Edision argus VIP1/VIP2.
 # 20200828 Audioniek   Added Edision argus VIP1 V1.
 # 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
+# 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
 
 RELEASEDIR=$1
 
@@ -100,12 +101,8 @@ case $BOXTYPE in
   vitamin_hd5000)
     common
     ;;
-  opt9600)
-    common
-    ;;
   *)
     echo "Receiver $BOXTYPE not supported."
     echo
     ;;
 esac
-

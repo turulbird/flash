@@ -9,6 +9,8 @@
 # Changes:
 # 20140708 Audioniek   Initial version
 # 20200116 Audioniek   Added Fortis 4G receivers
+# 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
+# 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
 
 RELEASEDIR=$1
 
@@ -56,6 +58,9 @@ case $BOXTYPE in
   hl101)
     common
     ;;
+  opt9600|opt9600mini|opt9600prima)
+    common
+    ;;
   spark|spark7162)
     common
     ;;
@@ -81,9 +86,9 @@ case $BOXTYPE in
     chmod 777 $TMPROOTDIR/sbin/init_mini_fo
     echo " done."
 
-    echo -n " Adapt /etc/fstab..."
-    sed -i 's|/dev/sda.*||g' $TMPROOTDIR/etc/fstab
-    #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+    echo -n " Adapt /var/etc/fstab..."
+    sed -i 's|/dev/sda.*||g' $TMPROOTDIR/var/etc/fstab
+    #echo "/dev/mtdblock4	/var	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
     echo " done."
 
     echo -n " Move kernel..."
@@ -97,16 +102,16 @@ case $BOXTYPE in
     common
 
     echo -n " Fill firmware directory..."
-    mv $TMPROOTDIR/boot/audio.elf $TMPFWDIR/audio.elf
-    mv $TMPROOTDIR/boot/video.elf $TMPFWDIR/video.elf
+    mv $TMPROOTDIR/lib/firmware/audio.elf $TMPFWDIR/audio.elf
+    mv $TMPROOTDIR/lib/firmware/video.elf $TMPFWDIR/video.elf
 
     rm -f $TMPROOTDIR/boot/*
 
     if [ "$BOXTYPE" == "ufs912" ];then
-       echo "/dev/mtdblock3	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+       echo "/dev/mtdblock3	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
        #echo "/dev/mtdblock5	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
     else
-       echo "/dev/mtdblock8	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
+       echo "/dev/mtdblock8	/boot	jffs2	defaults	0	0" >> $TMPROOTDIR/var/etc/fstab
        #echo "/dev/mtdblock10	/root	jffs2	defaults	0	0" >> $TMPROOTDIR/etc/fstab
     fi
     echo " done."
@@ -122,4 +127,3 @@ case $BOXTYPE in
     echo
     ;;
 esac
-
