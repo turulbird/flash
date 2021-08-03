@@ -210,7 +210,7 @@ case $BOXTYPE in
     echo " To set the currently displayed boot option as default, press RED"
     echo " on the remote control while it is displayed."
     ;;
-  ufs910|ufs912|ufs922|ufc960)
+  ufs910|ufs912|ufs913|ufs922|ufc960)
     echo " The receiver must be equipped with the TDT maxiboot bootloader or"
     echo " a bootloader with similar capabilities."
     echo " Prepare the USB stick per the instructions on the HDMU forum"

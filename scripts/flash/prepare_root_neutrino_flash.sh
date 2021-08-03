@@ -12,6 +12,8 @@
 # 20190208: Audioniek   Cuberevo Mini added.
 # 20200609: Audioniek   dp6010 -> fx6010.
 # 20210523: Audioniek   Remove special handling for CubeRevos.
+# 20210701: Audioniek   ufs922 only does common part.
+# 20210714: Audioniek   ufs910 only does common part.
 #
 # ---------------------------------------------------------------------------
 
@@ -46,25 +48,8 @@ case $BOXTYPE in
     common;;
   spark|spark7162)
     common;;
-#  ufs910|ufs922|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_2000hd)
   ufs910)
     common
-
-    echo -n " Moving var directory..."
-    mv $TMPROOTDIR/var/* $TMPVARDIR/
-    echo " done."
-
-    echo -n " Creating mini-rc, mini-rcS and inittab..."
-    rm -f $TMPROOTDIR/etc
-    mkdir -p $TMPROOTDIR/etc/init.d
-    echo "#!/bin/sh" > $TMPROOTDIR/etc/init.d/rc
-    echo "mount -n -t proc proc /proc" >> $TMPROOTDIR/etc/init.d/rc
-    echo "mount -n -t sys sys /sys" >> $TMPROOTDIR/etc/init.d/rc
-#    echo "mount -t jffs2 -o rw,noatime,nodiratime /dev/mtdblock3 /var" >> $TMPROOTDIR/etc/init.d/rcS
-#    echo "mount --bind /var/etc /etc" >> $TMPROOTDIR/etc/init.d/rcS
-#    echo "/etc/init.d/rcS" >> $TMPROOTDIR/etc/init.d/rcS
-#    chmod 755 $TMPROOTDIR/etc/init.d/rcS
-    cp -f $TMPVARDIR/etc/inittab $TMPROOTDIR/etc
     echo " done."
     ;;
   ufs922)

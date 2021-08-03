@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 01-06-2021"
+echo "+ Date   : 14-07-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -76,6 +76,7 @@ echo
 # 20210604 Audioniek   Strip languages on UFS912 added.
 # 20210609 Audioniek   Add UFS913 USB.
 # 20210704 Audioniek   Fix receivertypes with a minus in their boxtype.
+# 20210714 Audioniek   Allow Enigma2 "flash" for ufs910.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -249,7 +250,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fs9000|hs9510|hs7110|hs7420|hs7810a|ufs910|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -291,7 +292,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|vip1_v1|vip1_v2|vip2|opt9600)
+    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600)
       ;;
     *)
       echo
@@ -605,38 +606,38 @@ esac
         unset OWNCOUNTRY
       fi;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"cuberevo"_"$IMAGE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/cuberevo_"$IMAGE"_"$OUTTYPE".sh;;
     fs9000|hs9510)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_1G"_"$IMAGE"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/fortis_1G_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
     hs7420|hs7110|hs7810a)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"fortis_2G"_"$IMAGE"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/fortis_2G_"$IMAGE"_"$OUTTYPE".sh
       unset RESELLERID;;
     hs7429|hs7119|hs7819)
-      $SCRIPTDIR/$OUTTYPE/"fortis_3G"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/fortis_3G_"$OUTTYPE".sh
       unset RESELLERID;;
     dp2010|fx6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
-      $SCRIPTDIR/$OUTTYPE/"fortis_4G"_"$OUTTYPE".sh
+      $SCRIPTDIR/$OUTTYPE/fortis_4G_"$OUTTYPE".sh
       unset RESELLERID;;
     spark|spark7162)
-      $SCRIPTDIR/$OUTTYPE/"spark"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/spark_"$OUTTYPE".sh;;
     tf7700)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     ufc960)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"ufc960"_"$OUTTYPE"_"$IMAGE".sh;;
-    ufs910|ufs922)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
-      $SCRIPTDIR/$OUTTYPE/ufs910_ufs922_"$OUTTYPE".sh;;
-#    ufs910)
-#      $SCRIPTDIR/$OUTTYPE/$IMAGE/ufs910_enigma2_flash.sh
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/ufc960_"$OUTTYPE"_"$IMAGE".sh;;
+    ufs910)
+      $SCRIPTDIR/$OUTTYPE/ufs910_"$OUTTYPE".sh;;
     ufs912|ufs913)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       if [ "$IMAGE" == "enigma2" ]; then
         unset OWNLANG
         unset OWNCOUNTRY
       fi;;
+    ufs922)
+#      $SCRIPTDIR/$OUTTYPE/$IMAGE/"nor"_"$IMAGE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/ufs922_"$OUTTYPE".sh;;
     vitamin_hd5000)
-      $SCRIPTDIR/$OUTTYPE/"vitamin_hd5000"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/vitamin_hd5000_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo
@@ -655,7 +656,7 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/"fortis_234G"_"$OUTTYPE".sh;;
     cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500hd)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
-    ufs910|ufs912|ufs922|ufc960)
+    ufs910|ufs912|ufs913|ufs922|ufc960)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hl101|vip1_v1|vip1_v2|vip2)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
