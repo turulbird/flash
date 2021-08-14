@@ -22,7 +22,7 @@
 #                       ubinize.
 # 20191005 Audioniek    Fix rootfs CRC32, improve update text, remove
 #                       script flow error.
-# 20210803 Audioniek    Created separate zip file with wireless drivers
+# 20210803 Audioniek    Create separate zip file with wireless drivers
 #                       when built with WLAN.
 # 20210804 Audioniek    Remove paths stored in zip file with wireless
 #                       drivers.
@@ -71,16 +71,16 @@ fi
 
 # Check if built with WLAN. If so, remove the USB WLAN drivers
 # from the root and place them in a separate zip file.
-if [ `grep -e "wlandriver" $FLASHDIR/config` ]; then
-  echo -n " - Creating .ZIP file with USB WLAN drivers..."
-  for i in 8712u.ko 8188eu.ko 8192cu.ko 8192du.ko 8192eu.ko mt7601Usta.ko rt2870sta.ko rt3070sta.ko rt5370sta.ko;
-  do
-    md5sum -b $TMPROOTDIR/lib/modules/$i | awk -F' ' '{print $1}' > $TMPFWDIR/$i.md5
-    zip -Tjmu $OUTDIR/$OUTZIPWFILE $TMPROOTDIR/lib/modules/$i > /dev/null
-    zip -Tju $OUTDIR/$OUTZIPWFILE $TMPFWDIR/$i.md5 > /dev/null
-  done
-  echo " done."
-fi
+#if [ `grep -e "wlandriver" $FLASHDIR/config` ]; then
+#  echo -n " - Creating .ZIP file with USB WLAN drivers..."
+#  for i in 8712u.ko 8188eu.ko 8192cu.ko 8192du.ko 8192eu.ko mt7601Usta.ko rt2870sta.ko rt3070sta.ko rt5370sta.ko;
+#  do
+#    md5sum -b $TMPROOTDIR/lib/modules/$i | awk -F' ' '{print $1}' > $TMPFWDIR/$i.md5
+#    zip -Tjmu $OUTDIR/$OUTZIPWFILE $TMPROOTDIR/lib/modules/$i > /dev/null
+#    zip -Tju $OUTDIR/$OUTZIPWFILE $TMPFWDIR/$i.md5 > /dev/null
+#  done
+#  echo " done."
+#fi
 
 if [ ! "$FIMAGE" == "image" ]; then
   echo -n " - Preparing kernel file..."

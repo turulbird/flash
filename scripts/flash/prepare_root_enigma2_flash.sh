@@ -19,6 +19,7 @@
 # 20200609: Audioniek   dp6010 -> fx6010.
 # 20210701: Audioniek   ufs922 only does common part.
 # 20210714: Audioniek   ufs910 only does common part.
+# 20210814: Audioniek   Strip languages in OpenWebif as well.
 #
 # ---------------------------------------------------------------------------
 
@@ -84,12 +85,37 @@ case $BOXTYPE in
       rm $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.pyo
       # Compile Language.py
       python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
-    fi
 
-    #remove all .py-files
-    find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
-    find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;
-    find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
+      # Check if OpenWebif installed
+      if [[ -d $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif ]]; then
+        # OpenWebif language support: remove everything but English, French, German and own language
+        for i in uk de fr $OWNLANG
+        do
+          mv $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/old.$i
+        done
+        CURDIR=`pwd`
+        cd $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale
+        for i in `ls -d ??`
+        do
+#          echo "  OpenWebif: deleting language $i"
+          rm -rf $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i/LC_MESSAGES/*
+          rmdir --ignore-fail-on-non-empty $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i/LC_MESSAGES
+          rmdir --ignore-fail-on-non-empty $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i
+        done
+        cd $CURDIR
+        for i in uk de fr $OWNLANG
+        do
+          mv $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/old.$i $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i
+        done
+      fi        
+
+      #remove all .py-files
+      find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Tools/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Plugins/ -name "*.py" -exec rm -f {} \;
+    fi
     echo " done."
     ;;
   hs7110|hs7119|hs7810a|hs7819|dp2010|dp7000|dp7001|dp7050|ep8000|epp8000|fx6010|gpv8000)
@@ -148,7 +174,8 @@ case $BOXTYPE in
     ;;
   ufs912|ufs913)
     common
-    if [[ ! "$OWNLANG" == "all" && "$BOXTYPE" == "ufs913" ]]; then
+#    if [[ ! "$OWNLANG" == "all" && "$BOXTYPE" == "ufs913" ]]; then
+    if [[ ! "$OWNLANG" == "all" ]]; then
       echo -n " Stripping root..."
       # Language support: remove everything but English, French, German and own language
       mv $TMPROOTDIR/usr/local/share/enigma2/po $TMPROOTDIR/usr/local/share/enigma2/po.old
@@ -181,10 +208,35 @@ case $BOXTYPE in
       # Compile Language.py
       python -O -m py_compile $TMPROOTDIR/usr/lib/enigma2/python/Components/Language.py
 
-#      #remove all .py-files
-#      find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
-#      find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;
-#      find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
+      # Check if OpenWebif installed
+      if [[ -d $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif ]]; then
+        # OpenWebif language support: remove everything but English, French, German and own language
+        for i in uk de fr $OWNLANG
+        do
+          mv $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/old.$i
+        done
+        CURDIR=`pwd`
+        cd $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale
+        for i in `ls -d ??`
+        do
+#          echo "  OpenWebif: deleting language $i"
+          rm -rf $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i/LC_MESSAGES/*
+          rmdir --ignore-fail-on-non-empty $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i/LC_MESSAGES
+          rmdir --ignore-fail-on-non-empty $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i
+        done
+        cd $CURDIR
+        for i in uk de fr $OWNLANG
+        do
+          mv $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/old.$i $TMPROOTDIR/usr/lib/enigma2/python/Plugins/Extensions/OpenWebif/locale/$i
+        done
+      fi        
+
+      #remove all .py-files
+      find $TMPROOTDIR/usr/lib/python2.7/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Components/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Screens/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Tools/ -name "*.py" -exec rm -f {} \;
+      find $TMPROOTDIR/usr/lib/enigma2/python/Plugins/ -name "*.py" -exec rm -f {} \;
       echo " done."
     fi
 

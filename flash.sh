@@ -182,7 +182,6 @@ else
   INAME=
 fi
 export INAME
-
 # Determine which image has been built last
 cp $CDKDIR/config $FLASHDIR/config
 if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
@@ -229,7 +228,6 @@ if [ "$BATCH_MODE" == "yes" ]; then
   else
     export OUTTYPE="flash"
   fi
-  rm $FLASHDIR/config
 else
   if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
     export OUTTYPE="USB"
