@@ -13,6 +13,7 @@
 #                      generation Fortis receivers.
 # 20190207 Audioniek - Added mkdnimg.
 # 20200716 Audioniek - Fix URL for squashfs4.2.tar.gz download.
+# 20210820 Audioniek - Add mkdnimg program.
 #
 ARCHIVE=~/Archive
 TOOLSDIR=$1
@@ -219,7 +220,7 @@ if [ ! -e $TOOLSDIR/mkdnimg ]; then
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR/mkdnimg.src
-  make
+  $TOOLSDIR/mkdnimg.src/compile.sh
   mv $TOOLSDIR/mkdnimg.src/mkdnimg $TOOLSDIR/mkdnimg
   cd $TOOLSDIR
   if [ ! -e $TOOLSDIR/mkdnimg ]; then

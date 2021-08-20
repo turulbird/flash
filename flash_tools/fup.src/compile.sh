@@ -9,3 +9,9 @@ if [  -e fup.exe ]; then
 fi
 
 g++ -o fup fup.c crc16.c crc32.c -lz
+
+if [  -e fup ]; then
+  strip --strip-unneeded fup
+fi
+
+

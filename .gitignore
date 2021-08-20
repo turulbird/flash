@@ -6,6 +6,7 @@ config
 flash_tools/fup
 flash_tools/mup
 flash_tools/pad
+flash_tools/mkdnimg
 flash_tools/mksquashfs3.0
 flash_tools/mksquashfs3.3
 flash_tools/mksquashfs4.2

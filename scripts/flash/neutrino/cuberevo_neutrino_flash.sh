@@ -2,7 +2,7 @@
 # "-----------------------------------------------------------------------"
 # "This script creates flashable images for Cuberevo receivers."
 # "Author: Schischu, Oxygen-1, BPanther, TangoCash, Grabber66, Audioniek"
-# "Last Change: 23-05-2021"
+# "Last Change: 20-08-2021"
 #
 # "Supported receivers (autoselection) are:"
 # " - Cuberevo Mini FTA / 200HD (cuberevo_mini_fta, untested)"
@@ -19,6 +19,7 @@
 # Changes:
 # 20210523 Audioniek   Add flash instructions for CubeRevo.
 # 20210523 Audioniek   Add option to flash kernel only.
+# 20210820 Audioniek   Adapted to compiled mkdnimg.
 #
 
 if [ "$BATCH_MODE" == "yes" ]; then
@@ -46,6 +47,7 @@ MKSQUASHFS4=$TOOLSDIR/mksquashfs4.2
 MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
 
 OUTFILE=usb_update.img
+OUTFILE1=usb_update1.img
 OUTFILE_OU=mtd234.img
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
@@ -270,7 +272,7 @@ cp out_tmp.img $OUTFILE_OU
 md5sum -b $OUTFILE_OU | awk -F' ' '{print $1}' > $OUTFILE_OU.md5
 # add default bootargs
 cat $TOOLSDIR/mtd1.img out_tmp.img > out_tmp1.img
-$TOOLSDIR/mkdnimg -debug -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 -erase_size $ERASE_SZ -image_name all_noboot -input out_tmp1.img -output $OUTFILE  2> /dev/null
+$TOOLSDIR/mkdnimg -debug -make usbimg -vendor_id 0x00444753 -product_id 0x6c6f6f6b -hw_model $HWMODEL -hw_version $HWVERSION -start_addr 0xa0040000 -erase_size $ERASE_SZ -image_name all_noboot -input out_tmp1.img -output $OUTFILE 2> /dev/null > /dev/null
 rm -f out_tmp.img
 rm -f out_tmp1.img
 echo " done."
