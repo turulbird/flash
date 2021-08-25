@@ -1,10 +1,9 @@
-bin_PROGRAMS = upd_make
+bin_PROGRAMS = oup
 
-fup_SOURCES = \
-	upd_make.c \
+oup_SOURCES = \
+	oup.c \
 	crc32.c 
 
 AM_CFLAGS = -Wall
-#AM_LDFLAGS = -lz
 ACLOCAL_AMFLAGS = -I m4
 
