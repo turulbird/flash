@@ -14,6 +14,7 @@
 # 20190207 Audioniek - Added mkdnimg.
 # 20200716 Audioniek - Fix URL for squashfs4.2.tar.gz download.
 # 20210820 Audioniek - Add mkdnimg program.
+# 20210825 Audioniek - Add oup program.
 #
 ARCHIVE=~/Archive
 TOOLSDIR=$1
@@ -210,6 +211,26 @@ if [ ! -e $TOOLSDIR/mup ]; then
     clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mup successful."
+  fi
+fi
+
+# Tool program oup..."
+if [ ! -e $TOOLSDIR/oup ]; then
+  echo "-----------------------------------------------------------------------"
+  echo " Tool program oup is missing, trying to compile it..."
+  echo "-----------------------------------------------------------------------"
+  echo
+  cd $TOOLSDIR/oup.src
+  $TOOLSDIR/oup.src/compile.sh
+  mv $TOOLSDIR/oup.src/oup $TOOLSDIR/oup
+  cd $TOOLSDIR
+  if [ ! -e $TOOLSDIR/oup ]; then
+    echo " Compiling oup failed! Exiting..."
+    exit 3
+  else
+    clear
+    echo "-----------------------------------------------------------------------"
+    echo " Compiling oup successful."
   fi
 fi
 

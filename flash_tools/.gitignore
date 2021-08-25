@@ -6,6 +6,7 @@ mksquashfs4.0
 pad
 fup
 mup
+oup
 squashfs3.0.tar.gz
 squashfs4.0.tar.gz
 unsquashfs3.0
@@ -19,4 +20,8 @@ mkfs.ubifs-1.5.0
 ubinize-1.5.0
 seedfile
 dummy.squash.signed.padded
-
+*~
+*.bin
+*.ird
+*.upd
+*.cha
