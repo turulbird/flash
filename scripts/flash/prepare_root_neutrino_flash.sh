@@ -22,6 +22,9 @@ RELEASEDIR=$1
 common() {
   echo -n " Copying release image..."
   find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
+  if [ -e $RELEASEDIR/etc/.rccode ]; then
+    cp $RELEASEDIR/etc/.rccode $TMPROOTDIR/etc/.rccode
+  fi
   echo " done."
 
   if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
