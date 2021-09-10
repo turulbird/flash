@@ -1,4 +1,5 @@
 /*****************************************************************************
+ *                                                                           *
  * Name :   fup                                                              *
  *          Management program for Fortis .ird flash files                   *
  *                                                                           *
@@ -22,6 +23,10 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.8a:
+ * + Add some comments regarding block types 0x0a - 0x10 derived
+ *   from Fortis loader source code; program code unchanged.
+ * 
  * Changes in Version 1.9.8:
  * + Fix wrong squashfs signatures
  * 
@@ -145,8 +150,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.8"
-#define DATE "29.03.2021"
+#define VERSION "1.9.8a"
+#define DATE "10.09.2021"
 
 // Global variables
 uint8_t verbose = 1;
@@ -507,7 +512,7 @@ int32_t writeBlock(FILE *irdFile, FILE *inFile, uint8_t firstBlock, uint16_t typ
 	 * Offset   Size      CRC  Name/purpose
 	 * -------------------------------------------
 	 *   0x00   uint16_t   N   block length
-	 *   0x02   uint16_t   N   block type (0x00 - 0x0f)
+	 *   0x02   uint16_t   N   block type (0x00 - 0x0f, or 0x10 = write to EEPROM)
 	 *   0x04   uint16_t   N   data length (uncompressed length)
 	 *   0x08   uint16_t   N   CRC16 over rest of block
 	 *   0x0a   uint16_t   Y   compressed length
@@ -1482,6 +1487,22 @@ int32_t main(int32_t argc, char* argv[])
 			{
 				type = 0x09;
 			}
+			/*********************************************
+			 *
+			 * Note: uBoot loader source code defines
+			 *       types 0x0a through 0x0f also as
+			 *       valid, but these have not been in
+			 *       use so far.
+			 *
+			 * In addition, at least the loader for the
+			 * 4G models accepts type 0x10 as write to
+			 * to EEPROM (on these models EEPROM is
+			 * simulated in NAND, not a physical device).
+			 *
+			 * This version of fup is not aware of these
+			 * facts and does not support them.
+			 *
+			 */
 			else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-i", 2)) == 0)
 			{
 				type = 0x81;
