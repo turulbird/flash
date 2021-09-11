@@ -158,6 +158,20 @@ struct tPartition partData4a[] =
 	{   ".logo", "mtd3",   "Logo", 0x00180000, 0x00200000, "binary", (PART_FLASH) }
 };
 
+struct tPartition partData5[] =
+{  // 32MB NOR flash + 512 Mbyte NAND flash (Crenova Miniline) # to be checked
+	{ ".loader", "mtd0", "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
+	{ ".unknwn", "mtd?", "Unknwn", 0x00000000, 0x00000000, "binary", 0 }, // not writeable by IRD?
+	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
+	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
+	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
+	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
+	{ ".kernel", "mtd1", "Kernel", 0x00060000, 0x002a0000, "binary", (PART_FLASH) },
+	{ ".unknwn", "mtd?", "Unknwn", 0x00000000, 0x00000000, "binary", 0 }, // not writeable by IRD
+	{ ".rootfs", "mtd2",   "Root", 0x00300000, 0x00cc0000, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".var", "mtd3",    "var", 0x00fc0000, 0x01040000, "binary", (PART_FLASH) }
+};
+
 /************************************************************
  *
  * Simple table defining resellerID -> reseller name
@@ -304,6 +318,7 @@ struct model_name
 	{ 0x252700A0, "Mediastar (Powers) HD 900s" },
 	{ 0x252802A0, "Vegasat X1" },
 	{ 0x252902A0, "Atemio AM 500/510 HD" },
+	{ 0x252902A5, "Atemio AM 520 HD" },  // Crenova model
 	{ 0x253000A0, "KIOWA HD 98" },
 	{ 0x253003A0, "KIOWA HD 108" },
 	{ 0x253513A0, "Starsat 9900 HD" },

@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 14-07-2021"
+echo "+ Date   : 10-09-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -77,6 +77,7 @@ echo
 # 20210609 Audioniek   Add UFS913 USB.
 # 20210704 Audioniek   Fix receivertypes with a minus in their boxtype.
 # 20210714 Audioniek   Allow Enigma2 "flash" for ufs910.
+# 20210910 Audioniek   Add Atemio AM 520 HD.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -513,10 +514,13 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  hs8200|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
+  atemio520|hs8200|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
+        atemio520)
+          RESELLERID=252902A5
+          FORTISBOX="Atemio AM 520 HD";;
         hs8200)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
@@ -596,6 +600,8 @@ esac
         unset OWNLANG
         unset OWNCOUNTRY
       fi;;
+    atemio520)
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh;;
     hs8200)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
@@ -647,6 +653,8 @@ else #USB
   case $BOXTYPE in
     adb_box)
 #      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
+	atemio520)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     hs8200|fs9000|hs9510)
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;

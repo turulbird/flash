@@ -14,8 +14,9 @@
 # Date     Who          Description
 # 20190518 Audioniek    Vitamin HD 5000 added.
 # 20190713 Audioniek    adb_box added.
-# 20200629 Audioniek    Added Edision Argus VIP1/VIP2
-# 20200711 Audioniek    Added Spiderbox HD HL-101
+# 20200629 Audioniek    Added Edision Argus VIP1/VIP2.
+# 20200711 Audioniek    Added Spiderbox HD HL-101.
+# 20210910 Audioniek    Added Atemio AM 520 HD.
 #
 # -----------------------------------------------------------------------
 
@@ -50,6 +51,24 @@ case $BOXTYPE in
     cd $CURDIR
     ;;
   hs8200|fs9000|hs9510)
+    cd $OUTDIR
+    echo "-- Creating tar.gz output file ----------------------------------------"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Compressing release image..."
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    # Create MD5 file
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j -q $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
+    ;;
+  atemio520)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo
@@ -162,6 +181,12 @@ case $BOXTYPE in
     echo
     echo " Insert the thus prepared USB stick in the box's USB port,"
     echo " and switch on the receiver by insertying the DC power plug."
+    ;;
+  adb_box)
+    echo " The receiver must be equipped with the iBoot bootloader."
+    echo
+    echo " Further details will be provided in a future update after testing is"
+    echo " complete."
     ;;
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
     echo " The receiver must be equipped with the original bootloader."

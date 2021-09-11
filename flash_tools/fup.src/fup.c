@@ -23,6 +23,9 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.8b:
+ * + Add support for Atemio AM 520 HD (Crenova built)
+ *
  * Changes in Version 1.9.8a:
  * + Add some comments regarding block types 0x0a - 0x10 derived
  *   from Fortis loader source code; program code unchanged.
@@ -150,7 +153,7 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.8a"
+#define VERSION "1.9.8b"
 #define DATE "10.09.2021"
 
 // Global variables
@@ -227,34 +230,41 @@ int32_t getGeneration(int32_t resellerId)
 {
 	int32_t generation;
 
-	switch (resellerId >> 24)  // 1st resellerID byte
+	if ((resellerId & 0xff) == 0xA5)
 	{
-		case 0x20:  // FS9000, FS9200, HS9510
+		generation = 5;  // Crenova model (AM 520 HD)
+	}
+	else
+	{
+		switch (resellerId >> 24)  // 1st resellerID byte
 		{
-			generation = 1;
-			break;
-		}
-		case 0x23:  // HS8200
-		case 0x25:  // HS7110, HS7420, HS7810A
-		{
-			generation = 2;  // loader 5.XX or 6.XX
-			break;
-		}
-		case 0x27:  // HS7119, HS7429, HS7819
-		{
-			generation = 3;  // loader 7.XX
-			break;
-		}
-		case 0x29:  // DP2010, FX6010, DP7000, DP7001, DP7050, GPV8000
-		case 0x2a:  // EP8000, EPP8000
-		{
-			generation = 4;  // loader 8.XX or X.0.X
-			break;
-		}
-		default:
-		{
-			generation = -1;
-			break;
+			case 0x20:  // FS9000, FS9200, HS9510
+			{
+				generation = 1;
+				break;
+			}
+			case 0x23:  // HS8200
+			case 0x25:  // HS7110, HS7420, HS7810A
+			{
+				generation = 2;  // loader 5.XX or 6.XX
+				break;
+			}
+			case 0x27:  // HS7119, HS7429, HS7819
+			{
+				generation = 3;  // loader 7.XX
+				break;
+			}
+			case 0x29:  // DP2010, FX6010, DP7000, DP7001, DP7050, GPV8000
+			case 0x2a:  // EP8000, EPP8000
+			{
+				generation = 4;  // loader 8.XX or X.0.X
+				break;
+			}
+			default:
+			{
+				generation = -1;
+				break;
+			}
 		}
 	}
 	return generation;
@@ -275,6 +285,7 @@ void getLoaderdata(uint8_t *dataBuf, uint32_t resellerId)
 			}
 			case 2:
 			case 3:
+			case 5:  // Crenova
 			default:
 			{
 				offset = RESELLER_OFFSET_GEN2;
@@ -629,6 +640,11 @@ struct tPartition *getTableAddr(uint32_t resellerId)
 			{
 				partTable = partData4a;  // DP7050
 			}
+			break;
+		}
+		case 5:
+		{
+			partTable = partData5;  // Crenova model
 			break;
 		}
 		default:
