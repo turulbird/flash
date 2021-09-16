@@ -217,7 +217,7 @@ struct tPartition partData5[] =
 	{  ".kernel",   "mtd1",  "Kernel", 0x00060000, 0x0000007f, "binary", (PART_FLASH) },
 	{  ".app",      "mtd2",     "App", 0x0000007f, 0x0000007f, "binary", (PART_FLASH) },
 	{  ".rootfs",   "mtd3",    "Root", 0x0000007f, 0x0000007f, "any", (PART_FLASH) },
-	{     ".var",   "mtd3",     "var", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{    ".user",   "mtd4",    "User", 0x00fc0000, 0x01040000, "binary", (PART_FLASH) },
 	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
 	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
 	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
