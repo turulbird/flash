@@ -5,6 +5,7 @@ dummy.squash.signed.padded
 config
 flash_tools/fup
 flash_tools/mup
+flash_tools/oup
 flash_tools/pad
 flash_tools/mkdnimg
 flash_tools/mksquashfs3.0

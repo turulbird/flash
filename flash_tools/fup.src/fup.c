@@ -3,7 +3,7 @@
  * Name :   fup                                                              *
  *          Management program for Fortis .ird flash files                   *
  *                                                                           *
- * Author:  Schischu, enhanced by Audioniek                                  *
+ * Author:  Schischu, enhanced and expanded by Audioniek                     *
  *                                                                           *
  * This program is free software; you can redistribute it and/or modify      *
  * it under the terms of the GNU General Public License as published by      *
@@ -22,9 +22,19 @@
  *****************************************************************************
  *
  * + TODO: change loader reseller ID.
+ * + TODO: generation 5 (Crenova) uses variable flash sizes like Fortis
+ *         loader 6.XX.
+ *
+ * Changes in Version 1.9.8d:
+ * + -c and -ce did not close the output .ird file upon successful completion.
+ * + getHeader incorrectly assumed file pointer was at beginning of ird file.
+ * + info for -i on Atemio AM 520 HD updated.
+ *
+ * Changes in Version 1.9.8c:
+ * + Add support for (unused) partition types A - F on -i and -c.
  *
  * Changes in Version 1.9.8b:
- * + Add support for Atemio AM 520 HD (Crenova built)
+ * + Add support for Atemio AM 520 HD (Crenova built).
  *
  * Changes in Version 1.9.8a:
  * + Add some comments regarding block types 0x0a - 0x10 derived
@@ -153,8 +163,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.8b"
-#define DATE "10.09.2021"
+#define VERSION "1.9.8d"
+#define DATE "16.09.2021"
 
 // Global variables
 uint8_t verbose = 1;
@@ -434,7 +444,6 @@ void setHeader(FILE *irdFile, uint32_t headerDataBlockLen, uint8_t *dataBuf)
 uint16_t getHeaderLen(FILE *irdFile)
 {
 	fseek(irdFile, 0x00, SEEK_SET);
-
 	return readShort(irdFile);
 }
 
@@ -444,7 +453,8 @@ uint8_t *getHeader(FILE *irdFile)
 	uint8_t *dataBuf;
 	int count = 0;
 
-	headerDataBlockLen = 0;
+	fseek(irdFile, 0, SEEK_SET);
+//	headerDataBlockLen = 0;  // header length
 	headerDataBlockLen = readShort(irdFile);
 	headerDataBlockLen -= 2;
 
@@ -959,17 +969,20 @@ int32_t main(int32_t argc, char* argv[])
 		printf("Header info:\n");
 		resellerId = getresellerID(irdFile);
 		printf("  Reseller ID      : 0x%08X\n", resellerId);
+		generation = getGeneration(resellerId);
+//		printf("  Reseller model   : %s (generation %d)\n", getModelName(resellerId), generation);
 		printf("  Reseller model   : %s\n", getModelName(resellerId));
 		SWVersion = getSWversion(irdFile);
 		printf("  Software version : V%X.%02X.%02X\n", SWVersion >> 16, (SWVersion & 0x0000FF00) >> 8, SWVersion & 0xFF);
 		dataBuffer = getHeader(irdFile);
 		i = ((extract_2Bytes(dataBuffer, 6)) << 16) + extract_2Bytes(dataBuffer, 8);  // block count
 		printf("  Number of blocks : %d (0x%04X)\n", i, i);
-//#if not defined USE_ZLIB
-//		j = extract_2Bytes(dataBuffer, 0) >> 1;
-//		printf("  File size        : %d (Calculated from # of blocks)\n", ((i << 18) + j));
-//#endif
-		generation = getGeneration(resellerId);
+#if 0
+#if not defined USE_ZLIB
+		j = extract_2Bytes(dataBuffer, 0) >> 1;
+		printf("  File size        : %d (Calculated from # of blocks)\n", ((i << 18) + j));
+#endif
+#endif // 0
 		fseek(irdFile, 0, SEEK_SET);
 		partcount = 0;
 		loaderFound = 0;
@@ -1001,8 +1014,9 @@ int32_t main(int32_t argc, char* argv[])
 		}
 		tableAddr = getTableAddr(resellerId);
 
-		// Handle generation 2 (possible variable layout)
-		if ((generation == 2) && (resellerId & 0xf0) == 0xa0)
+		// Handle generation 2 & generation 5 (Atemio AM 520 HD) (possible variable layout)
+		if (((generation == 2) && (resellerId & 0xf0) == 0xa0)
+		||  ((generation == 5) && (resellerId & 0xff) == 0xa5))
 		{
 			// Step one: round the mtd sizes up to the next erase boundary
 			for (i = 0; i < MAX_PART_NUMBER; i++)
@@ -1149,7 +1163,8 @@ int32_t main(int32_t argc, char* argv[])
 				{
 					printf(" ");
 				}
-				if (generation == 2 && (resellerId & 0xf0) == 0xa0)
+				if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
+				||  (generation == 5 && (resellerId & 0xff) == 0xa5))
 				{  // Loader 6.XX: variable offsets
 					printf(" 0x%08X 0x%08X 0x%08X", Offset[t_has[i]], (Offset[t_has[i]] + Size[t_has[i]] - 1), Size[t_has[i]]);
 				}
@@ -1169,7 +1184,8 @@ int32_t main(int32_t argc, char* argv[])
 				printf("\n");
 			}
 		}
-		if (generation == 2 && (resellerId & 0xf0) == 0xa0)
+		if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
+		||  (generation == 5 && (resellerId & 0xf0) == 0xa5))
 		{
 			printf("  Note: start addresses and sizes are multiples of erase size (0x%X).\n", ERASE_SIZE);
 		}
@@ -1397,8 +1413,8 @@ int32_t main(int32_t argc, char* argv[])
 	else if (argc >= 3 && strlen(argv[1]) == 2 && strncmp(argv[1], "-c", 2) == 0)
 	{  // -c: create standard Fortis IRD
 		int32_t i;
-		uint32_t resellerId;
-		uint32_t SWVersion;
+		uint32_t resellerId = 0;
+		uint32_t SWVersion = 0;
 		uint16_t headerDataBlockLen;
 		uint32_t totalBlockCount;
 		uint16_t type;
@@ -1503,20 +1519,45 @@ int32_t main(int32_t argc, char* argv[])
 			{
 				type = 0x09;
 			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-A", 2) == 0)
+			{
+				type = 0x0A;
+			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-B", 2) == 0)
+			{
+				type = 0x0B;
+			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-C", 2) == 0)
+			{
+				type = 0x0C;
+			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-D", 2) == 0)
+			{
+				type = 0x0D;
+			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-E", 2) == 0)
+			{
+				type = 0x0E;
+			}
+			else if (strlen(argv[i]) == 2 && strncmp(argv[i], "-F", 2) == 0)
+			{
+				type = 0x0F;
+			}
 			/*********************************************
 			 *
 			 * Note: uBoot loader source code defines
 			 *       types 0x0a through 0x0f also as
 			 *       valid, but these have not been in
-			 *       use so far.
+			 *       use so far. fup can add these to
+			 *       a flash file if so required.
 			 *
 			 * In addition, at least the loader for the
 			 * 4G models accepts type 0x10 as write to
 			 * to EEPROM (on these models EEPROM is
 			 * simulated in NAND, not a physical device).
 			 *
-			 * This version of fup is not aware of these
-			 * facts and does not support them.
+			 * This version of fup is not aware of this
+			 * fact and does not support it.
 			 *
 			 */
 			else if (strlen(argv[i]) == 2 && (strncmp(argv[i], "-i", 2)) == 0)
@@ -1555,7 +1596,6 @@ int32_t main(int32_t argc, char* argv[])
 				}
 				else
 				{
-					resellerId = 0;
 					if (strlen(argv[i + 1]) != 4 && strlen(argv[i + 1]) != 8)
 					{
 						printf("ERROR: Reseller ID must be 4 or 8 characters long.\n");
@@ -1567,7 +1607,6 @@ int32_t main(int32_t argc, char* argv[])
 					{
 						resellerId = resellerId >> 16;
 					}
-					changeResellerID(irdFile, resellerId);
 				}
 			}
 
@@ -1580,10 +1619,7 @@ int32_t main(int32_t argc, char* argv[])
 				}
 				else
 				{
-					SWVersion = 0;
 					sscanf(argv[i + 1], "%X", &SWVersion);
-
-					changeSWVersion(irdFile, SWVersion);
 				}
 			}
 
@@ -1640,6 +1676,17 @@ int32_t main(int32_t argc, char* argv[])
 
 		setHeader(irdFile, headerDataBlockLen, dataBuf);
 
+		if (resellerId)
+		{
+			changeResellerID(irdFile, resellerId);
+		}
+
+		if (SWVersion)
+		{
+			changeSWVersion(irdFile, SWVersion);
+		}
+		fclose(irdFile);
+
 		if (verbose)
 		{
 			printf("Creating IRD file %s succesfully completed.\n", argv[2]);
@@ -1649,8 +1696,8 @@ int32_t main(int32_t argc, char* argv[])
 	else if (argc >= 3 && strlen(argv[1]) == 3 && strncmp(argv[1], "-ce", 3) == 0)
 	{  // -ce: Create Enigma2 IRD (for TDT Maxiboot loader, also used for Neutrino)
 		int32_t i;
-		uint32_t resellerId;
-		uint32_t SWVersion;
+		uint32_t resellerId = 0;
+		uint32_t SWVersion = 0;
 		uint16_t type;
 		uint16_t totalBlockCount;
 		uint16_t headerDataBlockLen;
@@ -1786,7 +1833,6 @@ int32_t main(int32_t argc, char* argv[])
 				}
 				else
 				{
-					resellerId = 0;
 					if (strlen(argv[i + 1]) != 4 && strlen(argv[i + 1]) != 8)
 					{
 						printf("ERROR: Reseller ID must be 4 or 8 characters long.\n");
@@ -1798,7 +1844,6 @@ int32_t main(int32_t argc, char* argv[])
 					{
 						resellerId = resellerId >> 16;
 					}
-					changeResellerID(irdFile, resellerId);
 				}
 			}
 
@@ -1811,10 +1856,7 @@ int32_t main(int32_t argc, char* argv[])
 				}
 				else
 				{
-					SWVersion = 0;
 					sscanf(argv[i + 1], "%X", &SWVersion);
-
-					changeSWVersion(irdFile, SWVersion);
 				}
 			}
 
@@ -1950,10 +1992,23 @@ int32_t main(int32_t argc, char* argv[])
 
 		setHeader(irdFile, headerDataBlockLen, dataBuf);
 
+		if (resellerId)
+		{
+			changeResellerID(irdFile, resellerId);
+		}
+
+		if (SWVersion)
+		{
+			changeSWVersion(irdFile, SWVersion);
+		}
+		fclose(irdFile);
+
 		if (verbose)
 		{
 			printf("Creating IRD file %s succesfully completed.\n", argv[2]);
 		}
+		verbose = 1;
+
 		if (oldsquash)
 		{
 			file = fopen("dummy.squash30.signed.padded", "rb");
@@ -1973,7 +2028,6 @@ int32_t main(int32_t argc, char* argv[])
 			deleteDummy();
 		}
 		oldsquash = 0;
-		verbose = 1;
 	}
 	else if ((argc == 4 && strlen(argv[1]) == 2 && strncmp(argv[1], "-r", 2) == 0)
 	     ||  (argc == 4 && strlen(argv[1]) == 3 && strncmp(argv[1], "-rv", 3) == 0))
@@ -2064,6 +2118,9 @@ int32_t main(int32_t argc, char* argv[])
 		printf("     -1 [file.part]           Append Type 1   (1) (alias for -a)\n");
 		printf("     ...\n");
 		printf("     -9  [file.part]          Append Type 9   (9) (alias for -u)\n");
+		printf("     -A  [file.part]          Append Type A   (A) (note: upper case)\n");
+		printf("     ...\n");
+		printf("     -F  [file.part]          Append Type F   (F) (note: upper case)\n");
 		printf("     -v                       Verbose operation\n");
 		printf("  -ce [update.ird] Options    Create Enigma2 IRD (obsolete, models with TDT Maxiboot only)\n");
 		printf("     Subtions for -ce:\n");

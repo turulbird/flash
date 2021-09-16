@@ -1,7 +1,7 @@
 #ifndef __FUP_H__
 #define __FUP_H__
 
-#define MAX_PART_NUMBER       0x0a    // highest possible partition number (loader defines 0x10, with 0x0a-0x0f unused)
+#define MAX_PART_NUMBER       0x10    // highest possible partition number (partition type 0x10 seems to be for EEPROM)
 #define EXTENSION_LEN         32      // maximum length of partition extension
 
 #define PART_SIGN             1       // partition must be signed
@@ -32,7 +32,7 @@
  * layouts used by the different generations of receivers
  * and boot loaders.
  * They are only used to display information and as file
- * extensions names.
+ * extension names.
  *
  */
 struct tPartition
@@ -48,72 +48,102 @@ struct tPartition
 
 struct tPartition partData1[] =
 {  // 32MB flash (1st generation models, FS9000, FS9200, HS9510)
-	{  ".loader", "mtd0",  "Loader", 0x00000000, 0x00300000, "binary", (PART_FLASH) },
-	{     ".app", "mtd2",     "App", 0x00b00000, 0x00500000, "squash", (PART_FLASH | PART_SIGN) },
-	{ ".config0", "mtd5", "Config0", 0x01b00000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config4", "mtd5", "Config4", 0x01b40000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config8", "mtd5", "Config8", 0x01b80000, 0x00020000, "binary", (PART_FLASH) },
-	{ ".configA", "mtd5", "ConfigA", 0x01ba0000, 0x00020000, "binary", (PART_FLASH) },
-	{  ".kernel", "mtd1",  "Kernel", 0x00300000, 0x00300000, "binary", (PART_FLASH) },
-	{     ".dev", "mtd4",     "Dev", 0x01800000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
-	{  ".rootfs", "mtd3",    "Root", 0x01000000, 0x00800000, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".user", "mtd6",    "User", 0x01c00000, 0x00400000, "binary", (PART_FLASH) }
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00300000, "binary", (PART_FLASH) },
+	{     ".app",   "mtd2",     "App", 0x00b00000, 0x00500000, "squash", (PART_FLASH | PART_SIGN) },
+	{ ".config0",   "mtd5", "Config0", 0x01b00000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config4",   "mtd5", "Config4", 0x01b40000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config8",   "mtd5", "Config8", 0x01b80000, 0x00020000, "binary", (PART_FLASH) },
+	{ ".configA",   "mtd5", "ConfigA", 0x01ba0000, 0x00020000, "binary", (PART_FLASH) },
+	{  ".kernel",   "mtd1",  "Kernel", 0x00300000, 0x00300000, "binary", (PART_FLASH) },
+	{     ".dev",   "mtd4",     "Dev", 0x01800000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
+	{  ".rootfs",   "mtd3",    "Root", 0x01000000, 0x00800000, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".user",   "mtd6",    "User", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData2a[] =
 {  // 32MB flash (2nd generation models, HS7110, HS7420, HS7810A, loader 5.XX)
-	{  ".loader", "mtd0",  "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
-	{     ".app", "mtd2",     "App", 0x00b00000, 0x00500000, "squash", (PART_FLASH | PART_SIGN) },
-	{ ".config0", "mtd5", "Config0", 0x01b00000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config4", "mtd5", "Config4", 0x01b40000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config8", "mtd5", "Config8", 0x01b80000, 0x00020000, "binary", (PART_FLASH) },
-	{ ".configA", "mtd5", "ConfigA", 0x01ba0000, 0x00020000, "binary", (PART_FLASH) },
-	{  ".kernel", "mtd1",  "Kernel", 0x00100000, 0x00200000, "binary", (PART_FLASH) },
-	{     ".dev", "mtd4",     "Dev", 0x01800000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
-	{  ".rootfs", "mtd3",    "Root", 0x00d00000, 0x00800000, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".user", "mtd6",    "User", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
+	{     ".app",   "mtd2",     "App", 0x00b00000, 0x00500000, "squash", (PART_FLASH | PART_SIGN) },
+	{ ".config0",   "mtd5", "Config0", 0x01b00000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config4",   "mtd5", "Config4", 0x01b40000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config8",   "mtd5", "Config8", 0x01b80000, 0x00020000, "binary", (PART_FLASH) },
+	{ ".configA",   "mtd5", "ConfigA", 0x01ba0000, 0x00020000, "binary", (PART_FLASH) },
+	{  ".kernel",   "mtd1",  "Kernel", 0x00100000, 0x00200000, "binary", (PART_FLASH) },
+	{     ".dev",   "mtd4",     "Dev", 0x01800000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
+	{  ".rootfs",   "mtd3",    "Root", 0x00d00000, 0x00800000, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".user",   "mtd6",    "User", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData2b[] =
 {  // 64MB flash (HS8200, loader 5.0X)
-	{  ".loader", "mtd0",  "Loader", 0x000000000, 0x00100000, "binary", (PART_FLASH) },
-	{     ".app", "mtd2",     "App", 0x000b00000, 0x00700000, "squash", (PART_FLASH | PART_SIGN) },
-	{ ".config0", "mtd5", "Config0", 0x002100000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config4", "mtd5", "Config4", 0x002140000, 0x00040000, "binary", (PART_FLASH) },
-	{ ".config8", "mtd5", "Config8", 0x002180000, 0x00020000, "binary", (PART_FLASH) },
-	{ ".configA", "mtd5", "ConfigA", 0x0021a0000, 0x00020000, "binary", (PART_FLASH) },
-	{  ".kernel", "mtd1",  "Kernel", 0x000100000, 0x00300000, "binary", (PART_FLASH) },
-	{     ".dev", "mtd4",     "Dev", 0x001e00000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
-	{  ".rootfs", "mtd3",    "Root", 0x001200000, 0x00c00000, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".user", "mtd6",    "User", 0x002200000, 0x01e00000, "binary", (PART_FLASH) },
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
+	{     ".app",   "mtd2",     "App", 0x00b00000, 0x00700000, "squash", (PART_FLASH | PART_SIGN) },
+	{ ".config0",   "mtd5", "Config0", 0x02100000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config4",   "mtd5", "Config4", 0x02140000, 0x00040000, "binary", (PART_FLASH) },
+	{ ".config8",   "mtd5", "Config8", 0x02180000, 0x00020000, "binary", (PART_FLASH) },
+	{ ".configA",   "mtd5", "ConfigA", 0x021a0000, 0x00020000, "binary", (PART_FLASH) },
+	{  ".kernel",   "mtd1",  "Kernel", 0x00100000, 0x00300000, "binary", (PART_FLASH) },
+	{     ".dev",   "mtd4",     "Dev", 0x01e00000, 0x00300000, "squash", (PART_FLASH | PART_SIGN) },
+	{  ".rootfs",   "mtd3",    "Root", 0x01200000, 0x00c00000, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".user",   "mtd6",    "User", 0x02200000, 0x01e00000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData2c[] =
 {  // 32MB flash (2nd generation models, HS7110, HS7810A, HS7810, loader 6.XX)
-	{  ".loader", "mtd0",  "Loader", 0x000000000, 0x00030000, "binary", (PART_FLASH) },
-	{     ".app", "mtd2",     "App", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{ ".config0", "mtd5", "Config0", 0x001b00000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".config4", "mtd5", "Config4", 0x001b40000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".config8", "mtd5", "Config8", 0x001b80000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".configA", "mtd5", "ConfigA", 0x001ba0000, 0x0000007f, "binary", (PART_FLASH) },
-	{  ".kernel", "mtd1",  "Kernel", 0x000060000, 0x0000007f, "binary", (PART_FLASH) },
-	{     ".dev", "mtd4",     "Dev", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{  ".rootfs", "mtd3",    "Root", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".user", "mtd6",    "User", 0x001c00000, 0x00400000, "binary", (PART_FLASH) }
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00030000, "binary", (PART_FLASH) },
+	{     ".app",   "mtd2",     "App", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{ ".config0",   "mtd5", "Config0", 0x01b00000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".config4",   "mtd5", "Config4", 0x01b40000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".config8",   "mtd5", "Config8", 0x01b80000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".configA",   "mtd5", "ConfigA", 0x01ba0000, 0x0000007f, "binary", (PART_FLASH) },
+	{  ".kernel",   "mtd1",  "Kernel", 0x00060000, 0x0000007f, "binary", (PART_FLASH) },
+	{     ".dev",   "mtd4",     "Dev", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{  ".rootfs",   "mtd3",    "Root", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".user",   "mtd6",    "User", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData2d[] =
 {  // 64MB flash (HS8200, loader 6.00)
-	{  ".loader", "mtd0",  "Loader", 0x000000000, 0x00060000, "binary", (PART_FLASH) },
-	{     ".app", "mtd2",     "App", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{ ".config0", "mtd5", "Config0", 0x002100000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".config4", "mtd5", "Config4", 0x002140000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".config8", "mtd5", "Config8", 0x002180000, 0x0000007f, "binary", (PART_FLASH) },
-	{ ".configA", "mtd5", "ConfigA", 0x0021a0000, 0x0000007f, "binary", (PART_FLASH) },
-	{  ".kernel", "mtd1",  "Kernel", 0x000060000, 0x0000007f, "binary", (PART_FLASH) },
-	{     ".dev", "mtd4",     "Dev", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{  ".rootfs", "mtd3",    "Root", 0x00000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".user", "mtd6",    "User", 0x002200000, 0x01e00000, "binary", (PART_FLASH) }
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
+	{     ".app",   "mtd2",     "App", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{ ".config0",   "mtd5", "Config0", 0x02100000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".config4",   "mtd5", "Config4", 0x02140000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".config8",   "mtd5", "Config8", 0x02180000, 0x0000007f, "binary", (PART_FLASH) },
+	{ ".configA",   "mtd5", "ConfigA", 0x021a0000, 0x0000007f, "binary", (PART_FLASH) },
+	{  ".kernel",   "mtd1",  "Kernel", 0x00060000, 0x0000007f, "binary", (PART_FLASH) },
+	{     ".dev",   "mtd4",     "Dev", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{  ".rootfs",   "mtd3",    "Root", 0x0000007f, 0x0000007f, "squash", (PART_FLASH | PART_SIGN) },
+	{    ".user",   "mtd6",    "User", 0x02200000, 0x01e00000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData3[] =
@@ -125,51 +155,75 @@ struct tPartition partData3[] =
 	{ ".config8",   "mtd5", "Config8", 0x00480000, 0x00020000, "binary", (PART_FLASH) },  // not writeable by IRD?
 	{ ".configA",   "mtd5", "ConfigA", 0x004a0000, 0x00020000, "binary", (PART_FLASH) },  // not writeable by IRD?
 	{  ".kernel",   "mtd1",  "Kernel", 0x00500000, 0x00300000, "binary", (PART_FLASH) },
-	{  ".part.7", "Unused",  "Unused", 0x00000000, 0x00100000, "binary", 0 }, // not writeable by IRD
-	{  ".part.8", "Unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }, // not writeable by IRD
-	{    ".user",   "mtd6",    "User", 0x06800000, 0x09000000, "binary", 0 }
+	{  ".part.7", "unused",  "Unused", 0x00000000, 0x00100000, "binary", 0 },  // not writeable by IRD
+	{  ".part.8", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{    ".user",   "mtd6",    "User", 0x06800000, 0x09000000, "binary", 0 },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData4[] =
 {  // 256MB flash (fourth generation except DP7050, loader 8.X4, 8.X6, 8.X7 or X.0X) # to be checked
-	{ ".loader", "mtd0", "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
-	{ ".rootfs", "mtd2",   "Root", 0x00800000, 0x0b600000, "UBI"   , (PART_FLASH) },
-	{ ".config", "mtd5", "Config", 0x0fe00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x0fe00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x0fe00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x0fe00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".kernel", "mtd1", "Kernel", 0x00400000, 0x00400000, "binary", (PART_FLASH) },
-	{ ".eeprom", "mtd4", "EEPROM", 0x00380000, 0x00080000, "binary", 0 }, // not writeable by IRD
-	{   ".user", "mtd6",   "User", 0x0be00000, 0x04000000, "binary", 0 }, // not writeable by IRD
-	{   ".logo", "mtd3",   "Logo", 0x00180000, 0x00200000, "binary", (PART_FLASH) }
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
+	{  ".rootfs",   "mtd2",    "Root", 0x00800000, 0x0b600000, "UBI"   , (PART_FLASH) },
+	{  ".config",   "mtd5",  "Config", 0x0fe00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x0fe00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x0fe00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x0fe00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".kernel",   "mtd1",  "Kernel", 0x00400000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".eeprom",   "mtd4",  "EEPROM", 0x00380000, 0x00080000, "binary", 0 },  // not writeable by IRD
+	{    ".user",   "mtd6",    "User", 0x0be00000, 0x04000000, "binary", 0 },  // not writeable by IRD
+	{    ".logo",   "mtd3",    "Logo", 0x00180000, 0x00200000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData4a[] =
 {  // 128MB flash (fourth generation, DP7050, loader 8.24, 8.26, 8.27 or 3.0X) # to be checked
-	{ ".loader", "mtd0", "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
-	{ ".rootfs", "mtd2",   "Root", 0x00800000, 0x06200000, "UBI"   , (PART_FLASH) },
-	{ ".config", "mtd5", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".config", "mtd5", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD
-	{ ".kernel", "mtd1", "Kernel", 0x00400000, 0x00400000, "binary", (PART_FLASH) },
-	{ ".eeprom", "mtd4", "EEPROM", 0x00380000, 0x00080000, "binary", 0 }, // not writeable by IRD
-	{   ".user", "mtd6",   "User", 0x06a00000, 0x01400000, "binary", 0 }, // not writeable by IRD
-	{   ".logo", "mtd3",   "Logo", 0x00180000, 0x00200000, "binary", (PART_FLASH) }
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00100000, "binary", (PART_FLASH) },
+	{  ".rootfs",   "mtd2",    "Root", 0x00800000, 0x06200000, "UBI"   , (PART_FLASH) },
+	{  ".config",   "mtd5",  "Config", 0x07e00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x07e00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x07e00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd5",  "Config", 0x07e00000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".kernel",   "mtd1",  "Kernel", 0x00400000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".eeprom",   "mtd4",  "EEPROM", 0x00380000, 0x00080000, "binary", 0 },  // not writeable by IRD
+	{    ".user",   "mtd6",    "User", 0x06a00000, 0x01400000, "binary", 0 },  // not writeable by IRD
+	{    ".logo",   "mtd3",    "Logo", 0x00180000, 0x00200000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 struct tPartition partData5[] =
-{  // 32MB NOR flash + 512 Mbyte NAND flash (Crenova Miniline) # to be checked
-	{ ".loader", "mtd0", "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
-	{ ".unknwn", "mtd?", "Unknwn", 0x00000000, 0x00000000, "binary", 0 }, // not writeable by IRD?
-	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
-	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
-	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
-	{ ".config", "mtd?", "Config", 0x07e00000, 0x00200000, "binary", 0 }, // not writeable by IRD?
-	{ ".kernel", "mtd1", "Kernel", 0x00060000, 0x002a0000, "binary", (PART_FLASH) },
-	{ ".unknwn", "mtd?", "Unknwn", 0x00000000, 0x00000000, "binary", 0 }, // not writeable by IRD
-	{ ".rootfs", "mtd2",   "Root", 0x00300000, 0x00cc0000, "squash", (PART_FLASH | PART_SIGN) },
-	{    ".var", "mtd3",    "var", 0x00fc0000, 0x01040000, "binary", (PART_FLASH) }
+{  // 32MB NOR flash + 512 MB NAND flash (Atemio AM 520 HD with i-boot) # to be checked
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
+	{  ".part.1",   "mtd?", "Unknown", 0x0000007f, 0x0000007f, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b00000, 0x00400000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b40000, 0x00400000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b80000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01ba0000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".kernel",   "mtd1",  "Kernel", 0x00060000, 0x0000007f, "binary", (PART_FLASH) },
+	{  ".app",      "mtd2",     "App", 0x0000007f, 0x0000007f, "binary", (PART_FLASH) },
+	{  ".rootfs",   "mtd3",    "Root", 0x0000007f, 0x0000007f, "any", (PART_FLASH) },
+	{     ".var",   "mtd3",     "var", 0x01c00000, 0x00400000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
 /************************************************************
