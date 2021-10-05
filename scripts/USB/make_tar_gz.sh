@@ -104,7 +104,24 @@ case $BOXTYPE in
     echo " done."
     cd $CURDIR
     ;;
-  ufs910|ufs912|ufs913|ufs922|ufc960)
+  ufs910|ufs922|ufc960)
+    cd $OUTDIR
+    echo "-- Creating tar.gz output file ----------------------------------------"
+    echo
+    # Move kernel back to /boot
+    mv $TMPKERNELDIR/uImage $TMPROOTDIR/boot/uImage
+    echo -n " Compressing release image..."
+    cd $TMPROOTDIR
+    tar -zcf $OUTDIR/$OUTFILE.tar.gz . > /dev/null 2> /dev/null
+    md5sum -b $OUTDIR/$OUTFILE.tar.gz | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
+    echo " done."
+    cd $OUTDIR
+    echo -n " Pack everything in a zip..."
+    zip -j -q $OUTZIPFILE *
+    echo " done."
+    cd $CURDIR
+    ;;
+  ufs912|ufs913)
     cd $OUTDIR
     echo "-- Creating tar.gz output file ----------------------------------------"
     echo

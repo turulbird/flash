@@ -1,13 +1,15 @@
 /*****************************************************************************
  * Name :   oup (Opticum update program)                                     *
  *                                                                           *
- *          Management program for Opticum .upd flash files for 9600HD       *
+ *          Management program for Opticum .upd flash files for HD 9600      *
  *          series models:                                                   *
- *          9600HD (STx7109, DVB-S(2) only)                                  *
- *          9600HD TS (STx7109, DVB-S(2) + DVB-T                             *
- *          9600HD PRIMA (STx7105, DVB-S(2) only)                            *
- *          9600HD PRIMA TS (STx7105, DVB-S(2) + DVB-T)                      *
- *          9600HD MINI (STx7111, DVB-S(2) only)                             *
+ *          HD 9600          (STx7109, DVB-S(2) only)                        *
+ *          HD TS 9600       (STx7109, DVB-S(2) + DVB-T                      *
+ *          HD 9600 PRIMA    (STx7105, DVB-S(2) only)                        *
+ *          HD 9600 TS PRIMA (STx7105, DVB-S(2) + DVB-T)                     *
+ *          HD 9600 MINI     (STx7111, DVB-S(2) only)                        *
+ *          HD X550          (STx7100, DVB-S(2) only, not tested)            *
+ *          HD X560          (STx7100, DVB-S(2) only, not supported yet)     *
  *                                                                           *
  * Author:  Audioniek                                                        *
  *                                                                           *
@@ -123,10 +125,10 @@ struct model_name
 	const char *model_name;
 } opt9600hdNames[] =
 {
-	{ MODEL_CODE_9600HD, HW_CODE_9600HD, "Opticum/Orton 9600HD" },
-	{ MODEL_CODE_9600HDTS, HW_CODE_9600HDTS, "Opticum/Orton 9600HD TS" },
-	{ MODEL_CODE_9600HD_PRIMA, HW_CODE_9600HD_PRIMA, "Opticum/Orton 9600HD (TS) PRIMA" },
-	{ MODEL_CODE_9600HD_MINI, HW_CODE_9600HD_MINI, "Opticum/Orton 9600HD MINI" },
+	{ MODEL_CODE_9600HD, HW_CODE_9600HD, "Opticum/Orton HD 9600" },
+	{ MODEL_CODE_9600HDTS, HW_CODE_9600HDTS, "Opticum/Orton HD TS 9600" },
+	{ MODEL_CODE_9600HD_PRIMA, HW_CODE_9600HD_PRIMA, "Opticum/Orton HD (TS) 9600 PRIMA" },
+	{ MODEL_CODE_9600HD_MINI, HW_CODE_9600HD_MINI, "Opticum/Orton HD 9600 MINI" },
 	{ MODEL_CODE_HD_X550, HW_CODE_HD_X550, "Opticum HD X550" },
 	{ 0, 0x100, "Unknown model" }
 };

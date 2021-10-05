@@ -1,15 +1,15 @@
 /*****************************************************************************
  * Name :   oup (Opticum update program)                                     *
  *                                                                           *
- *          Management program for Opticum .upd flash files for 9600HD       *
+ *          Management program for Opticum .upd flash files for HD 9600      *
  *          series models:                                                   *
- *          9600HD          (STx7109, DVB-S(2) only)                         *
- *          9600HD TS       (STx7109, DVB-S(2) + DVB-T                       *
- *          9600HD PRIMA    (STx7105, DVB-S(2) only)                         *
- *          9600HD PRIMA TS (STx7105, DVB-S(2) + DVB-T)                      *
- *          9600HD MINI     (STx7111, DVB-S(2) only)                         *
- *          HD X550         (STx7100, DVB-S(2) only, not tested)             *
- *          HD X560         (STx7100, DVB-S(2) only, not supported yet)      *
+ *          HD 9600          (STx7109, DVB-S(2) only)                        *
+ *          HD TS 9600       (STx7109, DVB-S(2) + DVB-T                      *
+ *          HD 9600 PRIMA    (STx7105, DVB-S(2) only)                        *
+ *          HD 9600 TS PRIMA (STx7105, DVB-S(2) + DVB-T)                     *
+ *          HD 9600 MINI     (STx7111, DVB-S(2) only)                        *
+ *          HD X550          (STx7100, DVB-S(2) only, not tested)            *
+ *          HD X560          (STx7100, DVB-S(2) only, not supported yet)     *
  *                                                                           *
  * Author:  Audioniek, very loosely based on fup by Schischu                 *
  *                                                                           *
@@ -50,7 +50,7 @@
 #include "crc32.h"
 
 #define VERSION "1.00"
-#define DATE "25.08.2021"
+#define DATE "05.10.2021"
 
 uint32_t verbose;
 uint32_t unknown;
