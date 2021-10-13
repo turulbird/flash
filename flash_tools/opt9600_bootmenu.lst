@@ -2,11 +2,10 @@
 default = 0
 
 # Global variables for all boot entries
-ethaddr = 00:11:22:33:44:55
-nwhwnet = device:eth0,hwaddr:$ethaddr
 bootcmd = run bm_bootcmd
-bm_bootcmd = fatload usb 0:1 0x88000000 $bm_kernel; setenv bootargs "$std_bootargs root=$bm_rootfs $bm_xargs"; bootm 0x88000000
-std_bootargs = "console=ttyAS0,115200 init=/bin/devinit rw nwhwconf=$nwhwnet coprocessor_mem=4m@0x40000000,4m@0x40400000 printk=1 console_loglevel=7"
+bm_bootcmd = display "LOADING"; fatload usb 0:1 0x88000000 $bm_kernel; setenv bootargs "$std_bootargs root=$bm_rootfs nwhwconf=device:eth0,hwaddr:$std_ethaddr $bm_xargs"; bootm 0x88000000; printenv bootargs
+std_bootargs = "console=ttyAS0,115200 init=/bin/devinit rw coprocessor_mem=4m@0x10000000,4m@0x10400000 printk=1 console_loglevel=7"
+std_ethaddr = 00:25:ff:8d:bf:38
 
 [enigma2]
 bm_kernel = uImage
