@@ -49,12 +49,12 @@ common() {
 case $BOXTYPE in
   atemio520)
     common
-    echo -n " Moving /usr/lib..."
-	mkdir -p $TMPVARDIR/usr/lib
-	mv -t $TMPVARDIR/usr $TMPROOTDIR/usr/lib/
-#	rmdir $TMPROOTDIR/usr/lib/
-	ln -sf /var/usr/lib $TMPROOTDIR/usr/lib 
-    echo " done."
+#    echo -n " Moving /usr/lib..."
+#    mkdir -p $TMPVARDIR/usr/lib
+#    mv -t $TMPVARDIR/usr $TMPROOTDIR/usr/lib/
+##    rmdir $TMPROOTDIR/usr/lib/
+#    ln -sf /var/usr/lib $TMPROOTDIR/usr/lib 
+#    echo " done."
     ;;
   fs9000|hs9510|hs8200|hs7110|hs7810a|hs7119|hs7819|dp2010|dp7000|dp7001|dp7050|ep8000|epp8000|fx6010|gpv8000)
     common;;
