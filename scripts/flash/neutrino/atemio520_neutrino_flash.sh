@@ -23,22 +23,27 @@
 # Date     Who          Description
 # 20210912 Audioniek    Initial version.
 # 20211024 Audioniek    Pad root to maximum size.
+# 20211101 Audioniek    Fix small problem with batch mode.
 #
 # -----------------------------------------------------------------------
 
-echo "-- Output selection ---------------------------------------------------"
-echo
-echo " What would you like to flash?"
-echo "   1) The whole $IMAGE image (*)"
-echo "   2) Only the kernel"
-read -p " Select flash target (1-2)? "
-case "$REPLY" in
-#  1) echo > /dev/null;;
-  2) IMAGE="kernel";;
-#  *) echo > /dev/null;;
-esac
-echo "-----------------------------------------------------------------------"
-echo
+if [ "$BATCH_MODE" == "yes" ]; then
+  IMAGE=
+else
+  echo "-- Output selection ---------------------------------------------------"
+  echo
+  echo " What would you like to flash?"
+  echo "   1) The whole $IMAGE image (*)"
+  echo "   2) Only the kernel"
+  read -p " Select flash target (1-2)? "
+  case "$REPLY" in
+    1) echo > /dev/null;;
+    2) IMAGE="kernel";;
+    *) echo > /dev/null;;
+  esac
+  echo "-----------------------------------------------------------------------"
+  echo
+fi
 
 # Set up the variables
 TMPDUMDIR=$TMPDIR/DUMMY
