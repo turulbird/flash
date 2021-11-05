@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 10-09-2021"
+echo "+ Date   : 05-11-2021"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -65,7 +65,7 @@ echo
 # 20200915 Audioniek   Add Fortis DP7050, EP8000 and GPV8000.
 # 20201017 Audioniek   Force output type to USB if buildsystem config
 #                      contains DESTINATION=USB.
-# 20201201 Audioniek   Add Opticum HD 9600 (TS).
+# 20201201 Audioniek   Add Opticum HD (TS) 9600.
 # 20210226 Audioniek   Remove Tvheadend support.
 # 20210316 Audioniek   Fix small problem with cuberevo_mini2.
 # 20210405 Audioniek   Strip languages on UFS913 added.
@@ -78,6 +78,7 @@ echo
 # 20210704 Audioniek   Fix receivertypes with a minus in their boxtype.
 # 20210714 Audioniek   Allow Enigma2 "flash" for ufs910.
 # 20210910 Audioniek   Add Atemio AM 520 HD.
+# 20210910 Audioniek   Add Opticum HD 9600 Mini.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -249,7 +250,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -259,7 +260,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       case "$BOXTYPE" in
         fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
           echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
-#        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600)
+#        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini)
         *)
           echo " Consider running Enigma2 from a USB stick.";;
       esac
@@ -291,7 +292,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   case "$BOXTYPE" in
-    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600)
+    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini)
       ;;
     *)
       echo
@@ -668,8 +669,8 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/make_tar_gz.sh;;
     vitamin_hd5000)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
-    opt9600)
-      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+    opt9600|opt9600mini)
+      $SCRIPTDIR/$OUTTYPE/opt9600_"$OUTTYPE".sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo
