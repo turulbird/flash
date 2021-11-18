@@ -15,6 +15,7 @@
 # 20200716 Audioniek - Fix URL for squashfs4.2.tar.gz download.
 # 20210820 Audioniek - Add mkdnimg program.
 # 20210825 Audioniek - Add oup program.
+# 20211118 Audioniek - Fix compiler problems on Ubuntu 20.04 LTS / Mint 20.1.
 #
 ARCHIVE=~/Archive
 TOOLSDIR=$1
@@ -24,6 +25,7 @@ BASEDIR=`cd .. && pwd`
 # Tool program pad..."
 if [ ! -e $TOOLSDIR/pad ]; then
   clear
+  echo
   echo "-------------------------------------------------------------------------------"
   echo " Tool program pad is missing, trying to compile it..."
   echo "-------------------------------------------------------------------------------"
@@ -34,17 +36,17 @@ if [ ! -e $TOOLSDIR/pad ]; then
   cd $TOOLSDIR
   if [ ! -e $TOOLSDIR/pad ]; then
     echo " Compiling pad failed! Exiting..."
-  echo "-------------------------------------------------------------------------------"
     exit 3
   else
-    clear
     echo "-------------------------------------------------------------------------------"
     echo " Compiling pad successfully completed."
+    echo "-------------------------------------------------------------------------------"
   fi
 fi
 
 # Tool program mksquashfs3.0..."
 if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program mksquashfs3.0 is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -58,6 +60,10 @@ if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
   fi
   tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs3.0.tar.gz 
   cd $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools
+  if [ -e $BASEDIR/../patches/squashfs-3.0.patch ]; then
+    echo "patch -p1 < $BASEDIR/../patches/squashfs-3.0.patch"
+    patch -p1 < $BASEDIR/../patches/squashfs-3.0.patch > /dev/null
+  fi
   make
   mv $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.0
   mv $TOOLSDIR/mksquash.src/squashfs3.0/squashfs-tools/unsquashfs $TOOLSDIR/unsquashfs3.0
@@ -67,14 +73,15 @@ if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
     echo " Compiling mksquashfs3.0 failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mksquashfs3.0 successfully completed."
-  fi
+    echo "-----------------------------------------------------------------------"
+ fi
 fi
 
 # Tool program mksquashfs3.3..."
 if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program mksquashfs3.3 is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -88,6 +95,10 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   fi
   tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs3.3.tar.gz
   cd $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools
+  if [ -e $BASEDIR/../patches/squashfs-3.3.patch ]; then
+    echo "patch -p1 < $BASEDIR/../patches/squashfs-3.3.patch"
+    patch -p1 < $BASEDIR/../patches/squashfs-3.3.patch > /dev/null
+  fi
   make all
   mv $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools/mksquashfs $TOOLSDIR/mksquashfs3.3
   mv $TOOLSDIR/mksquash.src/squashfs3.3/squashfs-tools/unsquashfs $TOOLSDIR/unsquashfs3.3
@@ -97,67 +108,77 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
     echo " Compiling mksquashfs3.3 failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mksquashfs3.3 successfully completed."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
 # Tool program mksquashfs4.2..."
-if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
-  echo "-----------------------------------------------------------------------"
-  echo " Tool program mksquashfs4.2 is missing, trying to compile it..."
-  echo "-----------------------------------------------------------------------"
-  echo
-  cd $TOOLSDIR/mksquash.src
-  if [ -d ./squashfs4.2 ]; then
-    rm -rf ./squashfs4.2
-  fi
-  if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
-     wget "http://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz" -P $ARCHIVE
-  fi
-  if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
-    wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
-  fi
-  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
-  tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
-  cd ./squashfs4.2/squashfs-tools
-#  if [ -e $BASEDIR/patches/squashfs-tools-4.0-lzma.patch ]; then
-#    echo "patch -p1 < $BASEDIR/patches/squashfs-tools-4.0-lzma.patch"
-#    patch -p1 < $BASEDIR/patches/squashfs-tools-4.0-lzma.patch > /dev/null
+#if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
+#  echo
+#  echo "-----------------------------------------------------------------------"
+#  echo " Tool program mksquashfs4.2 is missing, trying to compile it..."
+#  echo "-----------------------------------------------------------------------"
+#  echo
+#  cd $TOOLSDIR/mksquash.src
+#  if [ -d ./squashfs4.2 ]; then
+#    rm -rf ./squashfs4.2
 #  fi
-  make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
-  mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
-  mv ./unsquashfs $TOOLSDIR/unsquashfs4.2
-  cd $TOOLSDIR
-  rm -rf ./mksquash.src/squashfs4.2
-  rm -rf ./mksquash.src/lzma-4.65
-  if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
-    echo " Compiling mksquashfs4.2 failed! Exiting..."
-    exit 3
-  else
-    clear
-    echo "-----------------------------------------------------------------------"
-    echo " Compiling mksquashfs4.2 successfully completed."
-  fi
-fi
+#  if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
+#     wget "http://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz" -P $ARCHIVE
+#  fi
+#  if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
+#    wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
+#  fi
+#  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
+#  tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
+#  cd ./squashfs4.2/squashfs-tools
+##  if [ -e $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch ]; then
+##    echo "patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch"
+##    patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch > /dev/null
+##  fi
+#  if [ -e $BASEDIR/../patches/squashfs-4.2.patch ]; then
+#    echo "patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch"
+#    patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch > /dev/null
+#  fi
+#  make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
+#  mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
+#  mv ./unsquashfs $TOOLSDIR/unsquashfs4.2
+#  cd $TOOLSDIR
+#  rm -rf ./mksquash.src/squashfs4.2
+#  rm -rf ./mksquash.src/lzma-4.65
+#  if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
+#    echo " Compiling mksquashfs4.2 failed! Exiting..."
+#    exit 3
+#  else
+#    clear
+#    echo "-----------------------------------------------------------------------"
+#    echo " Compiling mksquashfs4.2 successfully completed."
+#    echo "-----------------------------------------------------------------------"
+#  fi
+#fi
 
 # Tool program mkcramfs-1.1..."
 if [ ! -e $TOOLSDIR/mkcramfs1.1 ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program mkcramfs-1.1 is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
   echo
   cd $TOOLSDIR
-  if [ -d $TOOLSDIR/cramfs.src/cramfs.src ]; then
-    rm -rf $TOOLSDIR/cramfs.src/cramfs.src
+  if [ -d $TOOLSDIR/cramfs-1.1 ]; then
+    rm -rf $TOOLSDIR/cramfs-1.1
   fi
-  cd ./cramfs.src
   if [ ! -e $ARCHIVE/cramfs-1.1.tar.gz ]; then
     wget "http://downloads.sourceforge.net/project/cramfs/cramfs/1.1/cramfs-1.1.tar.gz" -P $ARCHIVE
   fi
   tar -xzf $ARCHIVE/cramfs-1.1.tar.gz
   cd ./cramfs-1.1
+  if [ -e $BASEDIR/../patches/mkcramfs-1.1.patch ]; then
+    echo "patch -p1 < $BASEDIR/../patches/mkcramfs-1.1.patch"
+    patch -p1 < $BASEDIR/../patches/mkcramfs-1.1.patch > /dev/null
+  fi
   make all
   mv ./mkcramfs $TOOLSDIR/mkcramfs1.1
   cd $TOOLSDIR
@@ -166,14 +187,15 @@ if [ ! -e $TOOLSDIR/mkcramfs1.1 ]; then
     echo " Compiling mkcramfs-1.1 failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mkcramfs-1.1 successfully completed."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
 # Tool program fup..."
 if [ ! -e $TOOLSDIR/fup ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program fup is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -188,14 +210,15 @@ if [ ! -e $TOOLSDIR/fup ]; then
     echo " need to install the 32bit version of libz."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling fup successful."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
 # Tool program mup..."
 if [ ! -e $TOOLSDIR/mup ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program mup is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -208,14 +231,15 @@ if [ ! -e $TOOLSDIR/mup ]; then
     echo " Compiling mup failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mup successful."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
 # Tool program oup..."
 if [ ! -e $TOOLSDIR/oup ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program oup is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -228,14 +252,15 @@ if [ ! -e $TOOLSDIR/oup ]; then
     echo " Compiling oup failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling oup successful."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
 # Tool program mkdnimg..."
 if [ ! -e $TOOLSDIR/mkdnimg ]; then
+  echo
   echo "-----------------------------------------------------------------------"
   echo " Tool program mkdnimg is missing, trying to compile it..."
   echo "-----------------------------------------------------------------------"
@@ -248,9 +273,9 @@ if [ ! -e $TOOLSDIR/mkdnimg ]; then
     echo " Compiling mkdnimg failed! Exiting..."
     exit 3
   else
-    clear
     echo "-----------------------------------------------------------------------"
     echo " Compiling mkdnimg successful."
+    echo "-----------------------------------------------------------------------"
   fi
 fi
 
@@ -280,9 +305,10 @@ fi
 #    echo " Compiling UBI tool programs failed! Exiting..."
 #    exit 3
 #  else
-#    clear
 #    echo "-----------------------------------------------------------------------"
 #    echo " Compiling UBI tools ubinize and mkfs.ubifs successfully completed."
 #  fi
 #fi
+#echo "-----------------------------------------------------------------------"
+clear
 

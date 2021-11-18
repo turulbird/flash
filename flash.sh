@@ -370,7 +370,7 @@ fi
 
 # All is OK so far, display summary
 if [ ! "$BATCH_MODE" == "yes" ]; then
-  clear
+#  clear
   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   echo "+"
   echo "+  Summary"
