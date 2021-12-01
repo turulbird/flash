@@ -34,6 +34,7 @@
  * Date     By              Description
  * --------------------------------------------------------------------------
  * 20210825 Audioniek       Initial version.
+ * 20211115 Audioniek       Fix typos in usage.
  *
  ****************************************************************************
  *
@@ -49,8 +50,8 @@
 #include "oup.h"
 #include "crc32.h"
 
-#define VERSION "1.00"
-#define DATE "05.10.2021"
+#define VERSION "1.01"
+#define DATE "15.11.2021"
 
 uint32_t verbose;
 uint32_t unknown;
@@ -250,7 +251,7 @@ int32_t main(int32_t argc, char* argv[])
 
 		// set defaults
 		verbose = 0;  // verbose is off
-		model_code = MODEL_CODE_9600HD;
+		model_code = MODEL_CODE_HD_9600;
 		model_name = getModelName(model_code);  // set default HW version
 		sw_version_major = 1;
 		sw_version_minor = 0;  // 1.00
@@ -473,7 +474,7 @@ int32_t main(int32_t argc, char* argv[])
 
 		// set defaults
 		verbose = 0;  // verbose is off
-		model_code = MODEL_CODE_9600HD;
+		model_code = MODEL_CODE_HD_9600;
 		model_name = getModelName(model_code);
 
 		// scan arguments given
@@ -824,7 +825,7 @@ int32_t main(int32_t argc, char* argv[])
 		printf("     Suboptions for -u:\n");
 		printf("     -i [infile]              Input file: binary payload\n");
 		printf("     -o [outfile.upd]         Output flash file\n");
-		printf("     -m [model_code]          Use model_code (default 07120603\n");
+		printf("     -m [model_code]          Use model_code (default 07120603)\n");
 		printf("     -n [N.NN]                Use version N.NN (default 1.00)\n");
 		printf("     -s [flash offset]        Start address in flash (hexadecimal, default 0x40000)\n");
 		printf("     -v                       Verbose operation\n");
@@ -832,7 +833,7 @@ int32_t main(int32_t argc, char* argv[])
 		printf("     Suboptions for -c:\n");
 		printf("     -i [infile]              Input file: channel list binary\n");
 		printf("     -o [outfile.cha]         Output flash file\n");
-		printf("     -m [model_code]          Use model_code (default 07120603\n");
+		printf("     -m [model_code]          Use model_code (default 07120603)\n");
 		printf("     -v                       Verbose operation\n");
 		printf("  -m [file.upd] [model code]  Change model code\n");
 		printf("  -mv [file.upd] [model_code] As -r, verbose\n");

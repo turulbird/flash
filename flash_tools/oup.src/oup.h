@@ -72,29 +72,29 @@
 #ifndef __UPD_MAKE_H__
 #define __UPD_MAKE_H__
 
-#define FILE_TYPE_FLASH            0x00000000
-#define FILE_TYPE_CHANNEL_LIST     0x00000001
-#define HEADER_TYPE_FLASH          0x40100000
-#define HEADER_TYPE_CHANNEL_LIST   0x00000000
-#define FLAGS_FLASH                0xffffffff
-#define FLAGS_CHANNEL_LIST         0x00000001
+#define FILE_TYPE_FLASH             0x00000000
+#define FILE_TYPE_CHANNEL_LIST      0x00000001
+#define HEADER_TYPE_FLASH           0x40100000
+#define HEADER_TYPE_CHANNEL_LIST    0x00000000
+#define FLAGS_FLASH                 0xffffffff
+#define FLAGS_CHANNEL_LIST          0x00000001
 
-#define MODEL_CODE_9600HD          0x07120603
-#define MODEL_CODE_9600HDTS        0x07520603
-#define MODEL_CODE_9600HD_PRIMA    0x07730603  // note: S and TS models use same code
-#define MODEL_CODE_9600HD_PRIMA_TS MODEL_CODE_9600HD_PRIMA
-#define MODEL_CODE_9600HD_MINI     0x05140607
-#define MODEL_CODE_HD_X550         0x05120601
+#define MODEL_CODE_HD_9600          0x07120603
+#define MODEL_CODE_HD_9600TS        0x07520603
+#define MODEL_CODE_HD_9600_PRIMA    0x07730603  // note: S and TS models use same code
+#define MODEL_CODE_HD_9600_PRIMA_TS MODEL_CODE_HD_9600_PRIMA
+#define MODEL_CODE_HD_9600_MINI     0x05140607
+#define MODEL_CODE_HD_X550          0x05120601
 
-#define HW_CODE_9600HD             0x6715
-#define HW_CODE_9600HDTS           0x6755
-#define HW_CODE_9600HD_PRIMA       0x6775  // note: S and TS models use same code
-#define HW_CODE_9600HD_PRIMA_TS    HW_CODE_9600HD_PRIMA
-#define HW_CODE_9600HD_MINI        0x6515
-#define HW_CODE_HD_X550            0x6515
-#define HW_CODE_CHANNEL_LIST       0x9084
+#define HW_CODE_HD_9600             0x6715
+#define HW_CODE_HD_9600TS           0x6755
+#define HW_CODE_HD_9600_PRIMA       0x6775  // note: S and TS models use same code
+#define HW_CODE_HD_9600_PRIMA_TS    HW_CODE_HD_9600_PRIMA
+#define HW_CODE_HD_9600_MINI        0x6515
+#define HW_CODE_HD_X550             0x6515
+#define HW_CODE_CHANNEL_LIST        0x9084
 
-#define SW_CODE_CHANNEL_LIST       0x3201
+#define SW_CODE_CHANNEL_LIST        0x3201
 
 struct tHeader
 {
@@ -125,14 +125,13 @@ struct model_name
 	const char *model_name;
 } opt9600hdNames[] =
 {
-	{ MODEL_CODE_9600HD, HW_CODE_9600HD, "Opticum/Orton HD 9600" },
-	{ MODEL_CODE_9600HDTS, HW_CODE_9600HDTS, "Opticum/Orton HD TS 9600" },
-	{ MODEL_CODE_9600HD_PRIMA, HW_CODE_9600HD_PRIMA, "Opticum/Orton HD (TS) 9600 PRIMA" },
-	{ MODEL_CODE_9600HD_MINI, HW_CODE_9600HD_MINI, "Opticum/Orton HD 9600 MINI" },
+	{ MODEL_CODE_HD_9600, HW_CODE_HD_9600, "Opticum/Orton HD 9600" },
+	{ MODEL_CODE_HD_9600TS, HW_CODE_HD_9600TS, "Opticum/Orton HD TS 9600" },
+	{ MODEL_CODE_HD_9600_PRIMA, HW_CODE_HD_9600_PRIMA, "Opticum/Orton HD (TS) 9600 PRIMA" },
+	{ MODEL_CODE_HD_9600_MINI, HW_CODE_HD_9600_MINI, "Opticum/Orton HD 9600 MINI" },
 	{ MODEL_CODE_HD_X550, HW_CODE_HD_X550, "Opticum HD X550" },
 	{ 0, 0x100, "Unknown model" }
 };
 	
 #endif  // __UPD_MAKE_H__
 // vim:ts=4
-
