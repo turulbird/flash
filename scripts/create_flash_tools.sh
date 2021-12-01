@@ -1,12 +1,12 @@
 #!/bin/bash
-#echo "-----------------------------------------------------------------------"
-#echo "This script creates the flash tools programs needed for creating flash"
-#echo "file(s), in case they are missing."
-#echo
-#echo "Author: Audioniek, based on previous work by schishu and bpanther"
-#echo "Date: 07-02-2014"
-#echo
+#-----------------------------------------------------------------------
+# This script creates the flash tools programs needed for creating flash
+# file(s), in case they are missing.
 #
+# Author: Audioniek, based on previous work by schishu and bpanther
+# Date: 07-02-2014
+#
+# Changes:
 # 20180729 Audioniek - Use Archive directory for source code retrieved from
 #                      the internet; squashfs4.0 replaced by squashfs4.2.
 # 20180829 Audioniek - Added mksquashfs3.0 as this version is needed by first
@@ -16,6 +16,7 @@
 # 20210820 Audioniek - Add mkdnimg program.
 # 20210825 Audioniek - Add oup program.
 # 20211118 Audioniek - Fix compiler problems on Ubuntu 20.04 LTS / Mint 20.1.
+# 20211201 Audioniek - Fix build of squashfs3.X.
 #
 ARCHIVE=~/Archive
 TOOLSDIR=$1
@@ -42,6 +43,10 @@ if [ ! -e $TOOLSDIR/pad ]; then
     echo " Compiling pad successfully completed."
     echo "-------------------------------------------------------------------------------"
   fi
+fi
+
+if [ ! -d $TOOLSDIR/mksquash.src ]; then
+  mkdir $TOOLSDIR/mksquash.src
 fi
 
 # Tool program mksquashfs3.0..."
