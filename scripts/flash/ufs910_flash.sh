@@ -41,7 +41,7 @@ fi
 # the bootloader environment (mtd7) 0xa0020000 to 0xa002ffff (with miniUboot)
 # the miniUboot loader       (mtd8) 0xa0030000 to 0xa003ffff
 #
-# It is only accepted if it file length is exactly 0xfc0000 or 
+# It is only accepted if its file length is exactly 0xfc0000 or 
 # 16515072 bytes.
 #
 # This means that if you want to flash the (update)kernel only,

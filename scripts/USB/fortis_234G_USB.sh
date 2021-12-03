@@ -18,7 +18,7 @@
 #  - GPV8000
 #  with unmodified factory bootloader:
 #  6.46 or 6.47 (HS7110),
-#  6.36 or 6.37 (HS7420, NOT tested),
+#  6.36 or 6.37 (HS7420),
 #  6.26 or 6.27 (HS7810A)
 #  7.06 or 7.07 (HS7119),
 #  7.36 or 7.37 (HS7429) or
