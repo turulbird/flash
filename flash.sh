@@ -65,7 +65,7 @@ echo
 # 20200915 Audioniek   Add Fortis DP7050, EP8000 and GPV8000.
 # 20201017 Audioniek   Force output type to USB if buildsystem config
 #                      contains DESTINATION=USB.
-# 20201201 Audioniek   Add Opticum HD (TS) 9600.
+# 20201201 Audioniek   Add Opticum HD 9600 (TS).
 # 20210226 Audioniek   Remove Tvheadend support.
 # 20210316 Audioniek   Fix small problem with cuberevo_mini2.
 # 20210405 Audioniek   Strip languages on UFS913 added.
@@ -184,6 +184,7 @@ else
   INAME=
 fi
 export INAME
+
 # Determine which image has been built last
 cp $CDKDIR/config $FLASHDIR/config
 if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
@@ -230,6 +231,7 @@ if [ "$BATCH_MODE" == "yes" ]; then
   else
     export OUTTYPE="flash"
   fi
+  rm $FLASHDIR/config
 else
   if [ `grep -e "DESTINATION=USB" $FLASHDIR/config` ]; then
     export OUTTYPE="USB"
@@ -370,7 +372,7 @@ fi
 
 # All is OK so far, display summary
 if [ ! "$BATCH_MODE" == "yes" ]; then
-#  clear
+  clear
   echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
   echo "+"
   echo "+  Summary"

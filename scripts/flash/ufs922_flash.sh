@@ -6,12 +6,12 @@
 # - Kathrein UFS922
 # - Kathrein UFC960 (untested)
 #
-# Due to their very small flash memories, these models use the following
+# Due to the very small flash memory, this model use the following
 # setup:
-# - Kernel: flashed in the same location as the factory kernel;
-# - Companion CPU firmwares: flashed in the same location as the factory
-#   kernel;
-# - RootFS: on an ext2 formatted USB stick.
+#  - Kernel: flashed in the same location as the factory kernel;
+#  - Companion CPU firmwares: flashed in the same location as the factory
+#    firmware;
+#  - RootFS: on an ext2 formatted USB stick.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
 # Date: 13-06-2021"
@@ -24,7 +24,7 @@
 # Date     Who          Description
 # 20210612 Audioniek    Initial version.
 # 20210624 Audioniek    Update help text.
-# 20211202 Audioniek    Add patch level to zip file name.
+# 20210912 Audioniek    Fix spelling errors.
 #
 # -----------------------------------------------------------------------
 
