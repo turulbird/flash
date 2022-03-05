@@ -175,7 +175,7 @@ if [ -e $OUTFILE ]; then
       echo " 3. The copy the remaining files ad directories of the file set"
       echo "    this time omitting the file miniFLASH.img."
       echo " The purpose of all this is that the USB must have the entry for the"
-      echo " file miniFLASH.img in its first directory entry, other wise the"
+      echo " file miniFLASH.img in its first directory entry, otherwise the"
       echo " miniUboot flasher cannot find it."
       echo
       echo " The stick should now have a directory /kathrein with a"

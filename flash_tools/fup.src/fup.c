@@ -22,8 +22,6 @@
  *****************************************************************************
  *
  * + TODO: change loader reseller ID.
- * + TODO: generation 5 (Crenova) uses variable flash sizes like Fortis
- *         loader 6.XX.
  *
  * Changes in Version 1.9.8d:
  * + -c and -ce did not close the output .ird file upon successful completion.
@@ -507,12 +505,12 @@ int32_t writeBlock(FILE *irdFile, FILE *inFile, uint8_t firstBlock, uint16_t typ
 	 * Loader definition of header block:
 	 * Offset   Size      CRC  Name/purpose
 	 * -------------------------------------------
-	 *   0x00	uint16_t   N  length of header or normal block length
-	 *   0x02   uint16_t   N  CRC16 over rest of block
-	 *   0x04   uint16_t   Y  _xfdVer -> transfer format, 0x10 = compressed (type in data block)
-	 *   0x06   uint32_t   Y  _systemId -> resellerId
-	 *   0x0a   uint32_t   Y  _nDataBlk -> number of blocks in file
-	 *   0x0e   uint32_t   Y  SWversion
+	 *   0x00	uint16_t   N   length of header or normal block length
+	 *   0x02   uint16_t   N   CRC16 over rest of block
+	 *   0x04   uint16_t   Y   _xfdVer -> transfer format, 0x10 = compressed (type in data block)
+	 *   0x06   uint32_t   Y   _systemId -> resellerId
+	 *   0x0a   uint32_t   Y   _nDataBlk -> number of blocks in file
+	 *   0x0e   uint32_t   Y   SWversion
 	 *
 	 **********************************************************************************************/
 		resellerId = RESELLER_ID;
@@ -948,7 +946,7 @@ void changeSWVersion(FILE *irdFile, uint32_t SWVersion)
 int32_t main(int32_t argc, char* argv[])
 {
 	if ((argc == 3 && strlen(argv[1]) == 2 && strncmp(argv[1], "-i", 2) == 0))
-	{  // i: display file info
+	{  // -i: display file info
 		uint32_t i, j;
 		uint32_t resellerId;
 		uint32_t SWVersion;

@@ -14,6 +14,7 @@
 # 20200828 Audioniek   Added Edision argus VIP1 V1.
 # 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
 # 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
+# 20220127 Audioniek   Added Opticum/Orton HD (TS) 9600 Prima.
 
 RELEASEDIR=$1
 

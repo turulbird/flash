@@ -6,15 +6,15 @@
 # - Kathrein UFS922
 # - Kathrein UFC960 (untested)
 #
-# Due to the very small flash memory, this model use the following
+# Due to their very small flash memories, these models use the following
 # setup:
 #  - Kernel: flashed in the same location as the factory kernel;
 #  - Companion CPU firmwares: flashed in the same location as the factory
 #    firmware;
-#  - RootFS: on an ext2 formatted USB stick.
+#  - RootFS: in an ext3 partition on the internal hard disk.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 13-06-2021"
+# Date: 10-01-2022"
 
 # -----------------------------------------------------------------------
 # It is assumed that an image was already built prior to executing this"
@@ -24,7 +24,8 @@
 # Date     Who          Description
 # 20210612 Audioniek    Initial version.
 # 20210624 Audioniek    Update help text.
-# 20210912 Audioniek    Fix spelling errors.
+# 20211202 Audioniek    Add patch level to zip file name.
+# 20220305 Audioniek    Update help text; remove ufc960/ufs910 remnants.
 #
 # -----------------------------------------------------------------------
 
@@ -49,30 +50,13 @@ elif [ ! -d $OUTDIR/kathrein/$BOXTYPE ]; then
   mkdir $OUTDIR/kathrein/$BOXTYPE
 fi
 
-case $BOXTYPE in
-  ufs910)
-    SIZE_KERNELD=1703936
-    SIZE_KERNELH=1A0000
-    SIZE_ROOTD=
-    SIZE_ROOTH=
-    SIZE_VARD=3014656
-    SIZE_VARH=2E0000;;
- ufs922)
-    SIZE_KERNELD=2883584
-    SIZE_KERNELH=2C0000
-    SIZE_UKERNELH=980000
-    SIZE_ROOTD=
-    SIZE_ROOTH=
-    SIZE_VARD=2621440
-    SIZE_VARH=280000;;
-  ufc960)
-    SIZE_KERNELD=1703936
-    SIZE_KERNELH=1A0000
-    SIZE_ROOTD=
-    SIZE_ROOTH=
-    SIZE_VARD=3014656
-    SIZE_VARH=2E0000;;
-esac
+SIZE_KERNELD=2883584
+SIZE_KERNELH=2C0000
+SIZE_UKERNELH=980000
+SIZE_ROOTD=
+SIZE_ROOTH=
+SIZE_VARD=2621440
+SIZE_VARH=280000
 
 echo -n " - Prepare kernel file..."
 cp $TMPKERNELDIR/uImage $TMPDIR/uImage
@@ -176,7 +160,7 @@ case $BOXTYPE in
     echo -n " Copy the update kernel..."
     cp $TMPFWDIR/uImage.pad $OUTDIR/uImage
     echo " done."
-    echo -n " Copy Enigma_Installer.ini..."
+    echo -n " Copy Image_Installer.ini..."
     cp $BASEDIR/ufsinstaller/Image_Installer.ini $OUTDIR/Image_Installer.ini
     echo " done."
 
@@ -193,7 +177,7 @@ if [ -e $OUTDIR/$OUTZIPFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
 case $BOXTYPE in
-  ufs910|ufs922|ufc960)
+  ufs922)
     echo " The receiver must be equipped with the original factory bootloader."
     echo
     echo " Unpack the .zip file to the rootdirectory of a FAT32 formatted"
@@ -202,7 +186,7 @@ case $BOXTYPE in
     echo " The stick should now have a directory /kathrein with a"
     echo " subdirectory $BOXTYPE in it. This subdirectory should have the"
     echo " files in it:"
-    echo " - directory kathrein/ufs922:"
+    echo " - directory kathrein/$BOXTYPE:"
     echo "   - updatescript.sh"
     echo "   - updatescript1.sh"
     echo "   - uImage"
