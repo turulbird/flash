@@ -194,6 +194,9 @@ if [ `grep -e "IMAGE=enigma2" $FLASHDIR/config` ]; then
 elif [ `grep -e "IMAGE=neutrino" $FLASHDIR/config` ]; then
   IMAGE=neutrino
   IMAGEN="Neutrino"
+elif [ `grep -e "IMAGE=titan" $FLASHDIR/config` ]; then
+  IMAGE=titan
+  IMAGEN="Titan"
 fi
 export IMAGE
 export IMAGEN
@@ -302,6 +305,40 @@ elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
       echo "-- Message ----------------------------------------------------------------"
       echo
       echo " Currently there is no Neutrino-USB support for your receiver $BOXTYPE."
+      echo
+      echo " Sorry."
+      echo
+      echo " Exiting..."
+      echo "---------------------------------------------------------------------------"
+      export ERROR="yes"
+      exit;
+  esac
+elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "flash" ]; then
+  case "$BOXTYPE" in
+    hs8200|hs7429)
+      ;;
+    *)
+      echo
+      echo "-- Message ----------------------------------------------------------------"
+      echo
+      echo " Currently there is no Titan-flash support for your receiver $BOXTYPE."
+      echo
+      echo " Sorry."
+      echo
+      echo " Exiting..."
+      echo "---------------------------------------------------------------------------"
+      export ERROR="yes"
+      exit;
+  esac
+elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "USB" ]; then
+  case "$BOXTYPE" in
+    hs8200)
+      ;;
+    *)
+      echo
+      echo "-- Message ----------------------------------------------------------------"
+      echo
+      echo " Currently there is no Titan-USB support for your receiver $BOXTYPE."
       echo
       echo " Sorry."
       echo
@@ -460,7 +497,7 @@ if [ $BOXTYPE == "dp2010" -o $BOXTYPE == "fx6010" -o $BOXTYPE == "dp7000" -o $BO
     exit 2
   fi
 else
-  if [ $IMAGEN == "Enigma2" ]; then
+  if [ $IMAGEN == "Enigma2" ] || [ $IMAGEN == "Titan" ]; then
     AUDIOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/audio.elf`
     VIDEOELFSIZE=`stat -c %s $TUFSBOXDIR/release/boot/video.elf`
   elif [ $IMAGEN == "Neutrino" ]; then
