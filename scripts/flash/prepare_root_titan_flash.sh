@@ -46,6 +46,7 @@ common() {
 case $BOXTYPE in
   adb_box|hs8200)
     common
+    OWNLANG=all
     if [[ ! "$OWNLANG" == "all" ]]; then
       echo -n " Stripping root..."
       # Language support: remove everything but English, French, German and own language
