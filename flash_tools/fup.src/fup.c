@@ -23,6 +23,9 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.8e:
+ * + support for Atemio AM 530 HD added.
+ *
  * Changes in Version 1.9.8d:
  * + -c and -ce did not close the output .ird file upon successful completion.
  * + getHeader incorrectly assumed file pointer was at beginning of ird file.
@@ -161,8 +164,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.8d"
-#define DATE "16.09.2021"
+#define VERSION "1.9.8e"
+#define DATE "16.06.2022"
 
 // Global variables
 uint8_t verbose = 1;
@@ -238,9 +241,9 @@ int32_t getGeneration(int32_t resellerId)
 {
 	int32_t generation;
 
-	if ((resellerId & 0xff) == 0xA5)
+	if ((resellerId & 0xff) == 0xA5 || (resellerId & 0xff) == 0xAA)
 	{
-		generation = 5;  // Crenova model (AM 520 HD)
+		generation = 5;  // Crenova model (AM 520 HD or AM 530 HD)
 	}
 	else
 	{
@@ -513,7 +516,7 @@ int32_t writeBlock(FILE *irdFile, FILE *inFile, uint8_t firstBlock, uint16_t typ
 	 *   0x0e   uint32_t   Y   SWversion
 	 *
 	 **********************************************************************************************/
-		resellerId = RESELLER_ID;
+		resellerId = RESELLER_ID;  // set default reseller ID
 
 		insertint16_t(&dataBuf,  0, type);  // _xfdVer
 		insertint32_t(&dataBuf,  2, resellerId);
@@ -1012,9 +1015,10 @@ int32_t main(int32_t argc, char* argv[])
 		}
 		tableAddr = getTableAddr(resellerId);
 
-		// Handle generation 2 & generation 5 (Atemio AM 520 HD) (possible variable layout)
+		// Handle generation 2 & generation 5 (Atemio AM 520/530 HD) (possible variable layout)
 		if (((generation == 2) && (resellerId & 0xf0) == 0xa0)
-		||  ((generation == 5) && (resellerId & 0xff) == 0xa5))
+		||  ((generation == 5) && (resellerId & 0xff) == 0xa5)
+		||  ((generation == 5) && (resellerId & 0xff) == 0xaa))
 		{
 			// Step one: round the mtd sizes up to the next erase boundary
 			for (i = 0; i < MAX_PART_NUMBER; i++)
@@ -1162,7 +1166,8 @@ int32_t main(int32_t argc, char* argv[])
 					printf(" ");
 				}
 				if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
-				||  (generation == 5 && (resellerId & 0xff) == 0xa5))
+				||  (generation == 5 && (resellerId & 0xff) == 0xa5)
+				||  (generation == 5 && (resellerId & 0xff) == 0xaa))
 				{  // Loader 6.XX: variable offsets
 					printf(" 0x%08X 0x%08X 0x%08X", Offset[t_has[i]], (Offset[t_has[i]] + Size[t_has[i]] - 1), Size[t_has[i]]);
 				}
@@ -1183,7 +1188,8 @@ int32_t main(int32_t argc, char* argv[])
 			}
 		}
 		if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
-		||  (generation == 5 && (resellerId & 0xf0) == 0xa5))
+		||  (generation == 5 && (resellerId & 0xf0) == 0xa5)
+		||  (generation == 5 && (resellerId & 0xf0) == 0xaa))
 		{
 			printf("  Note: start addresses and sizes are multiples of erase size (0x%X).\n", ERASE_SIZE);
 		}

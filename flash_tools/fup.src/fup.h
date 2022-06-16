@@ -373,6 +373,7 @@ struct model_name
 	{ 0x252802A0, "Vegasat X1" },
 	{ 0x252902A0, "Atemio AM 500/510 HD" },
 	{ 0x252902A5, "Atemio AM 520 HD" },  // Crenova model
+	{ 0x252902AA, "Atemio AM 530 HD" },  // Crenova model
 	{ 0x253000A0, "KIOWA HD 98" },
 	{ 0x253003A0, "KIOWA HD 108" },
 	{ 0x253513A0, "Starsat 9900 HD" },
