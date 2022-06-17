@@ -23,6 +23,9 @@
  *
  * + TODO: change loader reseller ID.
  *
+ * Changes in Version 1.9.8f:
+ * + Fix bug with 4 digit reseller IDs.
+ *
  * Changes in Version 1.9.8e:
  * + support for Atemio AM 530 HD added.
  *
@@ -164,8 +167,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.8e"
-#define DATE "16.06.2022"
+#define VERSION "1.9.8f"
+#define DATE "17.06.2022"
 
 // Global variables
 uint8_t verbose = 1;
@@ -1609,7 +1612,7 @@ int32_t main(int32_t argc, char* argv[])
 
 					if (strlen(argv[i + 1]) == 4)
 					{
-						resellerId = resellerId >> 16;
+						resellerId = resellerId << 16;
 					}
 				}
 			}
@@ -1846,7 +1849,7 @@ int32_t main(int32_t argc, char* argv[])
 
 					if (strlen(argv[i + 1]) == 4)
 					{
-						resellerId = resellerId >> 16;
+						resellerId = resellerId << 16;
 					}
 				}
 			}
@@ -2056,7 +2059,7 @@ int32_t main(int32_t argc, char* argv[])
 		sscanf(argv[3], "%X", &resellerId);
 		if (strlen(argv[3]) == 4)
 		{
-			resellerId = resellerId >> 16;
+			resellerId = resellerId << 16;
 		}
 
 		irdFile = fopen(argv[2], "r+");
@@ -2068,6 +2071,99 @@ int32_t main(int32_t argc, char* argv[])
 		changeResellerID(irdFile, resellerId);
 		fclose(irdFile);
 	}
+#if 0
+	else if ((argc == 4 && strlen(argv[1]) == 3 && strncmp(argv[1], "-rl", 3) == 0)
+	     ||  (argc == 4 && strlen(argv[1]) == 4 && strncmp(argv[1], "-rlv", 4) == 0))
+	{  // -r(v): Change loader reseller ID
+		uint32_t resellerId;
+		FILE *irdFile;
+		uint8_t *dataBuffer;
+		uint32_t resellerIdL;
+		uint16_t generation;
+
+		resellerId = 0;
+
+		irdFile = fopen(argv[2], "r");
+		if (irdFile == NULL)
+		{
+			printf("ERROR: cannot open input file %s.\n", argv[2]);
+			return -1;
+		}
+		resellerId = getresellerID(irdFile);
+		printf("Reseller ID of file %s is 0x%08X.\n", argv[2], resellerId);
+		generation = getGeneration(resellerId);
+		printf("Reseller model   : %s (generation %d)\n", getModelName(resellerId), generation);
+		dataBuffer = getHeader(irdFile);
+		fseek(irdFile, 0, SEEK_SET);
+		partcount = 0;
+		loaderFound = 0;
+		scanBlocks(irdFile);
+
+		// Check if .ird file contains a loader partition
+		if (loaderFound != 2)
+		{
+			printf("ERROR: This IRD file does not contain a loader partition.\n");
+			return -1;
+		}
+		if (strncmp(argv[1], "-rlv", 4) == 0)
+		{
+			verbose = 1;
+		}
+		else
+		{
+			verbose = 0;
+		}
+		if (verbose)
+		{
+			printf("IRD file contains a loader partition. Loader version is: V%X.%02X.%02X\n", (loaderSW >> 16) & 0xff, (loaderSW >> 8) & 0xff, loaderSW & 0xff);
+			printf("Current loader reseller ID is: 0x%08X\n", loaderId);
+		}
+		// Check if loader is compatible with hardware matching the IRD file's reseller ID
+		if ((resellerId >> 24 != loaderId >> 24)
+		||  (resellerId >>  8 != loaderId >>  8))
+		{
+			if ((generation == 2 || generation == 3 || generation == 5) && (resellerId & 0x5f != loaderId & 0x5f)
+			||  (generation != 2 && generation != 3 && generation != 5) && (resellerId & 0xff != loaderId & 0xff))
+			{
+				printf("ERROR: Loader in IRD file is not compatible with hardware indicated by the file's resellerId.\n");
+				return -1;
+			}
+		}
+		if (strlen(argv[3]) != 4 && strlen(argv[3]) != 8)
+		{
+			printf("ERROR: Loader reseller ID must be 4 or 8 characters long.\n");
+			return -1;
+		}
+		sscanf(argv[3], "%X", &resellerIdL);
+		if (strlen(argv[3]) == 4)
+		{
+			resellerIdL = resellerIdL << 16;
+		}
+		// Check if specified loader reseller ID differs only in the 2nd byte of the file's reseller ID
+		if (generation == 2 || generation == 3 || generation == 5)
+		{
+				printf("Reseller ID to set: %08X\n", resellerIdL);
+				printf("Difference1: %08X\n", resellerIdL & 0xff00ff5f);
+				printf("Difference2: %08X\n", loaderId & 0xff00ff5f);
+				if ((resellerIdL & 0xff00ff5f) != (loaderId & 0xff00ff5f))
+				{
+					printf("Specified loader reseller ID and IRD file's reseller ID are not compatible.\n");
+					printf("The only difference allowed is the value of the 2nd byte or the 7th nibble (A or 0).\n");
+					return -1;
+				}
+		}
+		else if	(resellerIdL & 0xff00ffff != loaderId & 0xff00ffff)
+		{
+			printf("Specified loader reseller ID and IRD file's reseller ID are not compatible.\n");
+			printf("The only difference allowed is the value of the 2nd byte.\n");
+			return -1;
+		}
+		if (verbose)
+		{
+			printf("Changing loader reseller ID in IRD file %s from 0x%08X to 0x%08X.\n", argv[2], loaderId, resellerIdL);
+		}
+	}
+#endif
 	else if ((argc == 4 && strlen(argv[1]) == 2 && strncmp(argv[1], "-n", 2) == 0)
 	     ||  (argc == 4 && strlen(argv[1]) == 3 && strncmp(argv[1], "-nv", 3) == 0))
 	{  // -n(v): Change SW version number
@@ -2099,59 +2195,61 @@ int32_t main(int32_t argc, char* argv[])
 		printf("\nfup - management program for Fortis .ird flash files\n");
 		printf("\nVersion: %s  Date: %s\n", VERSION, DATE);
 		printf("\n");
-		printf("Usage: %s -i|-x|-xv|-c|-ce|-s|-sv|-t|-tv|-d|-dv|-r|-rv|-n|-nv|-v []\n", argv[0]);
-		printf("  -i [file.ird]               Display detailed IRD information\n");
-		printf("  -x [file.ird]               Extract IRD into composing binaries\n");
-		printf("  -xv [file.ird]              As -x, verbose\n");
-		printf("  -c [file.ird] Options       Create Fortis IRD\n");
+		printf("Usage: %s -i|-x|-xv|-c|-ce|-s|-sv|-t|-tv|-d|-dv|-r|-rv|-n|-nv|rl|rlv|-v []\n", argv[0]);
+		printf("  -i [file.ird]                Display detailed IRD information\n");
+		printf("  -x [file.ird]                Extract IRD into composing binaries\n");
+		printf("  -xv [file.ird]               As -x, verbose\n");
+		printf("  -c [file.ird] Options        Create Fortis IRD\n");
 		printf("     Suboptions for -c: NOTE: lettered options and signing info\n");
 		printf("                              only correct for 1G and 2G models\n");
-		printf("     -ll [file.part]          Append Loader   (0) -> mtd0\n");
-		printf("     -k [file.part]           Append Kernel   (6) -> mtd1\n");
-		printf("     -a [file.part]           Append App      (1) -> mtd2 (must be signed)\n");
-		printf("     -r [file.part]           Append Root     (8) -> mtd3 (must be signed)\n");
-		printf("     -d [file.part]           Append Dev      (7) -> mdt4 (must be signed)\n");
-		printf("     -c0 [file.part]          Append Config0  (2) -> mtd5, offset 0\n");
-		printf("     -c4 [file.part]          Append Config4  (3) -> mtd5, offset 0x40000\n");
-		printf("     -c8 [file.part]          Append Config8  (4) -> mtd5, offset 0x80000\n");
-		printf("     -ca [file.part]          Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
-		printf("     -u [file.part]           Append User     (9) -> mtd6\n");
-		printf("     -i [resellerID]          Set resellerID\n");
-		printf("     -s [versionnr]           Set SW version\n");
-		printf("     -00 [file.part]          Append Type 0   (0) (alias for -ll)\n");
-		printf("     -1 [file.part]           Append Type 1   (1) (alias for -a)\n");
+		printf("     -ll [file.part]           Append Loader   (0) -> mtd0\n");
+		printf("     -k [file.part]            Append Kernel   (6) -> mtd1\n");
+		printf("     -a [file.part]            Append App      (1) -> mtd2 (must be signed)\n");
+		printf("     -r [file.part]            Append Root     (8) -> mtd3 (must be signed)\n");
+		printf("     -d [file.part]            Append Dev      (7) -> mdt4 (must be signed)\n");
+		printf("     -c0 [file.part]           Append Config0  (2) -> mtd5, offset 0\n");
+		printf("     -c4 [file.part]           Append Config4  (3) -> mtd5, offset 0x40000\n");
+		printf("     -c8 [file.part]           Append Config8  (4) -> mtd5, offset 0x80000\n");
+		printf("     -ca [file.part]           Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
+		printf("     -u [file.part]            Append User     (9) -> mtd6\n");
+		printf("     -i [resellerID]           Set resellerID\n");
+		printf("     -s [versionnr]            Set SW version\n");
+		printf("     -00 [file.part]           Append Type 0   (0) (alias for -ll)\n");
+		printf("     -1 [file.part]            Append Type 1   (1) (alias for -a)\n");
 		printf("     ...\n");
-		printf("     -9  [file.part]          Append Type 9   (9) (alias for -u)\n");
-		printf("     -A  [file.part]          Append Type A   (A) (note: upper case)\n");
+		printf("     -9  [file.part]           Append Type 9   (9) (alias for -u)\n");
+		printf("     -A  [file.part]           Append Type A   (A) (note: upper case)\n");
 		printf("     ...\n");
-		printf("     -F  [file.part]          Append Type F   (F) (note: upper case)\n");
-		printf("     -v                       Verbose operation\n");
-		printf("  -ce [update.ird] Options    Create Enigma2 IRD (obsolete, models with TDT Maxiboot only)\n");
+		printf("     -F  [file.part]           Append Type F   (F) (note: upper case)\n");
+		printf("     -v                        Verbose operation\n");
+		printf("  -ce [update.ird] Options     Create Enigma2 IRD (obsolete, models with TDT Maxiboot only)\n");
 		printf("     Subtions for -ce:\n");
-		printf("     -k|-6 [file.part]        Append Kernel   (6) -> mtd1\n");
-		printf("     -f|-1 [file.part]        Append FW       (1)\n");
-		printf("     -r|-9 [file.part]        Append Root     (9)\n");
-		printf("     -e|-8 [file.part]        Append Ext      (8)\n");
-		printf("     -g|-7 [file.part]        Append G        (7)\n");
-		printf("     -i  [resellerID]         Set resellerID\n");
-		printf("     -s  [versionnr]          Set SW version\n");
-		printf("     -2  [file.part]          Append Config0  (2) -> mtd5, offset 0\n");
-		printf("     -3  [file.part]          Append Config4  (3) -> mtd5, offset 0x40000\n");
-		printf("     -4  [file.part]          Append Config8  (4) -> mtd5, offset 0x80000\n");
-		printf("     -5  [file.part]          Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
-		printf("     -1G                      Use squashfs3.0 dummy\n");
-		printf("     -v                       Verbose operation\n");
-		printf("  -s [unsigned.squashfs]      Sign squashfs part\n");
-		printf("  -sv [unsigned.squashfs]     Sign squashfs part, verbose\n");
-		printf("  -t [signed.squashfs]        Test signed squashfs part\n");
-		printf("  -tv [signed.squashfs]       Test signed squashfs part, verbose\n");
-		printf("  -d                          Create squashfs3.3 dummy file\n");
-		printf("  -dv                         As -d, verbose\n");
-		printf("  -r [file.ird] [resellerID]  Change reseller id (e.g. 230300A0 for Atevio AV7500 L6.00)\n");
-		printf("  -rv [file.ird] [resellerID] As -r, verbose\n");
-		printf("  -n [file.ird] [versionnr]   Change SW version number\n");
-		printf("  -nv [file.ird] [versionnr]  As -n, verbose\n");
-		printf("  -v                          Display program version\n");
+		printf("     -k|-6 [file.part]         Append Kernel   (6) -> mtd1\n");
+		printf("     -f|-1 [file.part]         Append FW       (1)\n");
+		printf("     -r|-9 [file.part]         Append Root     (9)\n");
+		printf("     -e|-8 [file.part]         Append Ext      (8)\n");
+		printf("     -g|-7 [file.part]         Append G        (7)\n");
+		printf("     -i  [resellerID]          Set resellerID\n");
+		printf("     -s  [versionnr]           Set SW version\n");
+		printf("     -2  [file.part]           Append Config0  (2) -> mtd5, offset 0\n");
+		printf("     -3  [file.part]           Append Config4  (3) -> mtd5, offset 0x40000\n");
+		printf("     -4  [file.part]           Append Config8  (4) -> mtd5, offset 0x80000\n");
+		printf("     -5  [file.part]           Append ConfigA  (5) -> mtd5, offset 0xA0000\n");
+		printf("     -1G                       Use squashfs3.0 dummy\n");
+		printf("     -v                        Verbose operation\n");
+		printf("  -s [unsigned.squashfs]       Sign squashfs part\n");
+		printf("  -sv [unsigned.squashfs]      Sign squashfs part, verbose\n");
+		printf("  -t [signed.squashfs]         Test signed squashfs part\n");
+		printf("  -tv [signed.squashfs]        Test signed squashfs part, verbose\n");
+		printf("  -d                           Create squashfs3.3 dummy file\n");
+		printf("  -dv                          As -d, verbose\n");
+		printf("  -r [file.ird] [resellerID]   Change reseller id (e.g. 230300A0 for Atevio AV7500 L6.00)\n");
+		printf("  -rv [file.ird] [resellerID]  As -r, verbose\n");
+		printf("  -n [file.ird] [versionnr]    Change SW version number\n");
+		printf("  -nv [file.ird] [versionnr]   As -n, verbose\n");
+//		printf("  -rl [file.ird] [resellerID]  Change reseller id of loader inside file.ird\n");
+//		printf("  -rlv [file.ird] [resellerID] As -rl, verbose\n");
+		printf("  -v                           Display program version\n");
 		printf("\n");
 		printf("Note: To create squashfs part, use mksquashfs v3.3:\n");
 		printf("      ./mksquashfs3.3 squashfs-root flash.rootfs.own.mtd8 -nopad -le\n");
