@@ -21,11 +21,7 @@
  *                                                                           *
  *****************************************************************************
  *
- * Changes in Version 1.9.9:
- * + add change loader reseller ID (command -rl(v)).
- * + when a 4 digit reseller ID is specified with -r(v) or -rl(v)
- *   the remaining two bytes of the new reseller ID are copied from
- *   the reseller ID in the IRD file.
+ * + TODO: change loader reseller ID.
  *
  * Changes in Version 1.9.8f:
  * + Fix bug with 4 digit reseller IDs.
@@ -171,8 +167,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.9"
-#define DATE "19.06.2022"
+#define VERSION "1.9.8f"
+#define DATE "17.06.2022"
 
 // Global variables
 uint8_t verbose = 1;
@@ -183,7 +179,6 @@ uint32_t ucLen[MAX_PART_NUMBER];
 uint16_t loaderFound;
 uint32_t column;
 uint8_t t_has[MAX_PART_NUMBER];
-char nameOut[MAX_PART_NUMBER][64];
 uint32_t partcount;
 uint32_t loaderId;
 uint32_t loaderSW;
@@ -249,7 +244,7 @@ int32_t getGeneration(int32_t resellerId)
 {
 	int32_t generation;
 
-	if ((resellerId >> 24) == 0x25 && ((resellerId & 0xff) == 0xA5 || (resellerId & 0xff) == 0xAA))
+	if ((resellerId & 0xff) == 0xA5 || (resellerId & 0xff) == 0xAA)
 	{
 		generation = 5;  // Crenova model (AM 520 HD or AM 530 HD)
 	}
@@ -320,10 +315,11 @@ void getLoaderdata(uint8_t *dataBuf, uint32_t resellerId)
 	 	         + (dataBuf[offset + 1] << 16)
 	 	         + (dataBuf[offset + 2] <<  8)
 	 	         +  dataBuf[offset + 3];
-		loaderSW =  dataBuf[offset + 4]  // stored big endian
-	 	         + (dataBuf[offset + 5] <<  8)
+		loaderSW = (dataBuf[offset + 7] << 24)  // stored big endian
 	 	         + (dataBuf[offset + 6] << 16)
-	 	         + (dataBuf[offset + 7] << 24);
+	 	         + (dataBuf[offset + 5] <<  8)
+	 	         +  dataBuf[offset + 4];
+
 		loaderFound = 2;  // flag loader data set
 	}
 }
@@ -459,7 +455,7 @@ uint8_t *getHeader(FILE *irdFile)
 {
 	uint16_t headerDataBlockLen;
 	uint8_t *dataBuf;
-	size_t count = 0;
+	int count = 0;
 
 	fseek(irdFile, 0, SEEK_SET);
 //	headerDataBlockLen = 0;  // header length
@@ -515,7 +511,7 @@ int32_t writeBlock(FILE *irdFile, FILE *inFile, uint8_t firstBlock, uint16_t typ
 	 * Loader definition of header block:
 	 * Offset   Size      CRC  Name/purpose
 	 * -------------------------------------------
-	 *   0x00   uint16_t   N   length of header or normal block length
+	 *   0x00	uint16_t   N   length of header or normal block length
 	 *   0x02   uint16_t   N   CRC16 over rest of block
 	 *   0x04   uint16_t   Y   _xfdVer -> transfer format, 0x10 = compressed (type in data block)
 	 *   0x06   uint32_t   Y   _systemId -> resellerId
@@ -685,7 +681,7 @@ struct tPartition *getTableAddr(uint32_t resellerId)
  * Returns: number of bytes written.
  *
  */
-int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag , int verboseFlag)
+int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag)
 {
 	uint16_t blockCounter = 0;
 	uint16_t len = 0;
@@ -693,6 +689,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 	uint16_t crc_16;
 	uint16_t dataCrc = 0;
 	uint16_t type = 0;
+	char nameOut[64] = "";
 	uint8_t dataBuf[DATA_BLOCK_SIZE + 6];
 	uint16_t fpVersion;
 	uint32_t blockCount;
@@ -726,11 +723,8 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 	type = extract_2Bytes(dataBuf, 0);
 	blockCounter++;
 
-#if 0 //not defined USE_ZLIB
-	if (firstBlock && type == 0x01)
-#else
+//	if (firstBlock && ((type == 0x10) || type == 0x01))
 	if (firstBlock && type == 0x10)
-#endif
 	{
 		part_number++;
 		fpVersion = extract_2Bytes(dataBuf, 0);
@@ -739,7 +733,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 		SWVersion1 = extract_2Bytes(dataBuf, 12);
 		SWVersion2 = extract_2Bytes(dataBuf, 14);
 
-		if (verboseFlag == 1)
+		if (verbose == 1)
 		{
 			modelName = getModelName(systemId);
 			printf("\n Header data:\n");
@@ -762,7 +756,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 				column = 0;
 				tableAddr = getTableAddr(systemId);
 
-				if (verboseFlag)
+				if (verbose == 1)
 				{
 					printf("\nPartition found, type %02X -> %s (%s, %s", type, tableAddr[type].Description, tableAddr[type].Extension2, tableAddr[type].FStype);
 					if (tableAddr[type].Flags & PART_SIGN)
@@ -779,21 +773,21 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 				if (writeflag)
 				{
 					/* Build output file name */
-					strncpy(nameOut[type], name, strlen(name));  // get basic output file name
-					strcat(nameOut[type], tableAddr[type].Extension);
-					strcat(nameOut[type], ".");
-					strcat(nameOut[type], tableAddr[type].Extension2);
+					strncpy(nameOut, name, strlen(name));  // get basic output file name
+					strcat(nameOut, tableAddr[type].Extension);
+					strcat(nameOut, ".");
+					strcat(nameOut, tableAddr[type].Extension2);
 
-					fd[type] = fopen(nameOut[type], "wb");
+					fd[type] = fopen(nameOut, "wb");
 
 					if (fd[type] == NULL)
 					{
-						printf("\nERROR: Cannot open output file %s.\n", nameOut[type]);
+						printf("\nERROR: Cannot open output file %s.\n", nameOut);
 						return -1;
 					}
-					if (verboseFlag)
+					if (verbose)
 					{
-						printf("Writing partition data to file %s\n", nameOut[type]);
+						printf("Writing partition data to file %s\n", nameOut);
 					}
 				}
 				else
@@ -809,6 +803,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 		else
 		{
 			printf("\nERROR: Illegal partition type %02X found.\n", type);
+			// getchar();
 			return -1;
 		}
 	}
@@ -827,10 +822,11 @@ void scanBlocks(FILE *irdFile)
 		has[i] = 0;
 		t_has[i] = 0;
 	}
+	verbose = 0;
 	while (!feof(irdFile))
 	{
 		pos = ftell(irdFile);
-		len = readBlock(irdFile, (char *)"dummy", firstBlock, 0, 0);
+		len = readBlock(irdFile, (char *)"dummy", firstBlock, 0);
 		firstBlock = 0;
 		if (len < 0)  // error ocurred
 		{
@@ -977,16 +973,20 @@ int32_t main(int32_t argc, char* argv[])
 		printf("Header info:\n");
 		resellerId = getresellerID(irdFile);
 		printf("  Reseller ID      : 0x%08X\n", resellerId);
+		generation = getGeneration(resellerId);
+//		printf("  Reseller model   : %s (generation %d)\n", getModelName(resellerId), generation);
 		printf("  Reseller model   : %s\n", getModelName(resellerId));
 		SWVersion = getSWversion(irdFile);
 		printf("  Software version : V%X.%02X.%02X\n", SWVersion >> 16, (SWVersion & 0x0000FF00) >> 8, SWVersion & 0xFF);
 		dataBuffer = getHeader(irdFile);
 		i = ((extract_2Bytes(dataBuffer, 6)) << 16) + extract_2Bytes(dataBuffer, 8);  // block count
 		printf("  Number of blocks : %d (0x%04X)\n", i, i);
-#if 0 //not defined USE_ZLIB
+#if 0
+#if not defined USE_ZLIB
 		j = extract_2Bytes(dataBuffer, 0) >> 1;
 		printf("  File size        : %d (Calculated from # of blocks)\n", ((i << 18) + j));
 #endif
+#endif // 0
 		fseek(irdFile, 0, SEEK_SET);
 		partcount = 0;
 		loaderFound = 0;
@@ -996,14 +996,10 @@ int32_t main(int32_t argc, char* argv[])
 		if (loaderFound == 2)
 		{
 			printf("Loader info:\n");
-			printf("  Loader reseller ID : 0x%08X ", loaderId);
+			printf("  Loader reseller ID : 0x%08X", loaderId);
 			if (loaderId == resellerId)
 			{
 				printf(" (same model)");
-			}
-			else
-			{
-				printf ("(%s)", getModelName(loaderId));
 			}
 			printf("\n  Loader version     : V%X.%02X.%02X\n", (loaderSW >> 16) & 0xff, (loaderSW >> 8) & 0xff, loaderSW & 0xff);
 			if ((loaderId & 0xff00ff5f) != (resellerId & 0xff00ff5f))
@@ -1014,16 +1010,13 @@ int32_t main(int32_t argc, char* argv[])
 			else if ((loaderId & 0x00ff00ff) != (resellerId & 0x00ff00ff))
 			{
 				printf("\nCAUTION: After flashing this file, reseller code is changed to %08X.\n", loaderId);
-#if 0
 				if ((loaderId & 0xffffff5f) != (resellerId & 0xffffff5f))
 				{
 					printf("         Reseller code %08X is for a(n) %s.\n", loaderId, getModelName(loaderId));
 				}
-#endif
 			}
 		}
 		tableAddr = getTableAddr(resellerId);
-		generation = getGeneration(resellerId);
 
 		// Handle generation 2 & generation 5 (Atemio AM 520/530 HD) (possible variable layout)
 		if (((generation == 2) && (resellerId & 0xf0) == 0xa0)
@@ -1198,8 +1191,8 @@ int32_t main(int32_t argc, char* argv[])
 			}
 		}
 		if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
-		||  (generation == 5 && (resellerId & 0xff) == 0xa5)
-		||  (generation == 5 && (resellerId & 0xff) == 0xaa))
+		||  (generation == 5 && (resellerId & 0xf0) == 0xa5)
+		||  (generation == 5 && (resellerId & 0xf0) == 0xaa))
 		{
 			printf("  Note: start addresses and sizes are multiples of erase size (0x%X).\n", ERASE_SIZE);
 		}
@@ -1232,7 +1225,7 @@ int32_t main(int32_t argc, char* argv[])
 		uint32_t crc = 0;
 		char signedFileName[128];
 		uint8_t buffer[DATA_BUFFER_SIZE];
-		size_t count;
+		int32_t count;
 		FILE *inFile;
 		FILE *signedFile;
 
@@ -1296,7 +1289,7 @@ int32_t main(int32_t argc, char* argv[])
 		uint32_t orgcrc = 0;
 		uint8_t buffer[DATA_BUFFER_SIZE];
 		FILE *inFile;
-		size_t count;
+		int32_t count;
 
 		if (strncmp(argv[1], "-tv", 3) == 0)
 		{
@@ -1380,7 +1373,7 @@ int32_t main(int32_t argc, char* argv[])
 		while (!feof(file))
 		{
 			pos = ftell(file);
-			len = readBlock(file, argv[2], firstBlock, 1, verbose);
+			len = readBlock(file, argv[2], firstBlock, 1);
 			firstBlock = 0;
 			if (len < 0)
 			{
@@ -1450,11 +1443,11 @@ int32_t main(int32_t argc, char* argv[])
 		headerDataBlockLen = 0;
 
 		// construct header
-#if 0 //not defined USE_ZLIB
-		type = 0x01;
-#else
+//#if defined USE_ZLIB
 		type = 0x10;
-#endif
+//#else
+//		type = 0x01;
+//#endif
 		// Header
 		headerDataBlockLen = writeBlock(irdFile, NULL, 1, type);  // input file = NULL, first block
 		headerDataBlockLen += 4;  // allow for length and CRC
@@ -1721,7 +1714,7 @@ int32_t main(int32_t argc, char* argv[])
 		uint8_t *dataBuf;
 		FILE *file;
 		FILE *irdFile;
-		size_t count;
+		uint16_t temp;
 
 		verbose = 0;
 		irdFile = fopen(argv[2], "wb+");
@@ -1993,8 +1986,8 @@ int32_t main(int32_t argc, char* argv[])
 
 		// Read Header Data Block
 		fseek(irdFile, 0x04, SEEK_SET);
-		count = fread(dataBuf, 1, headerDataBlockLen, irdFile);
-		if (count != headerDataBlockLen)
+		temp = fread(dataBuf, 1, headerDataBlockLen, irdFile);
+		if (temp != headerDataBlockLen)
 		{
 			printf("ERROR: Reading back header failed (-ce command).\n");
 			return -1;
@@ -2058,6 +2051,16 @@ int32_t main(int32_t argc, char* argv[])
 			verbose = 0;
 		}
 		resellerId = 0;
+		if (strlen(argv[3]) != 4 && strlen(argv[3]) != 8)
+		{
+			printf("ERROR: Reseller ID must be 4 or 8 characters long.\n");
+			return -1;
+		}
+		sscanf(argv[3], "%X", &resellerId);
+		if (strlen(argv[3]) == 4)
+		{
+			resellerId = resellerId << 16;
+		}
 
 		irdFile = fopen(argv[2], "r+");
 		if (irdFile == NULL)
@@ -2065,40 +2068,22 @@ int32_t main(int32_t argc, char* argv[])
 			printf("ERROR: cannot open IRD file %s.\n", argv[2]);
 			return -1;
 		}
-		if (strlen(argv[3]) != 4 && strlen(argv[3]) != 8)
-		{
-			printf("ERROR: Reseller ID must be 4 or 8 characters long.\n");
-			fclose(irdFile);
-			return -1;
-		}
-		sscanf(argv[3], "%X", &resellerId);
-		if (strlen(argv[3]) == 4)
-		{
-			resellerId = (resellerId << 16) | (getresellerID(irdFile) & 0x0000ffff);
-		}
 		changeResellerID(irdFile, resellerId);
 		fclose(irdFile);
 	}
+#if 1
 	else if ((argc == 4 && strlen(argv[1]) == 3 && strncmp(argv[1], "-rl", 3) == 0)
 	     ||  (argc == 4 && strlen(argv[1]) == 4 && strncmp(argv[1], "-rlv", 4) == 0))
 	{  // -rl(v): Change loader reseller ID
 		uint32_t resellerId;
-		uint32_t SWVersion = 0;
 		FILE *irdFile;
-		FILE *loaderFile;
 		uint8_t *dataBuffer;
 		uint32_t resellerIdL;
 		uint16_t generation;
 		uint8_t firstBlock;
-		uint16_t totalBlockCount;
-		uint16_t partBlockcount;
-		uint16_t headerDataBlockLen;
 		int32_t pos = 0;
 		int32_t i;
 		uint16_t len = 0;
-		struct tPartition *tableAddr;
-		int32_t filesize;
-		uint8_t *dataBufL;
 
 		resellerId = 0;
 
@@ -2108,23 +2093,10 @@ int32_t main(int32_t argc, char* argv[])
 			printf("ERROR: cannot open input file %s.\n", argv[2]);
 			return -1;
 		}
-		if (strncmp(argv[1], "-rlv", 4) == 0)
-		{
-			verbose = 1;
-		}
-		else
-		{
-			verbose = 0;
-		}
 		resellerId = getresellerID(irdFile);
+		printf("Reseller ID of file %s is 0x%08X.\n", argv[2], resellerId);
 		generation = getGeneration(resellerId);
-		SWVersion = getSWversion(irdFile);
-		if (verbose)
-		{
-			printf("Reseller ID of file %s is %08X.\n", argv[2], resellerId);
-			printf("Reseller model       : %s\n", getModelName(resellerId));
-			printf("Software version     : V%X.%02X.%02X\n", SWVersion >> 16, (SWVersion & 0x0000FF00) >> 8, SWVersion & 0xFF);
-		}
+		printf("Reseller model   : %s\n", getModelName(resellerId));
 		dataBuffer = getHeader(irdFile);
 		fseek(irdFile, 0, SEEK_SET);
 		partcount = 0;
@@ -2137,27 +2109,23 @@ int32_t main(int32_t argc, char* argv[])
 			printf("ERROR: This IRD file does not contain a loader partition.\n");
 			return -1;
 		}
-		if (verbose)
+		if (strncmp(argv[1], "-rlv", 4) == 0)
 		{
-			printf("IRD file contains a loader partition.\n");
-			printf("Loader version is    : V%X.%02X.%02X\n", (loaderSW >> 16) & 0xff, (loaderSW >> 8) & 0xff, loaderSW & 0xff);
-			printf("Loader reseller ID is: %08X ", loaderId);
-			if (loaderId == resellerId)
-			{
-				printf("(same model)");
-			}
-			else
-			{
-				printf ("(%s)", getModelName(loaderId));
-			}
-			printf("\n");
+			verbose = 1;
 		}
+		else
+		{
+			verbose = 0;
+		}
+		printverbose("IRD file contains a loader partition.\nLoader version is: V%X.%02X.%02X\n", (loaderSW >> 16) & 0xff, (loaderSW >> 8) & 0xff, loaderSW & 0xff);
+		printverbose("Loader reseller ID is: %08X (%s)\n", loaderId, getModelName(loaderId));
+
 		// Check if loader is compatible with hardware matching the IRD file's reseller ID
 		if ((resellerId >> 24 != loaderId >> 24)
 		||  (resellerId >>  8 != loaderId >>  8))
 		{
-			if ((generation == 2 || generation == 3 || generation == 5) && (resellerId & 0xff00ff5f != loaderId & 0xff00ff5f)
-			||  (generation != 2 && generation != 3 && generation != 5) && (resellerId & 0xff00ffff != loaderId & 0xff00ffff))
+			if ((generation == 2 || generation == 3 || generation == 5) && (resellerId & 0x5f != loaderId & 0x5f)
+			||  (generation != 2 && generation != 3 && generation != 5) && (resellerId != loaderId))
 			{
 				printf("ERROR: Loader in IRD file is not compatible with hardware indicated by the file's reseller ID.\n");
 				printf("       Do NOT flash this file!\n");
@@ -2172,11 +2140,14 @@ int32_t main(int32_t argc, char* argv[])
 		sscanf(argv[3], "%X", &resellerIdL);
 		if (strlen(argv[3]) == 4)
 		{
-			resellerIdL = (resellerIdL << 16) | (loaderId & 0x0000ffff);
+			resellerIdL = resellerIdL << 16;
 		}
 		// Check if specified loader reseller ID differs only in the 2nd byte of the file's reseller ID
 		if (generation == 2 || generation == 3 || generation == 5)
 		{
+//				printverbose("Reseller ID to set: %08X\n", resellerIdL);
+//				printverbose("Difference1: %08X\n", resellerIdL & 0xff00ff5f);
+//				printverbose("Difference2: %08X\n", loaderId & 0xff00ff5f);
 				if ((resellerIdL & 0xff00ff5f) != (loaderId & 0xff00ff5f))
 				{
 					printf("ERROR: Specified loader reseller ID and IRD file's reseller ID are not compatible.\n");
@@ -2186,16 +2157,14 @@ int32_t main(int32_t argc, char* argv[])
 		}
 		else if	(resellerIdL & 0xff00ffff != loaderId & 0xff00ffff)
 		{
-			printf("ERROR: Specified loader reseller ID and IRD file's reseller ID are not compatible.\n");
-			printf("       The only difference allowed is the value of the 2nd byte.\n");
+			printf("Specified loader reseller ID and IRD file's reseller ID are not compatible.\n");
+			printf("The only difference allowed is the value of the 2nd byte.\n");
 			return -1;
 		}
-		if (verbose)
-		{
-			printf("\nChanging loader reseller ID in IRD file %s\n", argv[2]);
-			printf("from %08X (%s)\n", loaderId, getModelName(loaderId));
-			printf("  to %08X (%s).\n\n", resellerIdL, getModelName(resellerIdL));
-		}
+		printVerbose("Changing loader reseller ID in IRD file %s\n", argv[2]);
+		printVerbose("from %08X (%s)\n", loaderId, getModelName(loaderId));
+		printVerbose("  to %08X (%s).\n", resellerIdL, getModelName(resellerIdL));
+
 		// Reopen IRD file and unpack it in its binary components
 		for (i = 0; i < MAX_PART_NUMBER; i++)
 		{
@@ -2213,7 +2182,7 @@ int32_t main(int32_t argc, char* argv[])
 		while (!feof(irdFile))
 		{
 			pos = ftell(irdFile);
-			len = readBlock(irdFile, argv[2], firstBlock, 1, verbose);
+			len = readBlock(irdFile, argv[2], firstBlock, 1);
 			firstBlock = 0;
 			if (len < 0)
 			{
@@ -2231,7 +2200,6 @@ int32_t main(int32_t argc, char* argv[])
 			}
 		}
 		fclose(irdFile);  // close input file
-
 		// close output files
 		for (i = 0; i < MAX_PART_NUMBER; i++)
 		{
@@ -2248,152 +2216,10 @@ int32_t main(int32_t argc, char* argv[])
 //				printf("CAUTION, unusual condition: partition type %d occurs %d times.\n", i, has[i]);
 //			}
 //		}
-		if (verbose)
-		{
-			printf("Extracting IRD file %s succesfully completed.\n", argv[2]);
-		}
-
-		// open output file with loader binary and change the reseller ID
-		loaderFile = fopen(nameOut[0], "r+");
-		fseek(loaderFile, 0L, SEEK_END);
-		filesize = ftell(loaderFile);
-
-		// Read bootloader file
-		dataBufL = (uint8_t *)malloc(filesize);
-		fseek(loaderFile, 0, SEEK_SET);
-		i = fread(dataBufL, 1, filesize, loaderFile);
-
-		if (i != filesize)
-		{
-			printf("ERROR: Reading loader file failed.\n");
-			return -1;
-		}
-		fclose(loaderFile);
-		remove(argv[2]);
-
-		// determine offset into buffer
-		switch (generation)
-		{
-			case 1:
-			{
-				i = RESELLER_OFFSET_GEN1;
-				break;
-			}
-			case 2:
-			case 3:
-			case 5:
-			default:
-			{
-				i = RESELLER_OFFSET_GEN2;
-				break;
-			}
-			case 4:
-			{
-				i = RESELLER_OFFSET_GEN4;
-				break;
-			}
-		}
-		// Update loader Reseller ID
-		insertint32_t(&dataBufL, i, resellerIdL);
-		loaderFile = fopen(nameOut[0], "wb");
-		if (loaderFile == NULL)
-		{
-			printf("ERROR: cannot open loader partition file %s.\n", nameOut[0]);
-			return -1;
-		}
-
-		fwrite(dataBufL, 1, filesize, loaderFile);
-		fclose(loaderFile);
-		free(dataBufL);
-
-		// rewrite IRD file
-		irdFile = fopen(argv[2], "w+");
-
-		if (irdFile == NULL)
-		{
-			printf("ERROR: cannot open output file %s.\n", argv[2]);
-			return -1;
-		}
-
-		if (verbose)
-		{
-			printf("Creating new output file %s\n", argv[2]);
-		}
-		totalBlockCount = 0;
-		headerDataBlockLen = 0;
-
-		// construct header
-#if 0 //not defined USE_ZLIB
-		i = 0x01;
-#else
-		i = 0x10;
-#endif
-		headerDataBlockLen = writeBlock(irdFile, NULL, 1, i);  // input file = NULL, first block
-		headerDataBlockLen += 4;  // allow for length and CRC
-
-		// Add partitions
-		for (i = 0; i < MAX_PART_NUMBER; i++)
-		{
-			if (has[i])
-			{
-				fd[i] = fopen(nameOut[i], "rb");
-				if (fd[i] == NULL)
-				{
-					printf("ERROR: cannot open input file %s.\n", nameOut[i]);
-					return -1;
-				}
-				column = 0;
-				if (verbose)
-				{
-					printf("Adding type %d block, file name: %s.\n", i, nameOut[i]);
-				}
-				partBlockcount = totalBlockCount;
-				while (writeBlock(irdFile, fd[i], 0, i) == DATA_BLOCK_SIZE)  // normal block
-				{
-					totalBlockCount++;
-				}
-				totalBlockCount++;
-				partBlockcount = totalBlockCount - partBlockcount;
-				if (verbose)
-				{
-					printf("\nAdded %d blocks, total is now %d blocks.\n", partBlockcount, totalBlockCount);
-				}
-				fclose(fd[i]);
-			}
-		}
-		fclose(irdFile);
-
-		// Refresh header
-		irdFile = fopen(argv[2], "r+");
-
-		dataBuffer = getHeader(irdFile);
-
-		insertint16_t(&dataBuffer, 0x08, (int16_t)totalBlockCount & 0xFFFF);
-		insertint16_t(&dataBuffer, 0x0a, (int16_t)totalBlockCount >> 16);  // zero in practice
-		insertint32_t(&dataBuffer, 2, resellerId);
-		insertint16_t(&dataBuffer, 0x0c, (SWVersion >> 16));
-		insertint16_t(&dataBuffer, 0x0e, (SWVersion & 0x0000FFFF));
-
-		setHeader(irdFile, headerDataBlockLen, dataBuffer);
-		fclose(irdFile);
-
-		// Clean up
-		for (i = 0; i < MAX_PART_NUMBER; i++)
-		{
-			if (has[i])
-			{
-				if (verbose)
-				{
-					printf("Deleting partition file %s\n", nameOut[i]);
-				}
-				remove(nameOut[i]);
-			}
-		}
-		if (verbose)
-		{
-			printf("Changing loader reseller ID in IRD file %s succesfully completed.\n", argv[2]);
-		}
+		printVerbose("Extracting IRD file %s succesfully completed.\n", argv[2]);
 	}
+
+#endif
 	else if ((argc == 4 && strlen(argv[1]) == 2 && strncmp(argv[1], "-n", 2) == 0)
 	     ||  (argc == 4 && strlen(argv[1]) == 3 && strncmp(argv[1], "-nv", 3) == 0))
 	{  // -n(v): Change SW version number
