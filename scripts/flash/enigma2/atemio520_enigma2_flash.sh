@@ -1,58 +1,48 @@
 #!/bin/bash
 # "-----------------------------------------------------------------------"
-# " This script creates Neutrino .ird flash files for Crenova receiver:"
-# " - Atemio AM 520 HD"
-# " with unmodified factory i-boot bootloader 6.40."
+# " This script creates Enigma2 .ird flash files for Crenova receiver:"
+# " - Atemio AM 520 HD
+# " with unmodified factory i-boot bootloader 6.40.
 #
-# "Version for NAND flash, UBI file system."
+# This version generates an image using JFFS2 in NAND flash.
 #
 # "Author: Schischu/Audioniek"
-# "Date: 17-09-2021"
+# "Date: 28-06-2022"
 #
 # "-----------------------------------------------------------------------"
-# "It is assumed that a neutrino image was already built prior to"
+# "It is assumed that an image was already built prior to"
 # "executing this script!"
 # "-----------------------------------------------------------------------"
 #
-# If only the kernel is to be reflashed, the partitions 8, 7 and 1 are
-# also reflashed (requirement of loader 6.40). Partition 1 is flashed as
-# the squashfs dummy only, leaving the neutrino part of it untouched.
-#
+# If only the kernel is to be reflashed, partition 7 is also reflashed
+# (requirement of loader 6.40).
 # "-----------------------------------------------------------------------"
 #
 # Date     Who          Description
 # 20210912 Audioniek    Initial version.
-# 20211024 Audioniek    Pad root to maximum size.
-# 20211101 Audioniek    Fix small problem with batch mode.
 #
 # -----------------------------------------------------------------------
 
-if [ "$BATCH_MODE" == "yes" ]; then
-  IMAGE=
-else
-  echo "-- Output selection ---------------------------------------------------"
-  echo
-  echo " What would you like to flash?"
-  echo "   1) The whole $IMAGE image (*)"
-  echo "   2) Only the kernel"
-  read -p " Select flash target (1-2)? "
-  case "$REPLY" in
-    1) echo > /dev/null;;
-    2) IMAGE="kernel";;
-    *) echo > /dev/null;;
-  esac
-  echo "-----------------------------------------------------------------------"
-  echo
-fi
+echo "-- Output selection ---------------------------------------------------"
+echo
+echo " What would you like to flash?"
+echo "   1) The whole $IMAGE image (*)"
+echo "   2) Only the kernel"
+read -p " Select flash target (1-2)? "
+case "$REPLY" in
+#  1) echo > /dev/null;;
+  2) IMAGE="kernel";;
+#  *) echo > /dev/null;;
+esac
+echo "-----------------------------------------------------------------------"
+echo
 
 # Set up the variables
 TMPDUMDIR=$TMPDIR/DUMMY
-#MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
-#SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
+MKFSJFFS2=$TUFSBOXDIR/host/bin/mkfs.jffs2
+SUMTOOL=$TUFSBOXDIR/host/bin/sumtool
 PAD=$TOOLSDIR/pad
 MKSQUASHFS=$TOOLSDIR/mksquashfs3.3
-MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
-UBINIZE=$TUFSBOXDIR/host/bin/ubinize
 FUP=$TOOLSDIR/fup
 
 OUTFILE="$BOXTYPE"_"$IMAGE"_flash_R$RESELLERID.ird
@@ -70,8 +60,44 @@ elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
 
+#
+# Note on flash order on Atemio AM 520 HD:
+#
+# The order of flashing in NAND is
+# 1. if present: type 0 (loader, mtd0)
+# 2. type 6 (kernel, mtd7)
+# 3. type 7 (dev, mtd8, fake root))
+# 4. type 8 (root, mtd9, real root)
+# 5. if present,type 9 (user, mtd10)
+#
+# mtd-layout in NAND:
+#	.name   = "NAND KERNEL",     // mtd7 (partition type 6)
+#	.size   = 0x00300000,        // 3.0 Mbyte
+#	.offset = 0
+#
+#	.name   = "NAND FAKE_ROOT",  // mtd8 (flashable using type 7)
+#	.size   = 0x0001FFFE,        // 128 kbyte
+#	.offset = 0x00300000         // 3 Mbyte
+#
+#	.name   = "NAND ROOT",       // mtd9 (flashable using type 8)
+#	.size   = 0x08000000,        // 128 Mbyte
+#	.offset = 0x00320000         // 3,125 Mbyte
+#
+#	.name   = "NAND USER",       // mtd10 (partition type 9)
+#	.size   = 0x07CE0000,        // 4.0 Mbyte
+#	.offset = 0x08320000         // 124,875 Mbyte
+#
+#	.name   = "NAND SWAP",       // mtd11
+#	.size   = MTDPART_SIZ_FULL,  // 256 Mbyte
+#	.offset = 0x10000000         // 256 Mbyte
+#
+#	.name   = "NAND FULL",       // mtd12
+#	.size   = MTDPART_SIZ_FULL,
+#	.offset = 0x300000
+#
+
 echo -n " - Preparing kernel file..."
-# Note: padding the kernel to set start offset of type 8 (root) does not work;
+# Note: padding the kernel to set start offset of type 7 (fake root) does not work;
 # boot loader always uses the actual kernel size (at offset 0x0c?) to find/check
 # the root.
 # CAUTION for a known problem: a kernel with a size that is an exact multiple
@@ -113,21 +139,21 @@ else
 fi
 
 echo -n " - Adjusting fake root partition size..."
-# Note: The type 8 partition is always flashed directly following the kernel
-# at the address the i-boot loader expects it based on the partition size of
-# the kernel. The type 8 partition will at least occupy one erase block.
+# Note: The type 7 partition is always flashed directly following the kernel
+# at the address the iBoot loader expects it based on the partition size of
+# the kernel. The type 7 partition will at least occupy one erase block.
 # Because the kernel can vary in size up to 3 Mbyte, the fake root squashfs
 # partition preceeding the real rootfs must be adjusted in size in such a way
-# that the real rootfs is always flashed at offset 0x38000.
+# that the real rootfs is always flashed at offset 0x320000.
 # The dummy app squashfs is filled with one file filled with random bytes (to
 # limit # compressing as much as possible).
 # The overhead of the squashfs dummy is about 228 bytes.
 # It is desirable that the squashfs dummy ends about in the middle of an erase
 # block. This will achieve that the resizing during flashing has the greatest
 # chance of resulting in the desired flash offset for the real rootfs at
-# offset 0x380000.
+# offset 0x320000.
 #
-# The actual kernel will end at offset kernel offset plus $SIZEKD. The
+# The actual kernel will end at offset (kernel offset plus $SIZEKD). The
 # flashing process will round this up to the next erase block boundary
 # automatically.
 #
@@ -140,14 +166,14 @@ echo -n " - Adjusting fake root partition size..."
 # The size of the fake file in the dummy squashfs is therefore approximately:
 #
 # FAKESIZE = desired offset - (kernel offset + $SIZEKD) - squashfs overhead - (erasesize / 2)
-#          = 0x380000 - 0x60000 - $SIZEKD - 228 - 0x20000 / 2
-#          = 3670016 - 393216 - $SIZEKD - 228 - 65536
-#          = 3276572 - $SIZEKD - 65536.
+#          = 0x320000 - 0x60000 - $SIZEKD - 228 - 0x20000 / 2
+#          = 3276800 - 393216 - $SIZEKD - 228 - 65536
+#          = 2883356 - $SIZEKD - 65536.
 #
-FAKESIZEN=$(expr 3211036 - $SIZEKD)
+FAKESIZEN=$(expr 2817820 - $SIZEKD)
 
-# Determine fake root size
-if [[ $SIZEKD < "3145729" ]] && [[ $SIZEKD > "3014656" ]]; then # < 0x2E0000, > 0x2C00000, kernel ends at 0x360000 
+# Determine fake app size
+if [[ $SIZEKD < "3145729" ]] && [[ $SIZEKD > "3014656" ]]; then # < 0x2E0000, > 0x2C00000, kernel ends at 0x300000 
   FAKESIZE="65308"  # 0x010000 - 228
 else
   FAKESIZE="999" #used to flag illegal kernel size
@@ -197,30 +223,30 @@ fi
 if [[ $SIZEKD < "1179648" ]] && [[ $SIZEKD > "1048576" ]]; then # < 0x120000, > 0x1000000
   FAKESIZE="2031388"  # 0x1F0000 - 228
 fi
-#if [[ "$FAKESIZE" == "999" ]]; then
-#  echo -e "\033[01;31m"
-#  echo "-- PROBLEM! -----------------------------------------------------------"
-#  echo
-#  echo -e "\033[01;31m"
-#  echo " This kernel cannot be flashed, due to its size being" > /dev/stderr
-#  echo " an exact multiple of 0x20000. This is a limitation of" > /dev/stderr
-#  echo " bootloader 6.40." > /dev/stderr
-#  echo " Rebuild the kernel by changing the configuration." > /dev/stderr
-#  echo
-#  echo " Exiting..."
-#  echo "-----------------------------------------------------------------------"
-#  echo -e "\033[00m"
-#  exit
-#fi
+if [[ "$FAKESIZE" == "999" ]]; then
+  echo -e "\033[01;31m"
+  echo "-- PROBLEM! -----------------------------------------------------------"
+  echo
+  echo -e "\033[01;31m"
+  echo " This kernel cannot be flashed, due to its size being" > /dev/stderr
+  echo " an exact multiple of 0x20000. This is a limitation of" > /dev/stderr
+  echo " bootloader 6.40." > /dev/stderr
+  echo " Rebuild the kernel by changing the configuration." > /dev/stderr
+  echo
+  echo " Exiting..."
+  echo "-----------------------------------------------------------------------"
+  echo -e "\033[00m"
+  exit
+fi
 echo " done."
 #echo "FAKESIZE = $FAKESIZE, new FAKESIZE = $FAKESIZEN"
 
 if [ ! -e $TOOLSDIR/seedfile ]; then
+  echo
   echo -n " - Generating seedfile..."
   dd if=/dev/urandom count=3538943 bs=1 of=$TOOLSDIR/seedfile bs=1 skip=0 2> /dev/null
   echo " done."
 fi
-
 echo -n " - Creating dummy root squashfs 3.3 partition (Fake_ROOT)..."
 dd if=$TOOLSDIR/seedfile of=$TMPDUMDIR/dummy bs=1 skip=0 count=$FAKESIZE 2> /dev/null
 $MKSQUASHFS $TMPDUMDIR $TMPDIR/mtd_fakeroot.bin -nopad -le > /dev/null
@@ -229,54 +255,34 @@ $FUP -s $TMPDIR/mtd_fakeroot.bin > /dev/null
 echo " done."
 
 if [ "$IMAGE" != "kernel" ]; then
-  echo -n " - Preparing UBIFS root file system..."
-  # Logical erase block size is physical erase block size (131072) minus -m parameter => -e 129024
-  # Number of erase blocks is partition size / physical eraseblock size: 37Mib / 131072 => -c 296
-  # The kernel supports a zlib compressed ubifs => -x zlib
-  $MKFSUBIFS -d $TMPROOTDIR -m 2048 -e 129024 -c 296 -x zlib -U -o $TMPDIR/mtd_root.ubi 2> /dev/null
-  echo " done."
-
-  echo -n " - Creating ubinize ini file..."
-  # Create ubi.ini
-  echo "[ubi-rootfs]" > $TMPDIR/ubi.ini
-  echo "mode=ubi" >> $TMPDIR/ubi.ini
-  echo "image=$TMPDIR/mtd_root.ubi" >> $TMPDIR/ubi.ini
-  echo "vol_id=0" >> $TMPDIR/ubi.ini
-  # UBI needs a few free erase blocks for bad PEB handling, say 15, so:
-  # Net available for data: (296 - 15) x 129024 = 36255744 bytes
-  echo "vol_size=36255744" >> $TMPDIR/ubi.ini
-  echo "vol_type=dynamic" >> $TMPDIR/ubi.ini
-  # krnel patch uses the volume label rootfs
-  echo "vol_name=rootfs" >> $TMPDIR/ubi.ini
-  # Allow UBI to dynamically resize the volume
-  echo "vol_flags=autoresize" >> $TMPDIR/ubi.ini
-  echo "vol_alignment=1" >> $TMPDIR/ubi.ini
-  echo " done."
-
-  echo -n " - Creating UBI root image..."
-  # UBInize the UBI partition of the rootfs
-  # Physical eraseblock size is 131072 => -p 128KiB
-  # Subpage size is 512 bytes => -s 512
-  $UBINIZE -o $TMPDIR/mtd_root.ubin -p 128KiB -m 2048 -s 512 -x 1 $TMPDIR/ubi.ini 2> /dev/null
-  $PAD 0x2500000 $TMPDIR/mtd_root.ubin $TMPDIR/mtd_root.pad
+  echo -n " - Preparing real root..."
+  # Create a jffs2 partition for the complete root
+  $MKFSJFFS2 -qUfl -e 0x20000 -r $TMPROOTDIR -o $TMPDIR/mtd_root.bin
+  $SUMTOOL -p -l -e 0x20000 -i $TMPDIR/mtd_root.bin -o $TMPDIR/mtd_root.sum > /dev/null
+  # Padding the root up maximum size is required to force JFFS2 to find
+  # only erased flash blocks after the root on the initial kernel run.
+  $PAD 0x8000000 $TMPDIR/mtd_root.sum $TMPDIR/mtd_root.pad
   echo " done."
 
   echo -n " - Checking root size..."
-  SIZE=`stat $TMPDIR/mtd_root.ubin -t --format %s`
+  SIZE=`stat $TMPDIR/mtd_root.bin -t --format %s`
   SIZEH=`printf "%08X" $SIZE`
   SIZED=`printf "%d" $SIZE`
-  if [[ $SIZED > "36255744" ]]; then
+  SIZEDS=$(expr $SIZED / 16)
+  SIZEMAX=8388608
+  SIZEMAXH=8000000
+  if [[ $SIZEDS > $SIZEMAX ]]; then
     echo -e "\033[01;31m"
     echo "-- ERROR! -------------------------------------------------------------"
     echo
-    echo " ROOT TOO BIG: 0x$SIZEH instead of 0x022937FF bytes." > /dev/stderr
+    echo " ROOT TOO BIG: 0x$SIZEH instead of 0x0$SIZEMAXH bytes." > /dev/stderr
     echo
     echo " Exiting..."
     echo "-----------------------------------------------------------------------"
     echo -e "\033[00m"
     exit
   else
-    echo " OK: $SIZED (0x$SIZEH, max. 0x022937FF) bytes."
+    echo " OK: $SIZED (0x$SIZEH, max. 0x0$SIZEMAXH) bytes."
   fi
 fi
 
@@ -284,23 +290,30 @@ echo -n " - Creating .IRD flash file and MD5..."
 if [ "$IMAGE" == "kernel" ]; then
   $FUP -c $OUTDIR/$OUTFILE \
        -6 $TMPDIR/uImage \
-       -7 $TMPDIR/mtd_fakeroot.bin
+       -7 $TMPDIR/mtd_fakeroot.bin.signed
 else
-  $FUP -c $OUTDIR/$OUTFILE \
-       -6 $TMPDIR/uImage \
-       -7 $TMPDIR/mtd_fakeroot.bin \
-       -8 $TMPDIR/mtd_root.pad
+  if [ -e $TMPDIR/mtd_user.bin ]; then
+    $FUP -c $OUTDIR/$OUTFILE \
+         -6 $TMPDIR/uImage \
+         -7 $TMPDIR/mtd_fakeroot.bin.signed \
+         -8 $TMPDIR/mtd_root.pad \
+         -9 $TMPDIR/mtd_user.bin
+  else
+    $FUP -c $OUTDIR/$OUTFILE \
+         -6 $TMPDIR/uImage \
+         -7 $TMPDIR/mtd_fakeroot.bin.signed \
+         -8 $TMPDIR/mtd_root.pad
+  fi
 fi
 # Set reseller ID
 $FUP -r $OUTDIR/$OUTFILE $RESELLERID
-# Set version number to enforce flashing to NAND
-$FUP -n $OUTDIR/$OUTFILE 10000
+# Set SW version to 2.10.00 to force flashing to NAND flash
+$FUP -n $OUTDIR/$OUTFILE 21000
 # Create MD5 file
 md5sum -b $OUTDIR/$OUTFILE | awk -F' ' '{print $1}' > $OUTDIR/$OUTFILE.md5
 echo " done."
 
-echo -n " - Creating .ZIP output file...       "
-
+echo -n " - Creating .ZIP output file..."
 cd $OUTDIR
 zip -j $OUTZIPFILE $OUTFILE $OUTFILE.md5 > /dev/null
 cd $CURDIR
@@ -310,8 +323,8 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo
-  echo " The receiver must be equipped with the standard i-boot bootloader"
-  echo " used for Titanit with unmodified bootargs."
+  echo " The receiver must be equipped with the standard iBoot bootloader used"
+  echo " for TitanNit with unmodified bootargs."
   echo
   echo " To flash the created image copy the .ird file to the root directory"
   echo " of a FAT32 formatted USB stick."
@@ -326,18 +339,15 @@ if [ -e $OUTDIR/$OUTFILE ]; then
 fi
 
 # Clean up
-#rm -f $TMPDIR/uImage
-#rm -f $TMPDIR/mtd_fakeroot.bin
-#rm -f $TMPDIR/mtd_fakeroot.bin.signed
-#rm -f $TMPDIR/mtd_fakedev.bin
-#rm -f $TMPDIR/mtd_fakedev.bin.signed
-#rm -f $TMPDIR/mtd_root.bin
-#rm -f $TMPDIR/mtd_root.sum
-#rm -f $TMPDIR/mtd_root.pad
-#rm -f $TMPDIR/mtd_root.1.bin
-#rm -f $TMPDIR/mtd_root.1.signed
-#rm -f $TMPDIR/mtd_config.bin
-#rm -f $TMPDIR/mtd_user.bin
-if [ -e $TOOLSDIR/dummy.squash.signed.padded ]; then
-  rm $TOOLSDIR/dummy.squash.signed.padded
+rm -f $TMPDIR/uImage
+rm -f $TMPDIR/mtd_fakeroot.bin
+rm -f $TMPDIR/mtd_fakeroot.bin.signed
+rm -f $TMPDIR/mtd_root.bin
+rm -f $TMPDIR/mtd_root.sum
+rm -f $TMPDIR/mtd_root.pad
+if [ -e $TMPDIR/mtd_user.bin ]; then
+  rm -f $TMPDIR/mtd_user.bin
+fi
+if [ -e $FLASHDIR/dummy.squash.signed.padded ]; then
+  rm $FLASHDIR/dummy.squash.signed.padded
 fi
