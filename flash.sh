@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 01-27-2022"
+echo "+ Date   : 06-28-2022"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -80,6 +80,7 @@ echo
 # 20210910 Audioniek   Add Atemio AM 520 HD.
 # 20210910 Audioniek   Add Opticum HD 9600 Mini.
 # 20220127 Audioniek   Add Opticum HD 9600 (TS) Prima.
+# 20220628 Audioniek   Fix unsetting RESELLERID with Atemio AM 520 HD.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -642,7 +643,8 @@ case $BOXTYPE in
         unset OWNCOUNTRY
       fi;;
     atemio520)
-      $SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh;;
+      $SCRIPTDIR/$OUTTYPE/$IMAGE/"$BOXTYPE"_"$IMAGE"_"$OUTTYPE".sh
+      unset RESELLERID;;
     hs8200)
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh
       unset RESELLERID
