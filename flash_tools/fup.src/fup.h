@@ -206,7 +206,7 @@ struct tPartition partData4a[] =
 	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
 };
 
-struct tPartition partData5[] =
+struct tPartition partData5_nor[] =
 {  // 32MB NOR flash + 512 MB NAND flash (Atemio AM 520 HD with i-boot) # to be checked
 	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
 	{  ".part.1",   "mtd?", "Unknown", 0x0000007f, 0x0000007f, "binary", 0 },  // not writeable by IRD
@@ -218,6 +218,26 @@ struct tPartition partData5[] =
 	{     ".app",   "mtd2",     "App", 0x0000007f, 0x0000007f, "binary", (PART_FLASH) },
 	{  ".rootfs",   "mtd3",    "Root", 0x0000007f, 0x0000007f, "any"   , (PART_FLASH) },
 	{    ".user",   "mtd4",    "User", 0x00fc0000, 0x01040000, "binary", (PART_FLASH) },
+	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.D", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.E", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
+	{  ".part.F", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 }   // not writeable by IRD
+};
+
+struct tPartition partData5_nand[] =
+{  // 32MB NOR flash + 512 MB NAND flash (Atemio AM 520 HD with i-boot) # to be checked
+	{  ".loader",   "mtd0",  "Loader", 0x00000000, 0x00060000, "binary", (PART_FLASH) },
+	{  ".part.1",   "mtd?", "Unknown", 0x0000007f, 0x0000007f, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b00000, 0x00400000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b40000, 0x00400000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01b80000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".config",   "mtd?",  "Config", 0x01ba0000, 0x00200000, "binary", 0 },  // not writeable by IRD
+	{  ".kernel",   "mtd7",  "Kernel", 0x00000000, 0x0000007f, "binary", (PART_FLASH) },
+	{     ".app",   "mtd8",     "App", 0x0000007f, 0x0000007f, "binary", (PART_FLASH) },
+	{  ".rootfs",   "mtd9",    "Root", 0x0000007f, 0x0000007f, "any"   , (PART_FLASH) },
+	{    ".user",  "mtd10",    "User", 0x0000007f, 0x0000007f, "binary", (PART_FLASH) },
 	{  ".part.A", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
 	{  ".part.B", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD
 	{  ".part.C", "unused",  "Unused", 0x00000000, 0x00000000, "binary", 0 },  // not writeable by IRD

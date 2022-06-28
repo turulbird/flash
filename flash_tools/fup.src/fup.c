@@ -21,6 +21,9 @@
  *                                                                           *
  *****************************************************************************
  *
+ * Changes in Version 1.9.9a:
+ * + Improve information output on Atemio (generation 5).
+ *
  * Changes in Version 1.9.9:
  * + add change loader reseller ID (command -rl(v)).
  * + when a 4 digit reseller ID is specified with -r(v) or -rl(v)
@@ -171,8 +174,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.9"
-#define DATE "19.06.2022"
+#define VERSION "1.9.9a"
+#define DATE "28.06.2022"
 
 // Global variables
 uint8_t verbose = 1;
@@ -188,6 +191,7 @@ uint32_t partcount;
 uint32_t loaderId;
 uint32_t loaderSW;
 uint32_t systemIDin;
+uint32_t SWVersionIn;
 
 /* Functions */
 
@@ -598,7 +602,7 @@ char *getModelName(int32_t resellerId)
 	return (char *)fortisNames[i].reseller_name;
 }
 
-struct tPartition *getTableAddr(uint32_t resellerId)
+struct tPartition *getTableAddr(uint32_t resellerId, uint32_t SWVersion)
 {
 	uint32_t generation;
 	struct tPartition *partTable = partData2d;  // default is HS8200 L6.00
@@ -662,7 +666,14 @@ struct tPartition *getTableAddr(uint32_t resellerId)
 		}
 		case 5:
 		{
-			partTable = partData5;  // Crenova model
+			if (((SWVersion >> 16) & 0xff) < 3)  // Version 3 and up flash to NOR
+			{
+				partTable = partData5_nand;  // Crenova model, NAND flash
+			}
+			else
+			{
+				partTable = partData5_nor;  // Crenova model, NOR flash
+			}
 			break;
 		}
 		default:
@@ -685,7 +696,7 @@ struct tPartition *getTableAddr(uint32_t resellerId)
  * Returns: number of bytes written.
  *
  */
-int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag , int verboseFlag)
+int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag, int verboseFlag)
 {
 	uint16_t blockCounter = 0;
 	uint16_t len = 0;
@@ -749,6 +760,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 			printf("  SoftwareVersion : V%X.%02X.%02X\n", SWVersion1, SWVersion2 >> 8, SWVersion2 & 0xFF);
 		}
 		systemIDin = systemId;
+		SWVersionIn = ((SWVersion1 << 16) + SWVersion2) & 0x00FFFFFF;
 	}
 	else
 	{  // not header block but normal partition block
@@ -760,7 +772,7 @@ int32_t readBlock(FILE *file, char *name, uint8_t firstBlock, uint8_t writeflag 
 				has[type] = (uint8_t)part_number;
 				ucLen[type] = 0;
 				column = 0;
-				tableAddr = getTableAddr(systemId);
+				tableAddr = getTableAddr(systemIDin, SWVersionIn);
 
 				if (verboseFlag)
 				{
@@ -1022,7 +1034,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 			}
 		}
-		tableAddr = getTableAddr(resellerId);
+		tableAddr = getTableAddr(resellerId, SWVersion);
 		generation = getGeneration(resellerId);
 
 		// Handle generation 2 & generation 5 (Atemio AM 520/530 HD) (possible variable layout)
@@ -1087,49 +1099,100 @@ int32_t main(int32_t argc, char* argv[])
 					Size[9] = ucLen[9];
 				}
 			}
-			// Handle rootfs (type 8, variable offset, variable length)
-			for (i = 0; i < MAX_PART_NUMBER; i++)
+			if (generation == 5)  // (iBoot flashes type 7 followed by type 8)
 			{
-				if (t_has[i] == 8)  // rootfs
+				for (i = 0; i < MAX_PART_NUMBER; i++)
 				{
-					if (tableAddr[8].Offset == 0x7f)
+					if (t_has[i] == 7)  // dev
 					{
-						Offset[8] = tableAddr[6].Offset + ucLen[6];  // kernel offset + kernel length
+						if (tableAddr[7].Offset == 0x7f)
+						{
+							Offset[7] = Offset[6] + Size[6];  // kernel offset + kernel length
+						}
+						else
+						{
+							Offset[6] = tableAddr[6].Offset;
+						}
+						if (tableAddr[7].Size == 0x7f)
+						{
+							Size[7] = ucLen[7];
+						}
+						else
+						{
+							Size[7] = tableAddr[7].Size;  // dev length
+						}
 					}
-					else
+				}
+				// Handle rootfs (type 8, variable offset, variable length)
+				for (i = 0; i < MAX_PART_NUMBER; i++)
+				{
+					if (t_has[i] == 8)  // rootfs
 					{
-						Offset[8] = tableAddr[8].Offset;
-					}
-					if (tableAddr[8].Size == 0x7f)
-					{
-						Size[8] = ucLen[8];
-					}
-					else
-					{
-						Size[8] = tableAddr[8].Size;
+						if (tableAddr[8].Offset == 0x7f)
+						{
+							Offset[8] = Offset[7] + Size[7];  // dev offset + dev length
+						}
+						else
+						{
+							Offset[8] = tableAddr[8].Offset;
+						}
+						if (tableAddr[8].Size == 0x7f)
+						{
+							Size[8] = ucLen[8];
+						}
+						else
+						{
+							Size[8] = tableAddr[8].Size;
+						}
 					}
 				}
 			}
-			// Handle dev (type 7, variable offset & length)
-			for (i = 0; i < MAX_PART_NUMBER; i++)
+			if (generation == 2)  // (Fortis flashes type 8 followed by type 7)
 			{
-				if (t_has[i] == 7)  // dev
+				// Handle rootfs (type 8, variable offset, variable length)
+				for (i = 0; i < MAX_PART_NUMBER; i++)
 				{
-					if (tableAddr[7].Offset == 0x7f)
+					if (t_has[i] == 8)  // rootfs
 					{
-						Offset[7] = Offset[8] + ucLen[8];  // rootfs offset + rootfs length
+						if (tableAddr[8].Offset == 0x7f)
+						{
+							Offset[8] = Offset[6] + Size[6];  // kernel offset + kernel length
+						}
+						else
+						{
+							Offset[8] = tableAddr[8].Offset;
+						}
+						if (tableAddr[8].Size == 0x7f)
+						{
+							Size[8] = ucLen[8];
+						}
+						else
+						{
+							Size[8] = tableAddr[8].Size;
+						}
 					}
-					else
+				}
+				// Handle dev (type 7, variable offset & length)
+				for (i = 0; i < MAX_PART_NUMBER; i++)
+				{
+					if (t_has[i] == 7)  // dev
 					{
-						Offset[7] = tableAddr[7].Offset;
-					}
-					if (tableAddr[7].Size == 0x7f)
-					{
-						Size[7] = ucLen[7];
-					}
-					else
-					{
-						Size[7] = tableAddr[7].Size;  // dev length
+						if (tableAddr[7].Offset == 0x7f)
+						{
+							Offset[7] = Offset[8] + Size[8];  // rootfs offset + rootfs length
+						}
+						else
+						{
+							Offset[7] = tableAddr[7].Offset;
+						}
+						if (tableAddr[7].Size == 0x7f)
+						{
+							Size[7] = ucLen[7];
+						}
+						else
+						{
+							Size[7] = tableAddr[7].Size;  // dev length
+						}
 					}
 				}
 			}
@@ -1195,6 +1258,25 @@ int32_t main(int32_t argc, char* argv[])
 				printf(" %s", (tableAddr[t_has[i]].Flags & PART_FLASH) ? "Y" : "N");
 				printf("     %s", (tableAddr[t_has[i]].Flags & PART_SIGN) ? "Y" : "N");
 				printf("\n");
+			}
+		}
+		if (generation == 5)
+		{
+			if (((SWVersion >> 16) & 0xff) < 3)  // Version 3 and up flash to NOR
+			{
+				printf("  Note: partition data will be flashed to NAND flash memory");
+				if (loaderFound == 2)
+				{
+					printf(";\n       but loader partition to NOR flash memory.\n");
+				}
+				else
+				{
+					printf(".\n");
+				}
+			}
+			else
+			{
+				printf("  Note: partition data will be flashed to NOR flash memory.\n");
 			}
 		}
 		if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
