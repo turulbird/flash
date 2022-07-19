@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 06-28-2022"
+echo "+ Date   : 07-19-2022"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -81,6 +81,7 @@ echo
 # 20210910 Audioniek   Add Opticum HD 9600 Mini.
 # 20220127 Audioniek   Add Opticum HD 9600 (TS) Prima.
 # 20220628 Audioniek   Fix unsetting RESELLERID with Atemio AM 520 HD.
+# 20220719 Audioniek   Add Atemio AM 530 HD, titan for AM 520 HD.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -316,7 +317,7 @@ elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
   esac
 elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "flash" ]; then
   case "$BOXTYPE" in
-    hs8200|hs7429)
+    atemio520|hs8200|hs7429)
       ;;
     *)
       echo
@@ -556,13 +557,16 @@ echo
 if [ "$OUTTYPE" == "flash" ]; then
 # Handle Fortis resellerID
 case $BOXTYPE in
-  atemio520|hs8200|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
+  atemio520|atemio530|hs8200|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|dp2010|dp7000|dp7001|ep8000|epp8000|fx6010|gpv8000)
     RESELLERID=$1
     if [[ "$RESELLERID" == "" ]]; then
       case $BOXTYPE in
         atemio520)
           RESELLERID=252902A5
           FORTISBOX="Atemio AM 520 HD";;
+        atemio530)
+          RESELLERID=252902AA
+          FORTISBOX="Atemio AM 530 HD";;
         hs8200)
           RESELLERID=230200A0
           FORTISBOX="Octagon SF1028P HD Noblence";;
