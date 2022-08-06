@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 07-19-2022"
+echo "+ Date   : 08-069-2022"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -82,6 +82,7 @@ echo
 # 20220127 Audioniek   Add Opticum HD 9600 (TS) Prima.
 # 20220628 Audioniek   Fix unsetting RESELLERID with Atemio AM 520 HD.
 # 20220719 Audioniek   Add Atemio AM 530 HD, titan for AM 520 HD.
+# 20220806 Audioniek   Indicate default choice differently.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -245,8 +246,8 @@ else
     echo "-- Output destination -------------------------------------------------"
     echo
     echo " Where would you like your $IMAGEN image to run?"
-    echo "   1) on a USB stick"
-    echo "   2) in the receivers flash memory (*)"
+    echo "   1)  on a USB stick"
+    echo "   2*) in the receivers flash memory"
     read -p " Select target (1-2)? "
     case "$REPLY" in
       1) export OUTTYPE="USB";;
@@ -267,7 +268,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
       echo
       case "$BOXTYPE" in
         fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500)
-          echo " Consider running Enigma2 from a USB stick or building Neutrino.";;
+          echo " Consider running Enigma2 from a USB stick or building Neutrino/Titan.";;
 #        ufs910||hl101|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|opt9600prima)
         *)
           echo " Consider running Enigma2 from a USB stick.";;

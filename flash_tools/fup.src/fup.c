@@ -21,6 +21,9 @@
  *                                                                           *
  *****************************************************************************
  *
+ * Changes in Version 1.9.9b:
+ * + -i now also displays the file sizes in the ird file.
+ *
  * Changes in Version 1.9.9a:
  * + Improve information output on Atemio (generation 5).
  *
@@ -174,8 +177,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.9a"
-#define DATE "28.06.2022"
+#define VERSION "1.9.9b"
+#define DATE "08.07.2022"
 
 // Global variables
 uint8_t verbose = 1;
@@ -1223,8 +1226,8 @@ int32_t main(int32_t argc, char* argv[])
 
 		// Step three: display info
 		printf("\nPartition data (order as in file):\n");
-		printf("  Type mtd  mtdname start      end        size       FS     flash signed\n");
-		printf("  ======================================================================\n");
+		printf("  Type mtd  mtdname mtd start  mtd end    mtd size   size(file) FS     flash signed\n");
+		printf("  =================================================================================\n");
 
 		for (i = 0; i < MAX_PART_NUMBER; i++)
 		{
@@ -1242,13 +1245,14 @@ int32_t main(int32_t argc, char* argv[])
 				||  (generation == 5 && (resellerId & 0xff) == 0xa5)
 				||  (generation == 5 && (resellerId & 0xff) == 0xaa))
 				{  // Loader 6.XX: variable offsets
-					printf(" 0x%08X 0x%08X 0x%08X", Offset[t_has[i]], (Offset[t_has[i]] + Size[t_has[i]] - 1), Size[t_has[i]]);
+					printf(" 0x%08X 0x%08X 0x%08X 0x%08X", Offset[t_has[i]], (Offset[t_has[i]] + Size[t_has[i]] - 1), Size[t_has[i]], ucLen[i]);
 				}
 				else
 				{
 					printf(" 0x%08X", tableAddr[t_has[i]].Offset);
 					printf(" 0x%08X", tableAddr[t_has[i]].Offset + tableAddr[t_has[i]].Size - 1);
 					printf(" 0x%08X", tableAddr[t_has[i]].Size);
+					printf(" 0x%08X", ucLen[t_has[i]]);
 				}
 				printf(" %s", tableAddr[t_has[i]].FStype);
 				for (j = 0; j < (8 - strlen(tableAddr[t_has[i]].FStype)); j++)

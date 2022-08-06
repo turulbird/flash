@@ -26,6 +26,7 @@
 #                       when built with WLAN.
 # 20210804 Audioniek    Remove paths stored in zip file with wireless
 #                       drivers.
+# 20220806 Audioniek    Indicate default choice differently.
 #
 # -----------------------------------------------------------------------
 
@@ -49,9 +50,9 @@ else
   echo "-- Output selection ---------------------------------------------------"
   echo
   echo " What would you like to flash?"
-  echo "   1) The $IMAGE image plus kernel (*)"
-  echo "   2) Only the kernel"
-  echo "   3) Only the $IMAGE image"
+  echo "   1*) The $IMAGE image plus kernel"
+  echo "   2)  Only the kernel"
+  echo "   3)  Only the $IMAGE image"
   read -p " Select flash target (1-3)? "
   case "$REPLY" in
 #    1) echo > /dev/null;;

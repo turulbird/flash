@@ -14,6 +14,17 @@
 # "executing this script!"
 # "-----------------------------------------------------------------------"
 #
+# If only the kernel is to be reflashed, the partitions 8, 7 and 1 are
+# also reflashed (requirement of loader 6.40). Partition 1 is flashed as
+# the squashfs dummy only, leaving the neutrino part of it untouched.
+#
+# "-----------------------------------------------------------------------"
+#
+# Date     Who          Description
+# 20220622 Audioniek    Initial version.
+# 20220806 Audioniek    Indicate default choice differently.
+#
+# -----------------------------------------------------------------------
 #
 
 # Set up the variables
@@ -31,13 +42,13 @@ else
   echo "-- Output selection ---------------------------------------------------"
   echo
   echo " What would you like to flash?"
-  echo "   1) The whole $IMAGE image (*)"
-  echo "   2) Only the kernel"
+  echo "   1*) The whole $IMAGE image"
+  echo "   2)  Only the kernel"
   read -p " Select flash target (1-2)? "
   case "$REPLY" in
 #    1) echo > /dev/null;;
     2) IMAGE="kernel";;
-#    *) echo > /dev/null;;
+    *) echo > /dev/null;;
   esac
   echo "-----------------------------------------------------------------------"
   echo
@@ -48,7 +59,6 @@ if [ -e $OUTDIR ]; then
 elif [ ! -d $OUTDIR ]; then
   mkdir -p $OUTDIR
 fi
-
 
 echo -n " - Preparing kernel file..."
 cp $TMPKERNELDIR/uImage $TMPDIR/uImage

@@ -27,7 +27,7 @@
 #  4.01 (GPV8000, NOT tested)
 #
 # Author: Schischu/Audioniek
-# Date: 09-16-2020
+# Date: 08-06-2022
 #
 # ---------------------------------------------------------------------------
 # Changes:
@@ -37,6 +37,7 @@
 # 20200609 Audioniek   dp6010 -> fx6010.
 # 20200812 Audioniek   Automatic adding of boot picture added.
 # 20200916 Audioniek   Fix automatic adding of boot picture.
+# 20220806 Audioniek   Indicate default choice differently.
 #
 # -----------------------------------------------------------------------"
 # It is assumed that an image was already built prior to executing this"
@@ -50,9 +51,9 @@ else
   echo "-- Output selection ---------------------------------------------------"
   echo
   echo " What would you like to flash?"
-  echo "   1) The $IMAGE image plus kernel (*)"
-  echo "   2) Only the kernel"
-  echo "   3) Only the $IMAGE image"
+  echo "   1*) The $IMAGE image plus kernel"
+  echo "   2)  Only the kernel"
+  echo "   3)  Only the $IMAGE image"
   read -p " Select flash target (1-3)? "
   case "$REPLY" in
 #    1) echo > /dev/null;;

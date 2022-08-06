@@ -16,12 +16,18 @@
 # "executing this script!"
 # "-----------------------------------------------------------------------"
 #
+# Date     Who          Description
+# 20140831 Audioniek    Initial version.
+# 20220806 Audioniek    Indicate default choice differently.
+#
+# -----------------------------------------------------------------------
+#
 
 echo "-- Output selection ---------------------------------------------------"
 echo
 echo " What would you like to flash?"
-echo "   1) The whole $IMAGE image (*)"
-echo "   2) Only the kernel"
+echo "   1*) The whole $IMAGE image"
+echo "   2)  Only the kernel"
 read -p " Select flash target (1-2)? "
 case "$REPLY" in
   1) echo > /dev/null;;

@@ -14,6 +14,13 @@
 # also reflashed (requirement of loader 6.XX). Partition 1 is flashed as
 # the squashfs dummy only, leaving the enigma2 part of it untouched.
 #
+# "-----------------------------------------------------------------------"
+#
+# Date     Who          Description
+# 20140507 Audioniek    Initial version.
+# 20220806 Audioniek    Indicate default choice differently.
+#
+# -----------------------------------------------------------------------
 
 if [ "$BATCH_MODE" == "yes" ]; then
   IMAGE=
@@ -21,8 +28,8 @@ else
   echo "-- Output selection ---------------------------------------------------"
   echo
   echo " What would you like to flash?"
-  echo "   1) The whole $IMAGE image"
-  echo "   2) Only the kernel"
+  echo "   1*) The whole $IMAGE image"
+  echo "   2)  Only the kernel"
   read -p " Select flash target (1-2)? "
   case "$REPLY" in
     1) echo > /dev/null;;

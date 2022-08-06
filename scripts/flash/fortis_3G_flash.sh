@@ -17,6 +17,12 @@
 # "script!"
 # "-----------------------------------------------------------------------"
 #
+# Date     Who          Description
+# 20140914 Audioniek    Initial version.
+# 20220806 Audioniek    Indicate default choice differently.
+#
+# -----------------------------------------------------------------------
+#
 
 # Set up the variables
 MKFSUBIFS=$TUFSBOXDIR/host/bin/mkfs.ubifs
@@ -32,9 +38,9 @@ else
   echo "-- Output selection ---------------------------------------------------"
   echo
   echo " What would you like to flash?"
-  echo "   1) The $IMAGE image plus kernel (*)"
-  echo "   2) Only the kernel"
-  echo "   3) Only the $IMAGE image"
+  echo "   1*) The $IMAGE image plus kernel"
+  echo "   2)  Only the kernel"
+  echo "   3)  Only the $IMAGE image"
   read -p " Select flash target (1-3)? "
   case "$REPLY" in
 #    1) echo > /dev/null;;

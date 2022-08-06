@@ -6,7 +6,7 @@
 # " - HS7810A
 # " with unmodified factory bootloader:
 # " 6.40, 6.46 or 6.47 (HS7110),
-# " 6.30, 6.36 or 6.37 (HS7420, NOT tested) or
+# " 6.30, 6.36 or 6.37 (HS7420) or
 # " 6.20, 6.26 or 6.27 (HS7810A)
 #
 # "Author: Schischu/Audioniek"
@@ -21,12 +21,19 @@
 # also reflashed (requirement of loader 6.XX). Partition 1 is flashed as
 # the squashfs dummy only, leaving the neutrino part of it untouched.
 #
+# "-----------------------------------------------------------------------"
+#
+# Date     Who          Description
+# 20140831 Audioniek    Initial version.
+# 20220806 Audioniek    Indicate default choice differently.
+#
+# -----------------------------------------------------------------------
 
 echo "-- Output selection ---------------------------------------------------"
 echo
 echo " What would you like to flash?"
-echo "   1) The whole $IMAGE image (*)"
-echo "   2) Only the kernel"
+echo "   1*) The whole $IMAGE image"
+echo "   2)  Only the kernel"
 read -p " Select flash target (1-2)? "
 case "$REPLY" in
 #  1) echo > /dev/null;;

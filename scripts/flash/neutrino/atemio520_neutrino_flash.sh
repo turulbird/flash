@@ -24,26 +24,10 @@
 # 20210912 Audioniek    Initial version.
 # 20211024 Audioniek    Pad root to maximum size.
 # 20211101 Audioniek    Fix small problem with batch mode.
+# 20220806 Audioniek    Indicate default choice differently.
 #
 # -----------------------------------------------------------------------
-
-if [ "$BATCH_MODE" == "yes" ]; then
-  IMAGE=
-else
-  echo "-- Output selection ---------------------------------------------------"
-  echo
-  echo " What would you like to flash?"
-  echo "   1) The whole $IMAGE image (*)"
-  echo "   2) Only the kernel"
-  read -p " Select flash target (1-2)? "
-  case "$REPLY" in
-    1) echo > /dev/null;;
-    2) IMAGE="kernel";;
-    *) echo > /dev/null;;
-  esac
-  echo "-----------------------------------------------------------------------"
-  echo
-fi
+#
 
 # Set up the variables
 TMPDUMDIR=$TMPDIR/DUMMY
@@ -57,6 +41,24 @@ FUP=$TOOLSDIR/fup
 
 OUTFILE="$BOXTYPE"_"$IMAGE"_flash_R$RESELLERID.ird
 OUTZIPFILE="$HOST"_"$IMAGE"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION".zip
+
+if [ "$BATCH_MODE" == "yes" ]; then
+  IMAGE=
+else
+  echo "-- Output selection ---------------------------------------------------"
+  echo
+  echo " What would you like to flash?"
+  echo "   1*) The whole $IMAGE image"
+  echo "   2)  Only the kernel"
+  read -p " Select flash target (1-2)? "
+  case "$REPLY" in
+#    1) echo > /dev/null;;
+    2) IMAGE="kernel";;
+    *) echo > /dev/null;;
+  esac
+  echo "-----------------------------------------------------------------------"
+  echo
+fi
 
 if [ -e $TMPDUMDIR ]; then
   rm -rf $TMPDUMDIR/*
@@ -311,7 +313,7 @@ if [ -e $OUTDIR/$OUTFILE ]; then
   echo "-- Instructions -------------------------------------------------------"
   echo
   echo " The receiver must be equipped with the standard i-boot bootloader"
-  echo " used for Titanit with unmodified bootargs."
+  echo " used for TitanNit with unmodified bootargs."
   echo
   echo " To flash the created image copy the .ird file to the root directory"
   echo " of a FAT32 formatted USB stick."
@@ -326,18 +328,18 @@ if [ -e $OUTDIR/$OUTFILE ]; then
 fi
 
 # Clean up
-#rm -f $TMPDIR/uImage
-#rm -f $TMPDIR/mtd_fakeroot.bin
-#rm -f $TMPDIR/mtd_fakeroot.bin.signed
-#rm -f $TMPDIR/mtd_fakedev.bin
-#rm -f $TMPDIR/mtd_fakedev.bin.signed
-#rm -f $TMPDIR/mtd_root.bin
-#rm -f $TMPDIR/mtd_root.sum
-#rm -f $TMPDIR/mtd_root.pad
-#rm -f $TMPDIR/mtd_root.1.bin
-#rm -f $TMPDIR/mtd_root.1.signed
-#rm -f $TMPDIR/mtd_config.bin
-#rm -f $TMPDIR/mtd_user.bin
+rm -f $TMPDIR/uImage
+rm -f $TMPDIR/mtd_fakeroot.bin
+rm -f $TMPDIR/mtd_fakeroot.bin.signed
+rm -f $TMPDIR/mtd_fakedev.bin
+rm -f $TMPDIR/mtd_fakedev.bin.signed
+rm -f $TMPDIR/mtd_root.bin
+rm -f $TMPDIR/mtd_root.sum
+rm -f $TMPDIR/mtd_root.pad
+rm -f $TMPDIR/mtd_root.1.bin
+rm -f $TMPDIR/mtd_root.1.signed
+rm -f $TMPDIR/mtd_config.bin
+rm -f $TMPDIR/mtd_user.bin
 if [ -e $TOOLSDIR/dummy.squash.signed.padded ]; then
   rm $TOOLSDIR/dummy.squash.signed.padded
 fi
