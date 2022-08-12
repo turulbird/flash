@@ -11,6 +11,7 @@
 # ---------------------------------------------------------------------------
 # Changes:
 # 20210627 Audioniek   Initial version.
+# 20220812 Audioniek   Correct instructions text.
 #
 
 # Set up the variables
@@ -45,12 +46,24 @@ fi
 # 16515072 bytes.
 #
 # This means that if you want to flash the (update)kernel only,
-# the original Kathrein emergency root is overwritten, needlessly
+# the original Kathrein emergency root would be overwritten
+# because of the filesize requirement, needlessly
 # destroying an easy way to convert back to original.
 # As the purpose in this case is to flash the (update) kernel
-# only, it is padded with 0xff up to the mtd5 boundary, then the
-# original mtd5 image is added, and the result is padded again
-# with 0xff up to the desired file length.
+# only, the kernel binary is padded with 0xff up to the mtd5
+# boundary, then the original mtd5 image is added, and the
+# result is padded again with 0xff up to the desired file length.
+#
+# The update process first flashes the file miniFLASH.img
+# holding the update kernel and the original emergency root.
+# At next boot, the boot loader will then load and run the update
+# kernel, that runs deploy.sh.
+# deploy.sh does three things:
+# - partition and optionally format the hard disk;
+# - copy the rootfs to the hard disk;
+# - flash the normal kernel that is used by the image.
+# This last step overwrites the update kernel.
+# 
 #
 OUTFILE=miniFLASH.img
 OUTZIPFILE="$HOST"_"$IMAGE"_"P$PATCH"_"$GITVERSION"
@@ -172,11 +185,11 @@ if [ -e $OUTFILE ]; then
       echo "    like quick format or similar."
       echo " 2. Only copy the file miniFLASH.img from the convenient place to"
       echo "    the root directory the freshly formatted stick."
-      echo " 3. The copy the remaining files ad directories of the file set"
+      echo " 3. Then copy the remaining files and directories of the file set,"
       echo "    this time omitting the file miniFLASH.img."
-      echo " The purpose of all this is that the USB must have the entry for the"
-      echo " file miniFLASH.img in its first directory entry, otherwise the"
-      echo " miniUboot flasher cannot find it."
+      echo " The purpose of all this is that the USB stick must have the entry"
+      echo " for the file miniFLASH.img in its first directory entry, otherwise"
+      echo " the miniUboot flasher cannot find it."
       echo
       echo " The stick should now have a directory /kathrein with a"
       echo " subdirectory $BOXTYPE in it. The stick should hold the"

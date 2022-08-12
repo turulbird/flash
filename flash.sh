@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 08-069-2022"
+echo "+ Date   : 08-09-2022"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -407,7 +407,7 @@ if [ $BOXTYPE == "tf7700" ]; then
     TFINSTALL="built"
 fi
 UFSINSTALL="present"
-if [ $BOXTYPE == "ufs922" ]; then
+if [ $BOXTYPE == "ufs910" -o $BOXTYPE == "ufs922" ]; then
     UFSINSTALL="built"
 fi
 
@@ -423,7 +423,7 @@ if [ ! "$BATCH_MODE" == "yes" ]; then
   if [ $BOXTYPE == "tf7700" ]; then
     echo "+  Topfield installer : $TFINSTALL"
   fi
-  if [ $BOXTYPE == "ufs922" ]; then
+  if [ $BOXTYPE == "ufs910" -o $BOXTYPE == "ufs922" ]; then
     echo "+  UFS installer      : $UFSINSTALL"
   fi
   echo "+  Linux version      : linux-sh4-2.6.32.$SUBVERS"
