@@ -3,7 +3,7 @@
 # "This script creates the files set required to run an image off a hard
 #  disk (either USB of later built in) on a Kathrein UFS910."
 # "Author: Audioniek"
-# "Last Change: 11-07-2021"
+# "Last Change: 13-08-2022"
 #
 # "-----------------------------------------------------------------------"
 # "An image is assumed to have been built prior to calling this script!
@@ -12,6 +12,7 @@
 # Changes:
 # 20210627 Audioniek   Initial version.
 # 20220812 Audioniek   Correct instructions text.
+# 20220813 Audioniek   Improve instructions text.
 #
 
 # Set up the variables
@@ -175,16 +176,19 @@ if [ -e $OUTFILE ]; then
   case "$BOXTYPE" in
     ufs910)
       echo
-      echo " The receiver must be in its factory state with miniUboot"
-      echo " and its default bootargs installed."
+      echo " The receiver must be in its factory state with miniUboot,"
+      echo " the factory boot loader and its default bootargs installed."
+      echo " In addition, the receiver must have an internal SATA connected"
+      echo " hard disk (needs modifications on the main board)."
       echo
       echo " Unpack the .zip file to a convenient place on your computer."
       echo
-      echo " Prepare the USB stick to be used for installing the image as follows:"
+      echo " Prepare the USB stick to be used for installing the image as"
+      echo " follows:"
       echo " 1. Format the stick with a FAT32 file system. Do not use features"
       echo "    like quick format or similar."
       echo " 2. Only copy the file miniFLASH.img from the convenient place to"
-      echo "    the root directory the freshly formatted stick."
+      echo "    the root directory of the freshly formatted stick."
       echo " 3. Then copy the remaining files and directories of the file set,"
       echo "    this time omitting the file miniFLASH.img."
       echo " The purpose of all this is that the USB stick must have the entry"
@@ -194,11 +198,11 @@ if [ -e $OUTFILE ]; then
       echo " The stick should now have a directory /kathrein with a"
       echo " subdirectory $BOXTYPE in it. The stick should hold the"
       echo " following files:"
+      echo " - Image_Installer.ini"
+      echo " - miniFLASH.img"
+      echo " - rootfs.tar.gz"
       echo " - directory kathrein/$BOXTYPE:"
       echo "   - uImage"
-      echo " - Image_Installer.ini"
-      echo " - rootfs.tar.gz"
-      echo " - miniFLASH.img"
       echo
       echo " Insert the USB stick in the front USB port on the receiver."
       echo
