@@ -1,16 +1,15 @@
 #!/bin/bash
 # ----------------------------------------------------------------------
-# This script prepares the root of a neutrino image intended to run from
+# This script prepares the root of a titan image intended to run from
 # or on a USB stick pending further processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 08-03-2014"
+# Date: 11-04-2022"
 # ---------------------------------------------------------------------------
 # Changes:
-# 20140708 Audioniek   Initial version
-# 20200116 Audioniek   Added Fortis 4G receivers
-# 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
-# 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
+# 20220619: Audioniek   Initial version
+#
+# ---------------------------------------------------------------------------
 
 RELEASEDIR=$1
 
@@ -21,6 +20,8 @@ common() {
 
   echo -n " Creating devices..."
   cd $TMPROOTDIR/dev/
+  TARGET=$BOXTYPE
+  export TARGET
   if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
     $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
   else
@@ -34,8 +35,7 @@ common() {
   echo " done."
 }
 
-#echo "-----------------------------------------------------------------------"
-#echo
+# Prepare titan root according to box type
 case $BOXTYPE in
   adb_box)
     common
@@ -122,6 +122,22 @@ case $BOXTYPE in
   vitamin_hd5000)
     common
     ;;
+ tf7700)
+    echo -n " Copying release image..."
+    find $RELEASEDIR -mindepth 1 -maxdepth 1 -exec cp -at$TMPROOTDIR -- {} +
+    echo " done."
+
+    if [ ! -e $TMPROOTDIR/dev/mtd0 ]; then
+      echo -n " Creating devices..."
+      cd $TMPROOTDIR/dev/
+      if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
+        $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
+      else
+        $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
+      fi
+      cd - > /dev/null
+      echo " done."
+    fi;;
   *)
     echo "Receiver $BOXTYPE not supported."
     echo
