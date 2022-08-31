@@ -282,7 +282,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" =
 fi
 
 # Check if there is support for the receiver combined with imagetype
-if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
+if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" -o "$OUTTYPE" == "USB_HDD" ]; then
   case "$BOXTYPE" in
     spark|spark7162)
       echo
@@ -299,7 +299,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" ]; then
     *)
       ;;
   esac
-elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" ]; then
+elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" -o "$OUTTYPE" == "USB_HDD" ]; then
   case "$BOXTYPE" in
     hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|opt9600prima)
       ;;
@@ -333,7 +333,7 @@ elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "flash" ]; then
       export ERROR="yes"
       exit;
   esac
-elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "USB" ]; then
+elif [ "$IMAGE" == "titan" ] && [ "$OUTTYPE" == "USB" -o "$OUTTYPE" == "USB_HDD" ]; then
   case "$BOXTYPE" in
     hs8200)
       ;;
@@ -697,7 +697,7 @@ case $BOXTYPE in
       echo "-----------------------------------------------------------------------"
       exit 2;;
   esac
-else #USB
+elif [ "$OUTTYPE" == "USB" ]; then
   case $BOXTYPE in
     adb_box)
 #      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
@@ -718,6 +718,17 @@ else #USB
       $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     opt9600|opt9600mini|opt9600prima)
       $SCRIPTDIR/$OUTTYPE/opt9600_"$OUTTYPE".sh;;
+    *)
+      echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
+      echo
+      echo " Exiting..."
+      echo "-----------------------------------------------------------------------"
+      exit 2;;
+  esac
+else # USB_HDD
+  case $BOXTYPE in
+    opt9600prima)
+      $SCRIPTDIR/USB/opt9600_USB.sh;;
     *)
       echo " Sorry, there is no $OUTTYPE support for receiver $BOXTYPE available."
       echo
@@ -766,3 +777,4 @@ unset MEDIAFW
 if [ -e dummy.squash.signed.padded ]; then
   rm -f dummy.squash.signed.padded
 fi
+# vim:ts=4
