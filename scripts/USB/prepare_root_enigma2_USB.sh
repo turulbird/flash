@@ -15,6 +15,8 @@
 # 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
 # 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
 # 20220127 Audioniek   Added Opticum/Orton HD (TS) 9600 Prima.
+# 20220829 Audioniek   Added Homecast HS8100 series.
+# 20220917 Audioniek   Fix make devices (wrong boxmodel)
 
 RELEASEDIR=$1
 
@@ -24,6 +26,7 @@ common() {
   echo " done."
 
   echo -n " Creating devices..."
+  export TARGET=$BOXTYPE
   cd $TMPROOTDIR/dev/
   $TMPROOTDIR/etc/init.d/makedev start > /dev/null 2> /dev/null
   cd - > /dev/null
@@ -49,7 +52,7 @@ case $BOXTYPE in
   hs7110|hs7119|hs7420|hs7429|hs7810a|hs7819)
     common
     ;;
-  dp2010|dp6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
+  dp2010|dp6010|dp7000|dp7001|dp7050|ep8000|epp8000|fx6010|gpv8000)
     common
     ;;
   cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd)
@@ -62,6 +65,9 @@ case $BOXTYPE in
     common
     ;;
   spark|spark7162)
+    common
+    ;;
+  hs8100)
     common
     ;;
   ufc960|ufs910|ufs922)

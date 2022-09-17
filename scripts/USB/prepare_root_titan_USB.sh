@@ -5,11 +5,12 @@
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
 # Date: 11-04-2022"
-# ---------------------------------------------------------------------------
-# Changes:
-# 20220619: Audioniek   Initial version
 #
 # ---------------------------------------------------------------------------
+# Changes:
+# 20220619 Audioniek   Initial version
+# 20220829 Audioniek   Added Homecast HS8100 series.
+# 20220917 Audioniek   Fix make devices (wrong boxmodel)
 
 RELEASEDIR=$1
 
@@ -19,9 +20,8 @@ common() {
   echo " done."
 
   echo -n " Creating devices..."
+  export TARGET=$BOXTYPE
   cd $TMPROOTDIR/dev/
-  TARGET=$BOXTYPE
-  export TARGET
   if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
     $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
   else
@@ -62,6 +62,9 @@ case $BOXTYPE in
     common
     ;;
   spark|spark7162)
+    common
+    ;;
+  hs8100)
     common
     ;;
   ufc960|ufs910|ufs922)

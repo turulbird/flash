@@ -4,13 +4,19 @@
 # or on a USB stick pending further processing.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 08-03-2014"
+# Date: 08-07-2014"
+#
 # ---------------------------------------------------------------------------
 # Changes:
-# 20140708 Audioniek   Initial version
-# 20200116 Audioniek   Added Fortis 4G receivers
+# 20140708 Audioniek   Initial version.
+# 20200116 Audioniek   Added Fortis 4G receivers.
+# 20200629 Audioniek   Added Edision argus VIP1/VIP2.
+# 20200828 Audioniek   Added Edision argus VIP1 V1.
 # 20201222 Audioniek   Added Opticum/Orton HD 9600 (TS).
 # 20210801 Audioniek   Fixed ufs910, ufs912 and ufs913
+# 20220127 Audioniek   Added Opticum/Orton HD (TS) 9600 Prima.
+# 20220829 Audioniek   Added Homecast HS8100 series.
+# 20220917 Audioniek   Fix make devices (wrong boxmodel)
 
 RELEASEDIR=$1
 
@@ -20,6 +26,7 @@ common() {
   echo " done."
 
   echo -n " Creating devices..."
+  export TARGET=$BOXTYPE
   cd $TMPROOTDIR/dev/
   if [ -e $TMPROOTDIR/var/etc/init.d/makedev ]; then
     $TMPROOTDIR/var/etc/init.d/makedev start > /dev/null 2> /dev/null
@@ -62,6 +69,9 @@ case $BOXTYPE in
     common
     ;;
   spark|spark7162)
+    common
+    ;;
+  hs8100)
     common
     ;;
   ufc960|ufs910|ufs922)
