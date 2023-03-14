@@ -21,6 +21,13 @@
  *                                                                           *
  *****************************************************************************
  *
+ * Changes in Version 1.9.9c:
+ * + include warning with flash files with partition type 2 on HS8200 models
+ *   with resellerID ending in A0
+ * + include warning with flash files with partition type 2 on CreNova models
+ * Both warnings stem from the fact that i-boot does not flash partition type 2
+ * but simply ignores it without warning.
+ *
  * Changes in Version 1.9.9b:
  * + -i now also displays the file sizes in the ird file.
  *
@@ -177,8 +184,8 @@
 #include "dummy30.h"
 #include "dummy31.h"
 
-#define VERSION "1.9.9b"
-#define DATE "02.01.2023"
+#define VERSION "1.9.9c"
+#define DATE "14.03.2023"
 
 // Global variables
 uint8_t verbose = 1;
@@ -1279,8 +1286,18 @@ int32_t main(int32_t argc, char* argv[])
 			}
 			else
 			{
-				printf("  Note: partition data will be flashed to NOR flash memory.\n");
+				printf("  Note : partition data will be flashed to NOR flash memory.\n");
 			}
+			if (t_has[5] != 0)
+			{
+				printf("\nWARNING: i-Boot cannot flash this file correctly, as it has a partition type 2!\n\n");
+			}
+		}
+		if ((t_has[5] != 0)  // if file has a partition 5
+		&&  ((resellerId & 0xff00ffff) == 0x230000a0))  // and model is HS8200
+		{
+			printf("\nWARNING: i-Boot cannot flash this file correctly, as it has a partition type 2!\n");
+			printf("         The factory boot loader 6.00 will flash this file correctly.\n\n");
 		}
 		if ((generation == 2 && (resellerId & 0xf0) == 0xa0)
 		||  (generation == 5 && (resellerId & 0xff) == 0xa5)

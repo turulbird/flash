@@ -360,8 +360,14 @@ if [ -e $OUTDIR/$OUTFILE ] && [ ! "$BATCH_MODE" == "yes" ]; then
   echo -e "\033[01;32m"
   echo "-- Instructions -------------------------------------------------------"
   echo
-  echo " The receiver must be equipped with a standard Fortis bootloader 6.00"
-  echo " with unmodified bootargs."
+  if [ -e $TMPDIR/mtd_config.bin ]; then
+    echo " The receiver must be equipped with a standard Fortis bootloader 6.00"
+    echo " with unmodified bootargs."
+    echo " CAUTION: The generated flash file is NOT compatible with i-boot."
+  else
+    echo " The receiver must be equipped with a standard Fortis bootloader 6.00"
+    echo " or Atemio's i-boot with unmodified bootargs."
+  fi
   echo
   echo " To flash the created image copy the .ird file to the root directory"
   echo " of a FAT32 formatted USB stick."
