@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 29-10-2022"
+echo "+ Date   : 30-04-2023"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -86,6 +86,7 @@ echo
 # 20220827 Audioniek   Add Homecast HS8100 series.
 # 20221029 Audioniek   Add Homecast HS9000/9100 series.
 # 20221127 Audioniek   Better handling of USB plus built-in hard disk.
+# 20220430 Audioniek   Move all installers into one directory.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -103,7 +104,7 @@ export TMPVARDIR=$TMPDIR/VAR
 export TMPFWDIR=$TMPDIR/FW
 export TMPKERNELDIR=$TMPDIR/KERNEL
 export OUTDIR=$FLASHDIR/out
-export TFINSTALLERDIR=$CDKDIR/tfinstaller
+export INSTALLERDIR=$CDKDIR/installers
 
 # Check if an image was actually built
 # built from buildsystem:  config, ./deps/build_complete and release directory should exist
@@ -408,14 +409,19 @@ if [ "$IMAGE" == "neutrino" ]; then
 fi
 export GITVERSION=CDK-rev`(cd $CDKDIR && git log | grep "^commit" | wc -l)`"$HAL_REV""$NMP_REV"
 
-# Build tfinstaller if not done yet
-TFINSTALL="present"
+# Build installer if not done yet
+INSTALL="present"
 if [ $BOXTYPE == "tf7700" ]; then
-    TFINSTALL="built"
+    INSTALL="built"
 fi
-UFSINSTALL="present"
 if [ $BOXTYPE == "ufs910" -o $BOXTYPE == "ufs922" ]; then
-    UFSINSTALL="built"
+    INSTALL="built"
+fi
+if [ $BOXTYPE == "hchs8100" ]; then
+    INSTALL="built"
+fi
+if [ $BOXTYPE == "opt9600prima" ]; then
+    INSTALL="built"
 fi
 
 # All is OK so far, display summary
@@ -428,10 +434,16 @@ if [ ! "$BATCH_MODE" == "yes" ]; then
   echo "+"
   echo "+  Receiver           : $BOXTYPE"
   if [ $BOXTYPE == "tf7700" ]; then
-    echo "+  Topfield installer : $TFINSTALL"
+    echo "+  Topfield installer : $INSTALL"
   fi
   if [ $BOXTYPE == "ufs910" -o $BOXTYPE == "ufs922" ]; then
-    echo "+  UFS installer      : $UFSINSTALL"
+    echo "+  UFS installer      : $INSTALL"
+  fi
+  if [ $BOXTYPE == "hchs8100" ]; then
+    echo "+  HCHS8100 installer : $INSTALL"
+  fi
+  if [ $BOXTYPE == "opt9600prima" ]; then
+    echo "+  OPT9600 installer  : $INSTALL"
   fi
   echo "+  Linux version      : linux-sh4-2.6.32.$SUBVERS"
   echo "+  Kernel patch level : P0$PATCH"
@@ -678,6 +690,10 @@ case $BOXTYPE in
     dp2010|fx6010|dp7000|dp7001|dp7050|ep8000|epp8000|gpv8000)
       $SCRIPTDIR/$OUTTYPE/fortis_4G_"$OUTTYPE".sh
       unset RESELLERID;;
+    hchs8100)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
+    opt9600prima)
+      $SCRIPTDIR/$OUTTYPE/"$BOXTYPE"_"$OUTTYPE".sh;;
     spark|spark7162)
       $SCRIPTDIR/$OUTTYPE/spark_"$OUTTYPE".sh;;
     tf7700)
