@@ -10,7 +10,7 @@ echo "+ stick."
 echo "+"
 echo "+ Author : Audioniek, based on previous work by schishu, bpanther"
 echo "+          and others."
-echo "+ Date   : 30-04-2023"
+echo "+ Date   : 10-05-2023"
 echo "+"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo
@@ -87,6 +87,7 @@ echo
 # 20221029 Audioniek   Add Homecast HS9000/9100 series.
 # 20221127 Audioniek   Better handling of USB plus built-in hard disk.
 # 20220430 Audioniek   Move all installers into one directory.
+# 20230510 Audioniek   Add Homecast HS8100 series flash/hdd.
 # ---------------------------------------------------------------------------
 
 # Set up some variables
@@ -267,7 +268,7 @@ fi
 # Check if the receiver can accept an Enigma2 image in flash
 if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "flash" ] && [ ! "$BATCH_MODE" == "yes" ]; then
   case "$BOXTYPE" in
-    fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|hchs8100|hchs9000)
+    fs9000|hs9510|hs7110|hs7420|hs7810a|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|cuberevo_2000hd|cuberevo_3000hd|cuberevo_9500|hl101|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|hchs9000)
       echo
       echo "-- Message ------------------------------------------------------------"
       echo
@@ -309,7 +310,7 @@ if [ "$IMAGE" == "enigma2" ] && [ "$OUTTYPE" == "USB" -o "$OUTTYPE" == "USB_HDD"
   esac
 elif [ "$IMAGE" == "neutrino" ] && [ "$OUTTYPE" == "USB" -o "$OUTTYPE" == "USB_HDD" ]; then
   case "$BOXTYPE" in
-    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|opt9600prima|hchs8100|hchs9000)
+    hs8200|cuberevo|cuberevo_mini|cuberevo_mini2|cuberevo_250hd|cuberevo_mini_fta|fs9000|hs9510|hs7110|hs7420|hs7810a|hs7119|hs7429|hs7819|spark|spark7162|ufc960|ufs910|ufs912|ufs913|ufs922|vip1_v1|vip1_v2|vip2|opt9600|opt9600mini|opt9600prima|hchs9000)
       ;;
     *)
       echo
