@@ -770,7 +770,7 @@ echo "-- Finished -----------------------------------------------------------"
 unset CURDIR
 unset BASEDIR
 unset TUFSBOXDIR
-unset TFINSTALLERDIR
+unset INSTALLERDIR
 unset CDKDIR
 unset SCRIPTDIR
 unset TOOLSDIR

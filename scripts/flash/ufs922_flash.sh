@@ -1,10 +1,8 @@
 #!/bin/bash
 # -----------------------------------------------------------------------
 # This script creates a a set of files to be used on the following
-# receivers in order to run neutrino/enigma2 off an USB stick:
-# - Kathrein UFS910 (untested)
+# receivers in order to run neutrino/enigma2 off the internal harddisk:
 # - Kathrein UFS922
-# - Kathrein UFC960 (untested)
 #
 # Due to their very small flash memories, these models use the following
 # setup:
@@ -14,7 +12,7 @@
 #  - RootFS: in an ext3 partition on the internal hard disk.
 #
 # Author: Audioniek, based on previous work by schishu and bpanther"
-# Date: 10-01-2022"
+# Date: 22-06-2023"
 
 # -----------------------------------------------------------------------
 # It is assumed that an image was already built prior to executing this"
@@ -26,6 +24,7 @@
 # 20210624 Audioniek    Update help text.
 # 20211202 Audioniek    Add patch level to zip file name.
 # 20220305 Audioniek    Update help text; remove ufc960/ufs910 remnants.
+# 20230622 Audioniek    Adapted for the nistallers/ufs922 location.
 #
 # -----------------------------------------------------------------------
 
@@ -84,7 +83,7 @@ fi
 
 # --- Update kernel ---
 echo -n " - Prepare update kernel file..."
-cp $BASEDIR/ufsinstaller/uImage $TMPFWDIR/uImage
+cp $BASEDIR/installers/ufs922/uImage $TMPFWDIR/uImage
 $PAD $SIZE_UKERNELH $TMPFWDIR/uImage $TMPFWDIR/uImage.pad
 echo " done."
 
@@ -161,7 +160,7 @@ case $BOXTYPE in
     cp $TMPFWDIR/uImage.pad $OUTDIR/uImage
     echo " done."
     echo -n " Copy Image_Installer.ini..."
-    cp $BASEDIR/ufsinstaller/Image_Installer.ini $OUTDIR/Image_Installer.ini
+    cp $BASEDIR/installers/ufs922/Image_Installer.ini $OUTDIR/Image_Installer.ini
     echo " done."
 
     echo -n " Pack everything in a zip..."

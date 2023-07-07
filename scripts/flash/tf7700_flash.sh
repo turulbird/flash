@@ -12,9 +12,9 @@
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
 echo -n " - Assembling flash file set..."
-cp $TFINSTALLERDIR/Enigma_Installer.ini $OUTDIR
-cp $TFINSTALLERDIR/Enigma_Installer.tfd $OUTDIR
-cp $TFINSTALLERDIR/uImage $OUTDIR
+cp $INSTALLERDIR/Image_Installer.ini $OUTDIR
+cp $INSTALLERDIR/Image_Installer.tfd $OUTDIR
+cp $INSTALLERDIR/uImage $OUTDIR
 cd $TMPROOTDIR
 tar -cvzf $OUTDIR/rootfs.tar.gz * > /dev/null
 cd - > /dev/null
@@ -23,7 +23,7 @@ echo " done."
 echo -n " - Creating .MD5 and .ZIP output files..."
 cd $OUTDIR
 md5sum -b uImage | awk -F' ' '{print $1}' > uImage.md5
-md5sum -b Enigma_Installer.tfd | awk -F' ' '{print $1}' > Enigma_Installer.tfd.md5
+md5sum -b Image_Installer.tfd | awk -F' ' '{print $1}' > Image_Installer.tfd.md5
 md5sum -b rootfs.tar.gz | awk -F' ' '{print $1}' > rootfs.tar.gz.md5
 zip -j $OUTZIPFILE * > /dev/null
 cd - > /dev/null
@@ -35,8 +35,8 @@ if [ -e $OUTDIR/rootfs.tar.gz ]; then
   echo
   echo " To flash the created image, copy the following files to the root (/)"
   echo " folder of your FAT32 formatted USB stick:"
-  echo " - Enigma_Installer.ini"
-  echo " - Enigma_Installer.tfd"
+  echo " - Image_Installer.ini"
+  echo " - Image_Installer.tfd"
   echo " - uImage"
   echo " - rootfs.tar.gz"
   echo
@@ -51,7 +51,7 @@ if [ -e $OUTDIR/rootfs.tar.gz ]; then
   echo "   control;"
   echo " - Select USB Firmware Upgrade in the Installation menu (you have"
   echo "   to scroll down to see it) and press OK on the remote control;"
-  echo " - Select the file Enigma_Installer.tfd from the list and press OK"
+  echo " - Select the file Image_Installer.tfd from the list and press OK"
   echo "   on the remote control;"
   echo " - Confirm the Are you sure question by selecting Yes and pressing"
   echo "   OK on the remote control;"
@@ -70,7 +70,7 @@ if [ -e $OUTDIR/rootfs.tar.gz ]; then
   echo " television after that."
   echo
   echo " CAUTION: read, understand and if necessary change the file"
-  echo " Enigma_Installer.ini regarding the contents of the hard disk in the"
+  echo " Image_Installer.ini regarding the contents of the hard disk in the"
   echo " receiver before flashing."
   echo -e "\033[00m"
 fi
