@@ -23,7 +23,7 @@ TOOLSDIR=$1
 cd $TOOLSDIR
 BASEDIR=`cd .. && pwd`
 
-# Tool program pad..."
+# Tool program pad...
 if [ ! -e $TOOLSDIR/pad ]; then
   clear
   echo
@@ -49,7 +49,7 @@ if [ ! -d $TOOLSDIR/mksquash.src ]; then
   mkdir $TOOLSDIR/mksquash.src
 fi
 
-# Tool program mksquashfs3.0..."
+# Tool program mksquashfs3.0...
 if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -84,7 +84,7 @@ if [ ! -e $TOOLSDIR/mksquashfs3.0 ]; then
  fi
 fi
 
-# Tool program mksquashfs3.3..."
+# Tool program mksquashfs3.3...
 if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -119,52 +119,52 @@ if [ ! -e $TOOLSDIR/mksquashfs3.3 ]; then
   fi
 fi
 
-# Tool program mksquashfs4.2..."
-#if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
-#  echo
-#  echo "-----------------------------------------------------------------------"
-#  echo " Tool program mksquashfs4.2 is missing, trying to compile it..."
-#  echo "-----------------------------------------------------------------------"
-#  echo
-#  cd $TOOLSDIR/mksquash.src
-#  if [ -d ./squashfs4.2 ]; then
-#    rm -rf ./squashfs4.2
+# Tool program mksquashfs4.2...
+if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
+  echo
+  echo "-----------------------------------------------------------------------"
+  echo " Tool program mksquashfs4.2 is missing, trying to compile it..."
+  echo "-----------------------------------------------------------------------"
+  echo
+  cd $TOOLSDIR/mksquash.src
+  if [ -d ./squashfs4.2 ]; then
+    rm -rf ./squashfs4.2
+  fi
+  if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
+     wget "http://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz" -P $ARCHIVE
+  fi
+  if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
+    wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
+  fi
+  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
+  tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
+  cd ./squashfs4.2/squashfs-tools
+#  if [ -e $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch ]; then
+#    echo "patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch"
+#    patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch > /dev/null
 #  fi
-#  if [ ! -e $ARCHIVE/squashfs4.2.tar.gz ]; then
-#     wget "http://sourceforge.net/projects/squashfs/files/squashfs/squashfs4.2/squashfs4.2.tar.gz" -P $ARCHIVE
-#  fi
-#  if [ ! -e $ARCHIVE/lzma-4.65.tar.bz2 ]; then
-#    wget "http://downloads.openwrt.org/sources/lzma-4.65.tar.bz2" -P $ARCHIVE
-#  fi
-#  tar -C $TOOLSDIR/mksquash.src -xzf $ARCHIVE/squashfs4.2.tar.gz
-#  tar -C $TOOLSDIR/mksquash.src -xjf $ARCHIVE/lzma-4.65.tar.bz2
-#  cd ./squashfs4.2/squashfs-tools
-##  if [ -e $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch ]; then
-##    echo "patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch"
-##    patch -p1 < $BASEDIR/../patches/squashfs-tools-4.0-lzma.patch > /dev/null
-##  fi
-#  if [ -e $BASEDIR/../patches/squashfs-4.2.patch ]; then
-#    echo "patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch"
-#    patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch > /dev/null
-#  fi
-#  make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
-#  mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
-#  mv ./unsquashfs $TOOLSDIR/unsquashfs4.2
-#  cd $TOOLSDIR
-#  rm -rf ./mksquash.src/squashfs4.2
-#  rm -rf ./mksquash.src/lzma-4.65
-#  if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
-#    echo " Compiling mksquashfs4.2 failed! Exiting..."
-#    exit 3
-#  else
-#    clear
-#    echo "-----------------------------------------------------------------------"
-#    echo " Compiling mksquashfs4.2 successfully completed."
-#    echo "-----------------------------------------------------------------------"
-#  fi
-#fi
+  if [ -e $BASEDIR/../patches/squashfs-4.2.patch ]; then
+    echo "patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch"
+    patch -p1 < $BASEDIR/../patches/squashfs-4.2.patch > /dev/null
+  fi
+  make LZMA_SUPPORT=1 LZMA_DIR=../../lzma-4.65 XATTR_SUPPORT=0 XATTR_DEFAULT=0 install
+  mv ./mksquashfs $TOOLSDIR/mksquashfs4.2
+  mv ./unsquashfs $TOOLSDIR/unsquashfs4.2
+  cd $TOOLSDIR
+  rm -rf ./mksquash.src/squashfs4.2
+  rm -rf ./mksquash.src/lzma-4.65
+  if [ ! -e $TOOLSDIR/mksquashfs4.2 ]; then
+    echo " Compiling mksquashfs4.2 failed! Exiting..."
+    exit 3
+  else
+    clear
+    echo "-----------------------------------------------------------------------"
+    echo " Compiling mksquashfs4.2 successfully completed."
+    echo "-----------------------------------------------------------------------"
+  fi
+fi
 
-# Tool program mkcramfs-1.1..."
+# Tool program mkcramfs-1.1...
 if [ ! -e $TOOLSDIR/mkcramfs1.1 ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -198,7 +198,7 @@ if [ ! -e $TOOLSDIR/mkcramfs1.1 ]; then
   fi
 fi
 
-# Tool program fup..."
+# Tool program fup...
 if [ ! -e $TOOLSDIR/fup ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -221,7 +221,7 @@ if [ ! -e $TOOLSDIR/fup ]; then
   fi
 fi
 
-# Tool program mup..."
+# Tool program mup...
 if [ ! -e $TOOLSDIR/mup ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -242,7 +242,7 @@ if [ ! -e $TOOLSDIR/mup ]; then
   fi
 fi
 
-# Tool program oup..."
+# Tool program oup...
 if [ ! -e $TOOLSDIR/oup ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -263,7 +263,7 @@ if [ ! -e $TOOLSDIR/oup ]; then
   fi
 fi
 
-# Tool program mkdnimg..."
+# Tool program mkdnimg...
 if [ ! -e $TOOLSDIR/mkdnimg ]; then
   echo
   echo "-----------------------------------------------------------------------"
@@ -284,7 +284,7 @@ if [ ! -e $TOOLSDIR/mkdnimg ]; then
   fi
 fi
 
-# Tool programs for ubifs..."
+# Tool programs for ubifs...
 #if [ ! -e $TOOLSDIR/mkfs.ubifs1.5.0 ] || [ ! -e $TOOLSDIR/ubinize1.5.0 ]; then
 #  echo "-----------------------------------------------------------------------"
 #  echo " UBI tool programs ubinize and/or mkfs.ubifs are missing,"

@@ -1,7 +1,7 @@
 #!/bin/bash
 # "-----------------------------------------------------------------------"
 # "This script creates the files set required to run an image off a hard
-#  disk (either USB of later built in) on a Kathrein UFS910."
+# "disk (either USB or later built in) on a Kathrein UFS910."
 # "Author: Audioniek"
 # "Last Change: 13-08-2022"
 #
@@ -109,7 +109,7 @@ echo " OK: $SIZED ($SIZEH, max. $SIZE_KERNEL) bytes."
 fi
 
 echo -n " - Prepare update kernel file..."
-cp $BASEDIR/ufsinstaller/uImage $TMPFWDIR/uImage
+cp $BASEDIR/installers/ufs910/uImage $TMPFWDIR/uImage
 $PAD $SIZE_UKERNEL $TMPFWDIR/uImage $TMPFWDIR/uImage.pad
 echo " done."
 
@@ -144,7 +144,7 @@ echo
 # Create the output file structure
 echo "-- Creating Flash/USB files set ---------------------------------------"
 echo
-echo -n " Copy the kernel..."
+echo -n " Copy the flash kernel..."
 cd $OUTDIR/kathrein/$BOXTYPE
 cp $TMPDIR/uImage.pad ./uImage
 echo " done."
