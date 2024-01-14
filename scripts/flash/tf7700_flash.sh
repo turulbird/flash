@@ -12,9 +12,9 @@
 OUTZIPFILE="$HOST"_"$INAME""$IMAGE"_"$MEDIAFW"_"$OUTTYPE"_"P$PATCH"_"$GITVERSION"
 
 echo -n " - Assembling flash file set..."
-cp $INSTALLERDIR/Image_Installer.ini $OUTDIR
-cp $INSTALLERDIR/Image_Installer.tfd $OUTDIR
-cp $INSTALLERDIR/uImage $OUTDIR
+cp $INSTALLERDIR/tf7700/Image_Installer.ini $OUTDIR
+cp $INSTALLERDIR/tf7700/Image_Installer.tfd $OUTDIR
+cp $INSTALLERDIR/tf7700/uImage $OUTDIR
 cd $TMPROOTDIR
 tar -cvzf $OUTDIR/rootfs.tar.gz * > /dev/null
 cd - > /dev/null
